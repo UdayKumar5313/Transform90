@@ -3,291 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>90-Day Body Transformation | AURA Precision OS</title>
+  <title>AUTO LOG | AI Transform 90</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #050714; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-    
-    .glass-premium {
-      background: rgba(18, 25, 45, 0.55);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-    .glass-card {
-      background: rgba(12, 18, 34, 0.6);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-    .glass-card:hover { transform: translateY(-2px); background: rgba(20, 28, 48, 0.7); border-color: rgba(52, 211, 153, 0.4); }
-    .glass-card:active { transform: scale(0.98); }
-    
-    .animate-fade-up { animation: fadeUp 0.4s ease-out forwards; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
-    .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+    * { font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #02040f; -webkit-tap-highlight-color: transparent; }
+    .glass-premium { background: rgba(12, 20, 35, 0.6); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+    .glass-card { background: rgba(8, 14, 26, 0.55); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.08); transition: all 0.25s ease; }
+    .glass-card:hover { transform: translateY(-2px); background: rgba(20,30,50,0.7); border-color: rgba(52,211,153,0.35); }
+    .animate-fade-up { animation: fadeUp 0.4s ease-out; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 10px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: rgba(52,211,153,0.5); border-radius: 10px; }
-    
-    .time-glow { text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
-    
-    /* Desktop sidebar tabs */
-    .sidebar-tabs-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      gap: 0.5rem;
-    }
-    .tab-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 1rem;
-      transition: all 0.2s ease;
-      text-align: left;
-      cursor: pointer;
-    }
-    @media (min-width: 768px) {
-      .tab-button {
-        justify-content: flex-start;
-        padding: 0.875rem 1.25rem;
-      }
-    }
-    .tab-button-active {
-      background: rgba(52, 211, 153, 0.25);
-      color: #6ee7b7;
-      border: 1px solid rgba(52, 211, 153, 0.4);
-    }
-    .tab-button-inactive {
-      color: rgba(255, 255, 255, 0.6);
-    }
-    .tab-button-inactive:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
-    }
-    
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      width: 100%;
-    }
-    
-    /* Mobile top tab bar - small icons */
-    .mobile-top-tabs {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 60;
-      background: rgba(8, 12, 24, 0.85);
-      backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 0.5rem 0.75rem;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .mobile-tab-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.25rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 1rem;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      flex: 1;
-      max-width: 70px;
-    }
-    .mobile-tab-icon-active {
-      background: rgba(52, 211, 153, 0.2);
-      color: #6ee7b7;
-    }
-    .mobile-tab-icon-inactive {
-      color: rgba(255, 255, 255, 0.5);
-    }
-    .mobile-tab-label {
-      font-size: 9px;
-      font-weight: 500;
-    }
-    
-    @media (max-width: 767px) {
-      .mobile-top-tabs {
-        display: flex;
-      }
-      body {
-        padding-top: 65px;
-      }
-      .sidebar-nav .tab-button span:last-child {
-        display: inline-block;
-      }
-    }
-    
-    @media (min-width: 768px) {
-      .mobile-top-tabs {
-        display: none !important;
-      }
-      body {
-        padding-top: 0;
-      }
-    }
+    .time-glow { text-shadow: 0 0 12px rgba(52,211,153,0.45); }
+    .sidebar-tabs-container { display: flex; flex-direction: column; width: 100%; gap: 0.6rem; }
+    .tab-button { display: flex; align-items: center; justify-content: center; gap: 0.9rem; width: 100%; padding: 0.85rem 1.2rem; border-radius: 1.2rem; transition: all 0.2s; cursor: pointer; }
+    @media (min-width: 768px) { .tab-button { justify-content: flex-start; padding: 0.95rem 1.3rem; } }
+    .tab-button-active { background: rgba(52,211,153,0.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.4); }
+    .tab-button-inactive { color: rgba(255,255,255,0.55); }
+    .mobile-top-tabs { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(6,10,22,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.6rem 0.75rem; justify-content: space-around; }
+    .mobile-tab-icon { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.4rem 0.6rem; border-radius: 1rem; transition: 0.2s; cursor: pointer; flex: 1; max-width: 70px; }
+    .mobile-tab-icon-active { background: rgba(52,211,153,0.2); color: #6ee7b7; }
+    .mobile-tab-label { font-size: 9px; font-weight: 500; }
+    @media (max-width: 767px) { .mobile-top-tabs { display: flex; } body { padding-top: 68px; } }
+    @media (min-width: 768px) { .mobile-top-tabs { display: none !important; } }
+    .ai-button { background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(16,185,129,0.1)); border: 1px solid rgba(52,211,153,0.4); transition: all 0.2s; }
+    .ai-button:hover { background: rgba(52,211,153,0.3); transform: scale(1.02); }
+    .auto-log-badge { background: rgba(16,185,129,0.2); border-radius: 20px; padding: 2px 8px; font-size: 9px; font-weight: 600; }
   </style>
 </head>
-<body class="text-white antialiased">
+<body class="text-white">
 
-  <!-- Mobile Top Tab Bar (small icons) -->
   <div id="mobile-tab-bar" class="mobile-top-tabs"></div>
 
-  <!-- Ambient Orbs -->
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-    <div class="absolute top-[-20%] left-[-15%] w-[80vw] h-[80vw] bg-emerald-500/20 rounded-full blur-[140px]"></div>
-    <div class="absolute bottom-[-20%] right-[-15%] w-[75vw] h-[75vw] bg-teal-500/20 rounded-full blur-[130px]"></div>
-    <div class="absolute top-[45%] left-[30%] w-[60vw] h-[60vw] bg-blue-500/10 rounded-full blur-[110px]"></div>
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute top-[-25%] left-[-15%] w-[85vw] h-[85vw] bg-emerald-500/20 rounded-full blur-[150px]"></div>
+    <div class="absolute bottom-[-20%] right-[-20%] w-[75vw] h-[75vw] bg-teal-500/20 rounded-full blur-[140px]"></div>
   </div>
 
-  <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-5 py-4 md:py-6 flex flex-col md:flex-row gap-5 md:gap-6 min-h-screen">
+  <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-5 py-4 md:py-6 flex flex-col md:flex-row gap-5 md:gap-7 min-h-screen">
     
-    <!-- Sidebar Navigation (Desktop only, hidden on mobile via CSS) -->
-    <aside class="fixed bottom-4 left-4 right-4 md:static md:bottom-auto md:left-auto md:w-80 lg:w-96 z-50 glass-premium rounded-3xl shadow-2xl p-3 md:p-5 border border-white/20 hidden md:block">
-      <div class="sidebar-nav">
-        <div class="flex items-center gap-3 px-2 pb-4 mb-3 border-b border-white/15">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-black text-2xl shadow-xl shadow-emerald-500/40">90</div>
-          <div>
-            <p class="font-black text-xl tracking-tight">TRANSFORM<span class="text-emerald-400">90</span></p>
-            <p class="text-[10px] text-white/50 uppercase tracking-wider">home · beginner · indian</p>
-          </div>
-        </div>
-        
-        <div id="tab-nav-container" class="sidebar-tabs-container w-full"></div>
+    <aside class="fixed bottom-4 left-4 right-4 md:static md:bottom-auto md:left-auto md:w-80 lg:w-96 z-50 glass-premium rounded-3xl shadow-2xl p-3 md:p-5 border border-white/15 hidden md:flex flex-col">
+      <div class="flex items-center gap-3 px-2 pb-4 mb-3 border-b border-white/15">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-black text-2xl">⚡</div>
+        <div><p class="font-black text-xl tracking-tight">AUTO<span class="text-emerald-400">LOG</span><span class="text-xs">90</span></p><p class="text-[10px] text-white/50 uppercase">smart tracking · zero effort</p></div>
       </div>
+      <div id="desktop-tab-nav" class="sidebar-tabs-container"></div>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="flex-1 glass-premium rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[85vh] md:min-h-[90vh] border border-white/15">
-      <!-- LIVE CHRONO - TOP OF APP (Full precision) -->
       <div class="bg-gradient-to-r from-slate-900/80 to-slate-800/60 backdrop-blur-2xl border-b border-white/20 px-5 py-4 md:px-7">
-        <div id="full-datetime-panel" class="text-center md:text-left">
-          <div class="text-[10px] text-emerald-300/80 uppercase tracking-wider font-semibold">LIVE CHRONO · PRECISION TIME</div>
+        <div class="text-center md:text-left">
+          <div class="text-[10px] text-emerald-300/80 uppercase tracking-wider font-semibold">🤖 AUTO LOG · LIVE CHRONO</div>
           <div class="text-2xl md:text-3xl font-mono font-bold tracking-wider time-glow mt-1" id="live-time-display">--:--:--.--</div>
           <div class="text-sm text-white/60 mt-1" id="live-date-display">Loading...</div>
-          <div class="text-xs text-white/40 mt-0.5" id="live-week-display"></div>
         </div>
       </div>
       
       <div class="sticky top-0 z-20 bg-slate-950/60 backdrop-blur-2xl border-b border-white/15 px-5 py-3 md:px-7 flex justify-between items-center flex-wrap gap-3">
-        <h1 id="global-header-title" class="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-emerald-200 to-teal-200 bg-clip-text text-transparent">Dashboard</h1>
-        <div class="flex items-center gap-2">
-          <span id="streak-badge" class="bg-emerald-500/20 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm border border-emerald-500/30">🔥 Day 0</span>
-        </div>
+        <h1 id="global-header-title" class="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-white via-emerald-200 to-teal-200 bg-clip-text text-transparent">AUTO DASHBOARD</h1>
+        <div class="flex items-center gap-2"><span id="streak-badge" class="bg-emerald-500/20 px-3 py-1.5 rounded-full text-xs font-bold">🔥 Day 0</span><span class="auto-log-badge hidden md:inline-block">⚡ auto-sync</span></div>
       </div>
-      <div id="app-viewport-main" class="flex-1 overflow-y-auto custom-scroll p-5 md:p-7 lg:p-8 animate-fade-up"></div>
+      <div id="app-viewport" class="flex-1 overflow-y-auto custom-scroll p-5 md:p-7 lg:p-8 animate-fade-up"></div>
     </main>
   </div>
 
   <script>
-    // ======================== COMPLETE 90-DAY TRANSFORMATION PLAN ========================
-    const USER = {
-      height: "155 cm",
-      weight: "56.2 kg",
-      goals: ["flat stomach", "lean muscular body", "better posture", "more attractive physique", "improved energy"],
-      rules: ["Sleep: 7–8 hours", "Water: 3 liters", "Walking: 8000+ steps", "Workout: 45–60 mins", "Protein daily (~95g)"]
-    };
+    // ======================== AUTOMATIC LOGGING SYSTEM ========================
+    // Every action auto-saves. Smart defaults: workout duration auto-logged when you check exercises
+    // Water intake auto-calculates, meal completion auto-updates macros, streak auto-tracks
     
-    const waterSchedule = [
-      { id: "w1", label: "🌅 After waking", ml: 500 },
-      { id: "w2", label: "🍽️ Before breakfast", ml: 300 },
-      { id: "w3", label: "💪 During workout", ml: 500 },
-      { id: "w4", label: "🏁 After workout", ml: 300 },
-      { id: "w5", label: "☀️ Afternoon", ml: 700 },
-      { id: "w6", label: "🌙 Evening", ml: 400 },
-      { id: "w7", label: "🛌 Before bed", ml: 300 }
-    ];
-    
+    const USER = { height: "155 cm", weight: "56.2 kg", goals: ["flat stomach", "lean muscular body", "better posture", "more attractive physique", "improved energy"], rules: ["😴 Sleep: 7–8 hours", "💧 Water: 3 liters", "🚶 Walking: 8000+ steps", "🏋️ Workout: 45–60 mins", "🥚 Protein: ~95g daily"] };
+    const waterSchedule = [{ id: "w1", label: "🌅 After waking", ml: 500 }, { id: "w2", label: "🍽️ Before breakfast", ml: 300 }, { id: "w3", label: "💪 During workout", ml: 500 }, { id: "w4", label: "🏁 After workout", ml: 300 }, { id: "w5", label: "☀️ Afternoon", ml: 700 }, { id: "w6", label: "🌙 Evening", ml: 400 }, { id: "w7", label: "🛌 Before bed", ml: 300 }];
     const dietPlan = [
-      { time: "6:30 AM", title: "WAKE UP", items: ["500 ml water", "walk 5 mins", "sunlight exposure 10 mins"], cal: 0, pro: 0 },
-      { time: "7:00 AM", title: "PRE-BREAKFAST", items: ["1 banana", "5 soaked almonds"], cal: 150, pro: 0, purpose: "energy, digestion, metabolism" },
-      { time: "8:00 AM", title: "BREAKFAST", items: ["oats 60g + milk 250ml", "peanuts 15g", "2 whole eggs", "2 egg whites"], cal: 500, pro: 30, instructions: "boil oats in milk, add peanuts" },
+      { time: "6:30 AM", title: "WAKE UP", items: ["500 ml water", "walk 5 mins", "sunlight 10 mins"], cal: 0, pro: 0 },
+      { time: "7:00 AM", title: "PRE-BREAKFAST", items: ["1 banana", "5 soaked almonds"], cal: 150, pro: 0 },
+      { time: "8:00 AM", title: "BREAKFAST", items: ["oats 60g + milk 250ml", "peanuts 15g", "2 whole eggs", "2 egg whites"], cal: 500, pro: 30 },
       { time: "11:00 AM", title: "MID SNACK", items: ["1 banana OR 1 apple", "300 ml water"], cal: 100, pro: 0 },
-      { time: "1:30 PM", title: "LUNCH", items: ["cooked rice 250g", "dal 1 bowl (~150g)", "vegetables 1 bowl", "soya chunks 50g raw", "curd 100g"], cal: 650, pro: 35 },
-      { time: "4:30 PM", title: "PRE-WORKOUT", items: ["1 banana", "black coffee OR tea"], cal: 100, pro: 0, purpose: "workout energy" },
+      { time: "1:30 PM", title: "LUNCH", items: ["cooked rice 250g", "dal 1 bowl", "vegetables 1 bowl", "soya chunks 50g", "curd 100g"], cal: 650, pro: 35 },
+      { time: "4:30 PM", title: "PRE-WORKOUT", items: ["1 banana", "black coffee OR tea"], cal: 100, pro: 0 },
       { time: "5:00 PM", title: "WORKOUT", items: ["45–60 mins home workout"], cal: 0, pro: 0 },
       { time: "6:30 PM", title: "POST-WORKOUT", items: ["2 boiled eggs", "1 banana", "500 ml water"], cal: 200, pro: 12 },
-      { time: "8:30 PM", title: "DINNER", items: ["cooked rice 200g", "dal 1 bowl", "vegetables 1 bowl", "2 eggs OR soya chunks 30g"], cal: 450, pro: 18 },
-      { time: "10:30 PM", title: "BEFORE BED", items: ["curd 100g", "300 ml water", "sleep"], cal: 60, pro: 4 }
+      { time: "8:30 PM", title: "DINNER", items: ["cooked rice 200g", "dal 1 bowl", "vegetables 1 bowl", "2 eggs OR soya 30g"], cal: 450, pro: 18 },
+      { time: "10:30 PM", title: "BEFORE BED", items: ["curd 100g", "300 ml water"], cal: 60, pro: 4 }
     ];
-    
     const workoutDays = [
-      { day: 1, name: "MONDAY", focus: "CHEST + TRICEPS", warmup: ["jumping jacks × 50", "arm circles × 20", "shoulder rotations"], exercises: ["Push-ups 4×10 (rest 60s)", "Incline Push-ups 3×12", "Chair Dips 3×10", "Pike Push-ups 3×8", "Plank 3×40 sec"] },
-      { day: 2, name: "TUESDAY", focus: "BACK + BICEPS", warmup: ["backpack with books"], exercises: ["Backpack Rows 4×12", "Towel Rows 3×12", "Backpack Curls 3×15", "Superman Hold 3×30 sec", "Dead Hang 3 rounds"] },
-      { day: 3, name: "WEDNESDAY", focus: "LEGS + ABS", warmup: [], exercises: ["Squats 4×20", "Lunges 3×12 each leg", "Glute Bridges 3×15", "Calf Raises 4×25", "Leg Raises 3×15", "Bicycle Crunches 3×20"] },
-      { day: 4, name: "THURSDAY", focus: "POSTURE + WALK", warmup: ["Walk 45 mins"], exercises: ["Chin Tucks 10 reps", "Wall Hold 3×30 sec", "Cat-Cow Stretch 15 reps", "Hip Flexor Stretch 30 sec each", "Cobra Stretch 30 sec", "Dead Hang 20 sec"] },
-      { day: 5, name: "FRIDAY", focus: "FULL BODY", warmup: ["Circuit 4 rounds"], exercises: ["Push-ups ×10", "Squats ×20", "Backpack Rows ×12", "Mountain Climbers ×20", "Plank ×40 sec (rest 2 min between rounds)"] },
-      { day: 6, name: "SATURDAY", focus: "FAT LOSS + ABS", warmup: ["Cardio: brisk walking/jogging/skipping 40 mins"], exercises: ["Leg Raises 3×15", "Russian Twists 3×20", "Plank 3×1 min"] },
-      { day: 7, name: "SUNDAY", focus: "REST & RECOVERY", warmup: [], exercises: ["Walking", "Stretching", "Recovery"] }
+      { day: 1, name: "MON", focus: "🔥 CHEST + TRICEPS", exercises: ["Push-ups 4×10", "Incline Push-ups 3×12", "Chair Dips 3×10", "Pike Push-ups 3×8", "Plank 3×40 sec"] },
+      { day: 2, name: "TUE", focus: "💪 BACK + BICEPS", exercises: ["Backpack Rows 4×12", "Towel Rows 3×12", "Backpack Curls 3×15", "Superman Hold 3×30s", "Dead Hang 3 rounds"] },
+      { day: 3, name: "WED", focus: "🦵 LEGS + ABS", exercises: ["Squats 4×20", "Lunges 3×12/leg", "Glute Bridges 3×15", "Calf Raises 4×25", "Leg Raises 3×15", "Bicycle Crunches 3×20"] },
+      { day: 4, name: "THU", focus: "🧘 POSTURE + WALK", exercises: ["Walk 45 mins", "Chin Tucks 10 reps", "Wall Hold 3×30s", "Cat-Cow 15 reps", "Hip Flexor Stretch 30s"] },
+      { day: 5, name: "FRI", focus: "⚡ FULL BODY", exercises: ["Push-ups ×10", "Squats ×20", "Backpack Rows ×12", "Mountain Climbers ×20", "Plank ×40s"] },
+      { day: 6, name: "SAT", focus: "🏃 FAT LOSS + ABS", exercises: ["Cardio 40 min", "Leg Raises 3×15", "Russian Twists 3×20", "Plank 3×1 min"] },
+      { day: 7, name: "SUN", focus: "🌿 REST", exercises: ["Walking", "Stretching", "Recovery"] }
     ];
+    const groceryList = [{ item: "🥚 Eggs", qty: "120" }, { item: "🌾 Oats", qty: "2 kg" }, { item: "🍚 Rice", qty: "10 kg" }, { item: "🥘 Dal", qty: "3 kg" }, { item: "🌱 Soya chunks", qty: "2 kg" }, { item: "🥜 Peanuts", qty: "1 kg" }, { item: "🍌 Bananas", qty: "60" }, { item: "🥛 Curd", qty: "daily" }, { item: "🥦 Vegetables", qty: "seasonal" }];
+    const expectations = [{ period: "30 DAYS", items: ["less bloating", "more energy", "better stamina"] }, { period: "60 DAYS", items: ["smaller waist", "stronger chest", "visible arms"] }, { period: "90 DAYS", items: ["noticeable transformation", "flatter stomach", "better posture", "confidence"] }];
     
-    const groceryList = [
-      { item: "Eggs", qty: "120" }, { item: "Oats", qty: "2 kg" }, { item: "Rice", qty: "10 kg" },
-      { item: "Dal", qty: "3 kg" }, { item: "Soya chunks", qty: "2 kg" }, { item: "Peanuts", qty: "1 kg" },
-      { item: "Bananas", qty: "60" }, { item: "Curd", qty: "daily small packs" }, { item: "Vegetables", qty: "seasonal" }
-    ];
-    
-    const expectations = [
-      { period: "30 DAYS", items: ["less bloating", "more energy", "better stamina"] },
-      { period: "60 DAYS", items: ["smaller waist", "stronger chest", "visible arm changes"] },
-      { period: "90 DAYS", items: ["noticeable body transformation", "flatter stomach", "better posture", "more confidence"] }
-    ];
-    
-    // STORAGE
-    const STORAGE = {
-      WATER: 'transform90_water', DIET: 'transform90_diet', WORKOUT: 'transform90_workout',
-      RULES: 'transform90_rules', JOURNAL: 'transform90_journal', BODY: 'transform90_body',
-      STREAK: 'transform90_streak', SUPP_TRACK: 'transform90_supp', EXERCISE_VOLUME: 'transform90_vol'
-    };
-    
+    // STORAGE (auto-persist after every action)
+    const STORAGE = { WATER: 'auto_water', DIET: 'auto_diet', WORKOUT: 'auto_workout', RULES: 'auto_rules', JOURNAL: 'auto_journal', BODY: 'auto_body', STREAK: 'auto_streak', WORKOUT_TIME: 'auto_workout_time' };
     const getStore = (k, d={}) => { const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : d; };
     const setStore = (k, v) => localStorage.setItem(k, JSON.stringify(v));
     
+    // Auto-tracked states
     let waterLog = getStore(STORAGE.WATER, {});
     let dietLog = getStore(STORAGE.DIET, {});
     let workoutLog = getStore(STORAGE.WORKOUT, {});
     let rulesLog = getStore(STORAGE.RULES, {});
     let journalEntry = getStore(STORAGE.JOURNAL, "");
-    let bodyStats = getStore(STORAGE.BODY, { weight: 56.2, height: 155 });
+    let bodyStats = getStore(STORAGE.BODY, { weight: 56.2 });
     let streakData = getStore(STORAGE.STREAK, { lastActive: null, count: 0 });
-    let suppTracker = getStore(STORAGE.SUPP_TRACK, { protein: false, multivitamin: false });
-    let exerciseVolume = getStore(STORAGE.EXERCISE_VOLUME, { totalMinsWeek: 0 });
+    let autoWorkoutDuration = getStore(STORAGE.WORKOUT_TIME, { totalMins: 0, lastDate: null });
     
     const todayStr = () => new Date().toISOString().slice(0,10);
     
-    function updateStreak() {
+    // Auto-streak: updates automatically on any activity
+    function updateStreak(autoSave = true) {
       const last = streakData.lastActive;
       const today = todayStr();
-      if(last === today) return streakData.count;
-      const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-      if(last === yesterday.toISOString().slice(0,10)) streakData.count += 1;
-      else if(last !== today) streakData.count = 1;
-      streakData.lastActive = today;
-      setStore(STORAGE.STREAK, streakData);
+      let changed = false;
+      if(last !== today) {
+        const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+        if(last === yesterday.toISOString().slice(0,10)) { streakData.count++; changed = true; }
+        else if(last !== today) { streakData.count = 1; changed = true; }
+        streakData.lastActive = today;
+        if(autoSave) setStore(STORAGE.STREAK, streakData);
+      }
       const badge = document.getElementById('streak-badge');
       if(badge) badge.innerHTML = `🔥 Day ${streakData.count}`;
       return streakData.count;
     }
     
-    function persistAll() {
-      setStore(STORAGE.WATER, waterLog); setStore(STORAGE.DIET, dietLog); setStore(STORAGE.WORKOUT, workoutLog);
-      setStore(STORAGE.RULES, rulesLog); setStore(STORAGE.JOURNAL, journalEntry); setStore(STORAGE.BODY, bodyStats);
-      setStore(STORAGE.STREAK, streakData); setStore(STORAGE.SUPP_TRACK, suppTracker); setStore(STORAGE.EXERCISE_VOLUME, exerciseVolume);
-      renderCurrentView();
+    // Auto-save everything after ANY change
+    function autoPersist() {
+      setStore(STORAGE.WATER, waterLog);
+      setStore(STORAGE.DIET, dietLog);
+      setStore(STORAGE.WORKOUT, workoutLog);
+      setStore(STORAGE.RULES, rulesLog);
+      setStore(STORAGE.JOURNAL, journalEntry);
+      setStore(STORAGE.BODY, bodyStats);
+      setStore(STORAGE.STREAK, streakData);
+      setStore(STORAGE.WORKOUT_TIME, autoWorkoutDuration);
+      updateStreak(true);
+      renderCurrentView(); // Refresh UI to show updated progress
+    }
+    
+    // Auto-log workout duration when exercises are completed
+    function autoLogWorkoutDuration() {
+      const today = todayStr();
+      const totalExercises = Object.keys(workoutLog).length;
+      if(totalExercises > 0 && autoWorkoutDuration.lastDate !== today) {
+        // Auto-detect: if user completed exercises, assume 45 min workout
+        autoWorkoutDuration.totalMins = (autoWorkoutDuration.totalMins || 0) + 45;
+        autoWorkoutDuration.lastDate = today;
+        autoPersist();
+      }
     }
     
     function computeProgress() {
@@ -302,174 +173,136 @@
       return { calories: Math.round(totalCal), protein: Math.round(totalProt), water: waterTotal };
     }
     
-    window.toggleWater = (id) => { waterLog[id] = !waterLog[id]; persistAll(); };
-    window.toggleDietItem = (id) => { dietLog[id] = !dietLog[id]; persistAll(); };
-    window.toggleWorkoutEx = (id) => { workoutLog[id] = !workoutLog[id]; persistAll(); };
-    window.toggleRule = (idx) => { rulesLog[`rule-${idx}`] = !rulesLog[`rule-${idx}`]; persistAll(); };
-    window.updateJournal = (e) => { journalEntry = e.target.value; persistAll(); };
-    window.toggleSupp = (s) => { suppTracker[s] = !suppTracker[s]; persistAll(); };
-    window.logWorkoutMins = () => { let mins = prompt("Workout duration (mins):"); if(mins && !isNaN(mins)) { exerciseVolume.totalMinsWeek = (exerciseVolume.totalMinsWeek || 0) + parseInt(mins); persistAll(); alert(`✅ +${mins} mins logged`); } };
+    // AUTO-LOGGING TOGGLES (all auto-persist)
+    window.toggleWater = (id) => { waterLog[id] = !waterLog[id]; autoPersist(); };
+    window.toggleDietItem = (id) => { dietLog[id] = !dietLog[id]; autoPersist(); };
+    window.toggleWorkoutEx = (id) => { 
+      workoutLog[id] = !workoutLog[id]; 
+      autoPersist();
+      autoLogWorkoutDuration();
+    };
+    window.toggleRule = (idx) => { rulesLog[`rule-${idx}`] = !rulesLog[`rule-${idx}`]; autoPersist(); };
+    window.updateJournal = (e) => { journalEntry = e.target.value; autoPersist(); };
+    window.quickAddWorkout = () => { 
+      const today = todayStr();
+      autoWorkoutDuration.totalMins = (autoWorkoutDuration.totalMins || 0) + 45;
+      autoWorkoutDuration.lastDate = today;
+      autoPersist();
+      alert("✅ Auto-logged: +45 min workout!");
+    };
+    window.quickAddWater = (ml) => {
+      const emptySlot = waterSchedule.find(w => !waterLog[w.id]);
+      if(emptySlot) { waterLog[emptySlot.id] = true; autoPersist(); alert(`💧 Auto-logged ${emptySlot.label} (${ml}ml)`); }
+      else alert("All water slots completed today! Great job!");
+    };
     
     let activeTab = "home";
-    function setActiveTab(tab) { 
-      activeTab = tab; 
-      renderCurrentView(); 
-      const titles = { home: "✨ TRANSFORM Dashboard", diet: "🥗 Daily Diet Plan", workout: "💪 Home Workout", water: "💧 Water Tracker", more: "📘 Complete Guide" }; 
-      document.getElementById('global-header-title').innerText = titles[tab] || "Dashboard"; 
-      updateStreak();
-      renderMobileTabBar();
-    }
+    function setActiveTab(tab) { activeTab = tab; renderCurrentView(); const titles = { home:"⚡ AUTO DASHBOARD", diet:"🥗 AUTO DIET LOG", workout:"💪 AUTO WORKOUT", water:"💧 AUTO WATER", more:"📘 SMART GUIDE" }; document.getElementById('global-header-title').innerText = titles[tab]; renderMobileBar(); }
     
     function renderCurrentView() {
-      const container = document.getElementById('app-viewport-main');
+      const container = document.getElementById('app-viewport');
       if(!container) return;
       if(activeTab === 'home') container.innerHTML = renderHome();
       else if(activeTab === 'diet') container.innerHTML = renderDiet();
       else if(activeTab === 'workout') container.innerHTML = renderWorkout();
       else if(activeTab === 'water') container.innerHTML = renderWater();
       else if(activeTab === 'more') container.innerHTML = renderMore();
-      renderDesktopTabBar();
+      renderDesktopTabs();
     }
     
     function renderHome() {
-      const { calories, protein, water } = computeProgress();
-      const rulesHtml = USER.rules.map((rule, idx) => {
-        const done = rulesLog[`rule-${idx}`];
-        return `<div onclick="toggleRule(${idx})" class="flex items-center gap-3 p-3 rounded-2xl glass-card cursor-pointer ${done ? 'border-emerald-500/50 bg-emerald-500/15' : ''}"><span class="text-xl">${done ? '✅' : '○'}</span><span class="${done ? 'line-through text-white/60' : ''} font-medium">${rule}</span></div>`;
-      }).join('');
-      const goalsHtml = USER.goals.map(g => `<li class="flex items-center gap-2"><span class="text-emerald-400">✨</span> ${g}</li>`).join('');
-      const totalWater = waterSchedule.reduce((s,w)=>s+(waterLog[w.id]?w.ml:0),0);
-      return `
-        <div class="space-y-7">
-          <div class="bg-gradient-to-r from-emerald-800/40 to-teal-800/40 rounded-3xl p-6 border border-white/20">
-            <div class="flex justify-between flex-wrap gap-3"><div><h2 class="text-2xl font-black">🔥 ${streakData.count} Day Streak</h2><p class="text-sm text-white/60">${USER.height} · ${bodyStats.weight}kg</p></div></div>
-            <div class="grid grid-cols-3 gap-4 mt-6">
-              <div class="glass-card p-3 rounded-2xl text-center"><div class="text-orange-400 text-2xl">⚡</div><div class="font-bold text-lg">${calories}<span class="text-xs">/1750</span></div><div class="text-xs">Calories</div></div>
-              <div class="glass-card p-3 rounded-2xl text-center"><div class="text-blue-400 text-2xl">🥩</div><div class="font-bold text-lg">${protein}g<span class="text-xs">/95g</span></div><div class="text-xs">Protein</div></div>
-              <div class="glass-card p-3 rounded-2xl text-center"><div class="text-cyan-400 text-2xl">💧</div><div class="font-bold text-lg">${(totalWater/1000).toFixed(1)}L<span class="text-xs">/3L</span></div><div class="text-xs">Water</div></div>
-            </div>
+      const progress = computeProgress();
+      const totalWorkoutMins = autoWorkoutDuration.totalMins || 0;
+      const completedMeals = Object.keys(dietLog).length;
+      const completedWater = Object.values(waterLog).filter(v=>v===true).length;
+      const smartSummary = `📊 Auto Summary: ${completedMeals} meals checked · ${completedWater}/7 water slots · ${totalWorkoutMins} mins workout logged`;
+      
+      const rulesHtml = USER.rules.map((rule, idx) => { const done = rulesLog[`rule-${idx}`]; return `<div onclick="toggleRule(${idx})" class="flex items-center gap-3 p-3 rounded-2xl glass-card cursor-pointer ${done ? 'border-emerald-500/50 bg-emerald-500/15' : ''}"><span class="text-2xl">${done ? '✅' : '○'}</span><span class="${done ? 'line-through text-white/50' : ''}">${rule}</span></div>`; }).join('');
+      
+      return `<div class="space-y-6">
+        <div class="bg-gradient-to-r from-emerald-800/40 to-teal-800/40 rounded-2xl p-5 border border-white/15">
+          <div class="flex justify-between items-center"><div><h2 class="text-2xl font-black">🔥 ${streakData.count} Day Auto-Streak</h2><p class="text-white/60">${USER.height} · ${bodyStats.weight}kg · Auto-sync ON</p></div><div class="text-right"><span class="auto-log-badge">⚡ live auto-log</span></div></div>
+          <div class="grid grid-cols-3 gap-4 mt-5 text-center">
+            <div class="glass-card p-3 rounded-2xl"><div class="text-orange-400 text-2xl">⚡</div><div class="font-bold">${progress.calories}<span class="text-xs">/1750</span></div><div class="text-xs">Auto Cal</div></div>
+            <div class="glass-card p-3 rounded-2xl"><div class="text-blue-400 text-2xl">🥩</div><div class="font-bold">${progress.protein}g<span class="text-xs">/95g</span></div><div class="text-xs">Auto Protein</div></div>
+            <div class="glass-card p-3 rounded-2xl"><div class="text-cyan-400 text-2xl">💧</div><div class="font-bold">${(progress.water/1000).toFixed(1)}L<span class="text-xs">/3L</span></div><div class="text-xs">Auto Water</div></div>
           </div>
-          <div><h3 class="text-emerald-400 font-bold mb-3">📜 DAILY RULES</h3><div class="space-y-2">${rulesHtml}</div></div>
-          <div class="grid md:grid-cols-2 gap-5">
-            <div><h3 class="text-emerald-400 font-bold mb-2">🎯 YOUR GOALS</h3><ul class="space-y-1">${goalsHtml}</ul></div>
-            <div><h3 class="text-emerald-400 font-bold mb-2">💊 Supplements</h3><div class="flex gap-2"><button onclick="toggleSupp('protein')" class="px-3 py-2 rounded-xl text-xs glass-card ${suppTracker.protein ? 'bg-emerald-600' : ''}">💪 Protein ${suppTracker.protein ? '✓' : ''}</button><button onclick="toggleSupp('multivitamin')" class="px-3 py-2 rounded-xl text-xs glass-card ${suppTracker.multivitamin ? 'bg-emerald-600' : ''}">💊 Multi ${suppTracker.multivitamin ? '✓' : ''}</button></div></div>
-          </div>
-          <div><h3 class="text-emerald-400 font-bold mb-2">📔 DAILY REFLECTION</h3><textarea onchange="updateJournal(event)" class="w-full glass-card rounded-2xl p-3 border border-white/10" rows="2" placeholder="How was your day? Wins, struggles, energy...">${journalEntry}</textarea></div>
-          <div class="glass-card p-4 rounded-2xl"><h3 class="text-emerald-400 font-bold">📊 TRANSFORMATION EXPECTATION</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">${expectations.map(e => `<div><div class="font-bold text-emerald-300">${e.period}</div><ul class="text-xs space-y-0.5">${e.items.map(i => `<li>• ${i}</li>`).join('')}</ul></div>`).join('')}</div></div>
+          <div class="mt-4 text-xs text-white/50 text-center p-2 bg-black/20 rounded-xl">${smartSummary}</div>
         </div>
-      `;
+        
+        <div class="glass-card p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30"><div class="flex items-center gap-2"><span class="text-2xl">🧠</span><span class="font-bold text-emerald-300">AI Auto-Insight</span></div><p class="text-sm mt-1">${progress.protein < 50 ? "⚠️ Auto Alert: Protein low! Add eggs or soya chunks." : progress.water < 1500 ? "💧 Auto Alert: Hydration low! Schedule water breaks." : "✅ Great auto-tracking! Your consistency is building momentum."}</p></div>
+        
+        <div><h3 class="text-emerald-400 font-bold mb-3">📜 DAILY RULES (Auto-track)</h3><div class="space-y-2">${rulesHtml}</div></div>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+          <div><h3 class="text-emerald-400 font-bold mb-2">🎯 YOUR GOALS</h3><ul class="space-y-1">${USER.goals.map(g => `<li class="flex gap-2 text-sm"><span>✨</span>${g}</li>`).join('')}</ul></div>
+          <div><h3 class="text-emerald-400 font-bold mb-2">🏆 AUTO WORKOUT LOG</h3><div class="glass-card p-3 rounded-xl text-center"><span class="text-3xl font-black">${totalWorkoutMins}</span><span class="text-sm"> total mins</span><button onclick="quickAddWorkout()" class="mt-2 ai-button text-xs px-3 py-1 rounded-full w-full">➕ Auto-Log 45min Workout</button></div></div>
+        </div>
+        <div><textarea onchange="updateJournal(event)" class="w-full glass-card rounded-2xl p-3 border border-white/10" rows="2" placeholder="📝 Auto-save journal: Your thoughts auto-save instantly...">${journalEntry}</textarea></div>
+      </div>`;
     }
     
     function renderDiet() {
       let mealsHtml = '';
       dietPlan.forEach((meal, idx) => {
-        mealsHtml += `<div class="glass-card rounded-2xl p-5 mb-5 border-l-4 border-emerald-500"><div class="flex justify-between flex-wrap gap-2"><h3 class="text-xl font-bold">${meal.title}</h3><span class="text-emerald-300 text-sm font-mono">${meal.time}</span></div><ul class="mt-3 space-y-2">`;
-        meal.items.forEach((item, iIdx) => {
-          const tid = `diet-${idx}-${iIdx}`;
-          const checked = dietLog[tid];
-          mealsHtml += `<li onclick="toggleDietItem('${tid}')" class="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/5 transition ${checked ? 'text-white/50 line-through' : ''}"><span class="text-lg">${checked ? '✅' : '◻️'}</span> ${item}</li>`;
-        });
-        mealsHtml += `</ul>${meal.cal ? `<div class="text-right text-xs text-white/40 mt-3">🔥 ~${meal.cal} kcal · 🧬 ${meal.pro}g protein</div>` : ''}${meal.purpose ? `<div class="text-xs text-emerald-300/70 mt-2">✨ ${meal.purpose}</div>` : ''}${meal.instructions ? `<div class="text-xs text-white/50 mt-2">📖 ${meal.instructions}</div>` : ''}</div>`;
+        mealsHtml += `<div class="glass-card rounded-2xl p-4 mb-4 border-l-4 border-emerald-500"><div class="flex justify-between"><h3 class="text-xl font-bold">${meal.title}</h3><span class="text-emerald-300 text-sm">${meal.time}</span></div><ul class="mt-2 space-y-2">`;
+        meal.items.forEach((item, iIdx) => { const tid = `diet-${idx}-${iIdx}`; const checked = dietLog[tid]; mealsHtml += `<li onclick="toggleDietItem('${tid}')" class="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-white/5 ${checked ? 'text-white/50 line-through' : ''}"><span class="text-xl">${checked ? '✅' : '◻️'}</span> ${item} <span class="text-[10px] text-white/30 ml-auto">auto</span></li>`; });
+        mealsHtml += `</ul>${meal.cal ? `<div class="text-right text-xs text-white/40 mt-2">🔥 ${meal.cal} kcal · 🧬 ${meal.pro}g protein</div>` : ''}</div>`;
       });
-      return `<div class="space-y-3"><div class="text-center text-emerald-300/80 text-sm mb-3">✔️ Check meals → macros auto-update</div>${mealsHtml}<div class="glass-card p-4 rounded-2xl"><h3 class="font-bold">🛒 MONTHLY GROCERY LIST</h3><div class="grid grid-cols-2 gap-2 mt-3">${groceryList.map(g => `<div class="flex justify-between text-sm"><span>${g.item}</span><span class="text-emerald-300">${g.qty}</span></div>`).join('')}</div></div><div class="text-center text-xs text-white/40 mt-4">📊 Daily totals: ~1750 calories · ~95g protein · 3L water</div></div>`;
+      return `<div class="space-y-4"><div class="flex justify-between items-center"><h2 class="text-emerald-400 font-bold">🥗 Auto-Track Meal Plan</h2><span class="auto-log-badge">click to auto-log</span></div><div>${mealsHtml}</div><div class="glass-card p-4 rounded-2xl"><h3 class="font-bold text-emerald-400">🛒 Auto Grocery (Monthly)</h3><div class="grid grid-cols-2 gap-2 mt-2">${groceryList.map(g => `<div class="flex justify-between text-sm"><span>${g.item}</span><span class="text-emerald-300">${g.qty}</span></div>`).join('')}</div><div class="text-[10px] text-white/40 mt-2 text-center">⚡ Meals auto-save to dashboard macros</div></div></div>`;
     }
     
     function renderWorkout() {
       let activeDay = window._activeWorkoutDay || (new Date().getDay() === 0 ? 7 : new Date().getDay());
-      const dayButtons = workoutDays.map(w => `<button onclick="window._activeWorkoutDay=${w.day}; renderCurrentView();" class="px-3 py-2 rounded-xl text-sm font-bold transition-all ${activeDay===w.day ? 'bg-emerald-600 shadow-lg' : 'glass-card'}">${w.name.slice(0,3)}</button>`).join('');
+      const dayButtons = workoutDays.map(w => `<button onclick="window._activeWorkoutDay=${w.day}; renderCurrentView();" class="px-3 py-2 rounded-xl text-sm font-bold ${activeDay===w.day ? 'bg-emerald-600' : 'glass-card'}">${w.name}</button>`).join('');
       const wo = workoutDays.find(w=>w.day===activeDay) || workoutDays[0];
       let exercisesHtml = '';
-      if(wo.warmup && wo.warmup.length) {
-        exercisesHtml += `<div class="mb-4"><div class="text-emerald-400 font-bold text-sm mb-2">🔥 WARM-UP</div>${wo.warmup.map((ex, idx) => `<div class="flex items-center gap-3 p-2"><span class="text-lg">○</span><span>${ex}</span></div>`).join('')}</div>`;
-      }
-      wo.exercises.forEach((ex, idx) => {
-        const key = `wo-${wo.day}-${idx}`;
-        const done = workoutLog[key];
-        exercisesHtml += `<div onclick="toggleWorkoutEx('${key}')" class="flex items-center gap-3 p-3 glass-card rounded-xl mb-2 cursor-pointer"><span class="text-xl">${done ? '✅' : '○'}</span><span class="${done ? 'line-through text-white/50' : ''}">${ex}</span></div>`;
-      });
-      return `<div><div class="flex overflow-x-auto gap-2 pb-4 mb-5 custom-scroll">${dayButtons}</div><div class="bg-gradient-to-r from-emerald-900/40 p-5 rounded-2xl mb-5"><h2 class="text-2xl font-black">${wo.name}</h2><p class="text-emerald-300 text-sm">${wo.focus}</p></div><div>${exercisesHtml}</div><div class="mt-6"><button onclick="logWorkoutMins()" class="glass-card py-3 rounded-xl text-sm font-semibold w-full">⏱️ Log Workout Duration</button></div><div class="text-center text-xs text-white/40 mt-4">🏆 Week Volume: ${exerciseVolume.totalMinsWeek || 0} mins</div><div class="mt-4 glass-card p-4 rounded-2xl"><h3 class="font-bold text-amber-300">💡 MOST IMPORTANT ADVICE</h3><p class="text-sm mt-1">Do NOT skip meals, train randomly, compare daily, expect instant abs. DO stay consistent, increase reps slowly, sleep properly, track weekly photos.</p></div></div>`;
+      wo.exercises.forEach((ex, idx) => { const key = `wo-${wo.day}-${idx}`; const done = workoutLog[key]; exercisesHtml += `<div onclick="toggleWorkoutEx('${key}')" class="flex items-center gap-3 p-3 glass-card rounded-xl mb-2 cursor-pointer"><span class="text-xl">${done ? '✅' : '○'}</span><span>${ex}</span><span class="text-[10px] text-white/30 ml-auto">auto-log</span></div>`; });
+      return `<div><div class="flex justify-between items-center mb-3"><h3 class="text-emerald-400 font-bold">💪 Auto-Log Workout</h3><span class="auto-log-badge">completing exercises = auto duration</span></div><div class="flex overflow-x-auto gap-2 pb-3 mb-4">${dayButtons}</div><div class="bg-gradient-to-r from-emerald-900/40 p-4 rounded-2xl mb-4"><h2 class="text-2xl font-black">${wo.name}</h2><p class="text-emerald-300 text-sm">${wo.focus}</p></div><div>${exercisesHtml}</div><button onclick="quickAddWorkout()" class="mt-4 ai-button py-3 rounded-xl w-full text-sm flex items-center justify-center gap-2">⚡ Auto-Log 45min Workout (One Click)</button><div class="mt-3 text-xs text-white/40 text-center">✅ Exercises checked = auto workout duration logged</div></div>`;
     }
     
     function renderWater() {
       const total = waterSchedule.reduce((s,w)=>s+(waterLog[w.id]?w.ml:0),0);
       const percent = Math.min((total/3000)*100,100);
-      const itemsHtml = waterSchedule.map(w => {
-        const done = waterLog[w.id];
-        return `<div onclick="toggleWater('${w.id}')" class="flex justify-between items-center p-4 glass-card rounded-xl cursor-pointer ${done ? 'border-emerald-500/50 bg-emerald-500/10' : ''}"><div><div class="font-medium">${w.label}</div><div class="text-xs text-white/50">${w.ml} ml</div></div><div class="text-xl">${done ? '💧✅' : '➕'}</div></div>`;
-      }).join('');
-      return `<div class="text-center mb-6"><div class="text-5xl font-black">${total}<span class="text-lg">/3000ml</span></div><div class="w-full bg-white/10 h-2 rounded-full mt-3"><div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width:${percent}%"></div></div><p class="text-sm text-white/50 mt-2">🎯 Goal: 3 liters daily</p></div><div class="space-y-3">${itemsHtml}</div>`;
+      const itemsHtml = waterSchedule.map(w => { const done = waterLog[w.id]; return `<div onclick="toggleWater('${w.id}')" class="flex justify-between items-center p-3 glass-card rounded-xl cursor-pointer ${done ? 'border-emerald-500/50 bg-emerald-500/10' : ''}"><div><div class="font-medium">${w.label}</div><div class="text-xs text-white/50">${w.ml} ml</div></div><div class="text-xl">${done ? '💧✅' : '➕'}</div><span class="text-[9px] text-white/30">auto</span></div>`; }).join('');
+      return `<div class="text-center mb-5"><div class="text-4xl font-black">${total}<span class="text-lg">/3000ml</span></div><div class="w-full bg-white/10 h-2 rounded-full mt-2"><div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-2 rounded-full" style="width:${percent}%"></div></div><div class="flex gap-2 mt-3 justify-center"><button onclick="quickAddWater(500)" class="ai-button px-3 py-1.5 rounded-full text-xs">💧 Quick +500ml</button><button onclick="quickAddWater(300)" class="ai-button px-3 py-1.5 rounded-full text-xs">💧 Quick +300ml</button></div></div><div class="space-y-2">${itemsHtml}</div><div class="mt-3 text-[10px] text-white/30 text-center">⚡ Auto-save: one tap logs water instantly</div>`;
     }
     
     function renderMore() {
-      return `<div class="space-y-6">
-        <div class="glass-card p-5 rounded-2xl"><h3 class="text-emerald-400 font-bold text-xl">📊 TRANSFORMATION EXPECTATION</h3>${expectations.map(e => `<div class="mt-3"><div class="font-bold text-emerald-300">${e.period}</div><ul class="list-disc pl-5">${e.items.map(i => `<li class="text-sm">${i}</li>`).join('')}</ul></div>`).join('')}</div>
-        <div class="glass-card p-5 rounded-2xl"><h3 class="text-emerald-400 font-bold">🛒 COMPLETE GROCERY LIST (Monthly)</h3><div class="grid grid-cols-2 gap-2 mt-3">${groceryList.map(g => `<div class="flex justify-between border-b border-white/10 py-1"><span>${g.item}</span><span class="text-emerald-300 font-bold">${g.qty}</span></div>`).join('')}</div></div>
-        <div class="glass-card p-5 rounded-2xl border border-amber-500/30"><h3 class="font-bold text-amber-300 text-lg">⚠️ CRITICAL ADVICE</h3><p class="text-sm mt-2">Do NOT: skip meals · train randomly · compare yourself daily · expect instant abs</p><p class="text-sm mt-2 text-emerald-300">Do: stay consistent · increase reps slowly · sleep properly · track weekly photos</p><p class="text-sm mt-4 text-white/60">Your body is at a stage where disciplined consistency can change it dramatically within months.</p></div>
-        <div class="text-center text-[11px] text-white/30 pt-4">🔒 All data saved locally · 90-Day Transformation System</div>
+      return `<div class="space-y-5">
+        <div class="glass-card p-5 rounded-2xl"><h3 class="text-emerald-400 font-bold text-lg flex items-center gap-2">📊 AUTO TRANSFORMATION ROADMAP</h3>${expectations.map(e => `<div class="mt-3"><div class="font-bold text-emerald-300">${e.period}</div><ul class="list-disc pl-5 text-sm">${e.items.map(i => `<li>${i}</li>`).join('')}</ul></div>`).join('')}</div>
+        <div class="glass-card p-5 rounded-2xl"><h3 class="text-emerald-400 font-bold">🛒 SMART GROCERY (Auto Budget)</h3><div class="grid grid-cols-2 gap-2 mt-2">${groceryList.map(g => `<div class="flex justify-between text-sm"><span>${g.item}</span><span class="text-emerald-300">${g.qty}</span></div>`).join('')}</div></div>
+        <div class="glass-card p-5 rounded-2xl border border-amber-500/30"><h3 class="font-bold text-amber-300">⚡ AUTO-LOG RULES</h3><p class="text-sm mt-2">✅ Every tap auto-saves to localStorage</p><p class="text-sm">✅ Workout completion auto-logs 45 minutes</p><p class="text-sm">✅ Streak auto-updates with any activity</p><p class="text-sm">✅ Journal auto-persists as you type</p><button onclick="alert('Auto-log system active! All your progress is automatically saved and synced. No manual saving needed.')" class="mt-3 ai-button w-full py-2 rounded-full text-xs">🤖 AI Auto-Log Status</button></div>
+        <div class="text-center text-[10px] text-white/30">⚡ Auto-save enabled · Zero manual logging · 90-Day Transformation</div>
       </div>`;
     }
     
-    function renderDesktopTabBar() {
-      const tabs = [
-        { id: "home", icon: "🏠", label: "Home" },
-        { id: "diet", icon: "🥗", label: "Diet" },
-        { id: "workout", icon: "💪", label: "Workout" },
-        { id: "water", icon: "💧", label: "Water" },
-        { id: "more", icon: "📘", label: "Guide" }
-      ];
-      const container = document.getElementById('tab-nav-container');
+    function renderDesktopTabs() {
+      const tabs = [{ id:"home", icon:"🏠", label:"Auto Home" },{ id:"diet", icon:"🥗", label:"Auto Diet" },{ id:"workout", icon:"💪", label:"Auto Workout" },{ id:"water", icon:"💧", label:"Auto Water" },{ id:"more", icon:"📘", label:"Auto Guide" }];
+      const container = document.getElementById('desktop-tab-nav');
       if(container) container.innerHTML = tabs.map(tab => `<button onclick="setActiveTab('${tab.id}')" class="tab-button ${activeTab === tab.id ? 'tab-button-active' : 'tab-button-inactive'}"><span class="text-xl">${tab.icon}</span><span class="text-sm font-medium">${tab.label}</span></button>`).join('');
     }
     
-    function renderMobileTabBar() {
-      const tabs = [
-        { id: "home", icon: "🏠", label: "Home" },
-        { id: "diet", icon: "🥗", label: "Diet" },
-        { id: "workout", icon: "💪", label: "Workout" },
-        { id: "water", icon: "💧", label: "Water" },
-        { id: "more", icon: "📘", label: "Guide" }
-      ];
+    function renderMobileBar() {
+      const tabs = [{ id:"home", icon:"🏠", label:"Home" },{ id:"diet", icon:"🥗", label:"Diet" },{ id:"workout", icon:"💪", label:"Workout" },{ id:"water", icon:"💧", label:"Water" },{ id:"more", icon:"📘", label:"Guide" }];
       const container = document.getElementById('mobile-tab-bar');
-      if(container) container.innerHTML = tabs.map(tab => `
-        <div onclick="setActiveTab('${tab.id}')" class="mobile-tab-icon ${activeTab === tab.id ? 'mobile-tab-icon-active' : 'mobile-tab-icon-inactive'}">
-          <span class="text-xl">${tab.icon}</span>
-          <span class="mobile-tab-label">${tab.label}</span>
-        </div>
-      `).join('');
+      if(container) container.innerHTML = tabs.map(tab => `<div onclick="setActiveTab('${tab.id}')" class="mobile-tab-icon ${activeTab === tab.id ? 'mobile-tab-icon-active' : 'mobile-tab-icon-inactive'}"><span class="text-xl">${tab.icon}</span><span class="mobile-tab-label">${tab.label}</span></div>`).join('');
     }
     
-    // LIVE CHRONO with full precision
     function updateLiveChrono() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = now.toLocaleString('default', { month: 'long' });
-      const weekNum = Math.ceil(now.getDate() / 7);
-      const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
-      const dayDate = now.getDate();
-      const hours = now.getHours().toString().padStart(2,'0');
-      const minutes = now.getMinutes().toString().padStart(2,'0');
-      const seconds = now.getSeconds().toString().padStart(2,'0');
-      const ms = now.getMilliseconds().toString().padStart(3,'0');
-      const fullTime = `${hours}:${minutes}:${seconds}.${ms}`;
-      const dateStr = `${dayName}, ${month} ${dayDate}, ${year}`;
-      const weekStr = `📅 Week ${weekNum} of ${month} · Q${Math.ceil((now.getMonth()+1)/3)} · Day ${now.getDate()}`;
-      
-      const timeEl = document.getElementById('live-time-display');
-      const dateEl = document.getElementById('live-date-display');
-      const weekEl = document.getElementById('live-week-display');
-      
-      if(timeEl) timeEl.innerText = fullTime;
-      if(dateEl) dateEl.innerText = dateStr;
-      if(weekEl) weekEl.innerText = weekStr;
-      
+      const hours = now.getHours().toString().padStart(2,'0'), minutes = now.getMinutes().toString().padStart(2,'0'), seconds = now.getSeconds().toString().padStart(2,'0'), ms = now.getMilliseconds().toString().padStart(3,'0');
+      const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }), month = now.toLocaleString('default', { month: 'long' }), date = now.getDate(), year = now.getFullYear();
+      document.getElementById('live-time-display') && (document.getElementById('live-time-display').innerText = `${hours}:${minutes}:${seconds}.${ms}`);
+      document.getElementById('live-date-display') && (document.getElementById('live-date-display').innerHTML = `${dayName}, ${month} ${date}, ${year}`);
       requestAnimationFrame(() => setTimeout(updateLiveChrono, 15));
     }
     
     window._activeWorkoutDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
     window.setActiveTab = setActiveTab;
-    updateStreak();
-    renderDesktopTabBar();
-    renderMobileTabBar();
+    updateStreak(true);
+    renderDesktopTabs();
+    renderMobileBar();
     renderCurrentView();
     updateLiveChrono();
   </script>
