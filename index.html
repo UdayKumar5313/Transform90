@@ -35,6 +35,7 @@
     
     .time-glow { text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
     
+    /* Desktop sidebar tabs */
     .sidebar-tabs-container {
       display: flex;
       flex-direction: column;
@@ -78,27 +79,73 @@
       height: 100%;
       width: 100%;
     }
-    @media (max-width: 768px) {
-      .sidebar-nav {
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
+    
+    /* Mobile top tab bar - small icons */
+    .mobile-top-tabs {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 60;
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.5rem 0.75rem;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .mobile-tab-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      flex: 1;
+      max-width: 70px;
+    }
+    .mobile-tab-icon-active {
+      background: rgba(52, 211, 153, 0.2);
+      color: #6ee7b7;
+    }
+    .mobile-tab-icon-inactive {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .mobile-tab-label {
+      font-size: 9px;
+      font-weight: 500;
+    }
+    
+    @media (max-width: 767px) {
+      .mobile-top-tabs {
+        display: flex;
       }
-      .tab-button {
-        justify-content: center;
-        padding: 0.5rem;
-        flex: 1;
+      body {
+        padding-top: 65px;
       }
-      .tab-button span:last-child {
-        display: none;
+      .sidebar-nav .tab-button span:last-child {
+        display: inline-block;
       }
-      .tab-button span:first-child {
-        font-size: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .mobile-top-tabs {
+        display: none !important;
+      }
+      body {
+        padding-top: 0;
       }
     }
   </style>
 </head>
 <body class="text-white antialiased">
+
+  <!-- Mobile Top Tab Bar (small icons) -->
+  <div id="mobile-tab-bar" class="mobile-top-tabs"></div>
 
   <!-- Ambient Orbs -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -109,10 +156,10 @@
 
   <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-5 py-4 md:py-6 flex flex-col md:flex-row gap-5 md:gap-6 min-h-screen">
     
-    <!-- Sidebar Navigation -->
-    <aside class="fixed bottom-4 left-4 right-4 md:static md:bottom-auto md:left-auto md:w-80 lg:w-96 z-50 glass-premium rounded-3xl shadow-2xl p-3 md:p-5 border border-white/20">
+    <!-- Sidebar Navigation (Desktop only, hidden on mobile via CSS) -->
+    <aside class="fixed bottom-4 left-4 right-4 md:static md:bottom-auto md:left-auto md:w-80 lg:w-96 z-50 glass-premium rounded-3xl shadow-2xl p-3 md:p-5 border border-white/20 hidden md:block">
       <div class="sidebar-nav">
-        <div class="hidden md:flex items-center gap-3 px-2 pb-4 mb-3 border-b border-white/15">
+        <div class="flex items-center gap-3 px-2 pb-4 mb-3 border-b border-white/15">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-black text-2xl shadow-xl shadow-emerald-500/40">90</div>
           <div>
             <p class="font-black text-xl tracking-tight">TRANSFORM<span class="text-emerald-400">90</span></p>
@@ -121,10 +168,6 @@
         </div>
         
         <div id="tab-nav-container" class="sidebar-tabs-container w-full"></div>
-        
-        <div class="md:hidden w-full text-center mt-1">
-          <div id="mobile-time-compact" class="text-[10px] text-white/50 bg-white/5 rounded-full py-1 px-2 inline-block"></div>
-        </div>
       </div>
     </aside>
 
@@ -152,7 +195,6 @@
 
   <script>
     // ======================== COMPLETE 90-DAY TRANSFORMATION PLAN ========================
-    // User Profile
     const USER = {
       height: "155 cm",
       weight: "56.2 kg",
@@ -160,7 +202,6 @@
       rules: ["Sleep: 7–8 hours", "Water: 3 liters", "Walking: 8000+ steps", "Workout: 45–60 mins", "Protein daily (~95g)"]
     };
     
-    // Water Schedule (exactly as per plan)
     const waterSchedule = [
       { id: "w1", label: "🌅 After waking", ml: 500 },
       { id: "w2", label: "🍽️ Before breakfast", ml: 300 },
@@ -171,7 +212,6 @@
       { id: "w7", label: "🛌 Before bed", ml: 300 }
     ];
     
-    // Diet Plan (exact from user's plan)
     const dietPlan = [
       { time: "6:30 AM", title: "WAKE UP", items: ["500 ml water", "walk 5 mins", "sunlight exposure 10 mins"], cal: 0, pro: 0 },
       { time: "7:00 AM", title: "PRE-BREAKFAST", items: ["1 banana", "5 soaked almonds"], cal: 150, pro: 0, purpose: "energy, digestion, metabolism" },
@@ -185,7 +225,6 @@
       { time: "10:30 PM", title: "BEFORE BED", items: ["curd 100g", "300 ml water", "sleep"], cal: 60, pro: 4 }
     ];
     
-    // Complete Workout Plan (all days)
     const workoutDays = [
       { day: 1, name: "MONDAY", focus: "CHEST + TRICEPS", warmup: ["jumping jacks × 50", "arm circles × 20", "shoulder rotations"], exercises: ["Push-ups 4×10 (rest 60s)", "Incline Push-ups 3×12", "Chair Dips 3×10", "Pike Push-ups 3×8", "Plank 3×40 sec"] },
       { day: 2, name: "TUESDAY", focus: "BACK + BICEPS", warmup: ["backpack with books"], exercises: ["Backpack Rows 4×12", "Towel Rows 3×12", "Backpack Curls 3×15", "Superman Hold 3×30 sec", "Dead Hang 3 rounds"] },
@@ -208,7 +247,7 @@
       { period: "90 DAYS", items: ["noticeable body transformation", "flatter stomach", "better posture", "more confidence"] }
     ];
     
-    // STORAGE KEYS
+    // STORAGE
     const STORAGE = {
       WATER: 'transform90_water', DIET: 'transform90_diet', WORKOUT: 'transform90_workout',
       RULES: 'transform90_rules', JOURNAL: 'transform90_journal', BODY: 'transform90_body',
@@ -263,7 +302,6 @@
       return { calories: Math.round(totalCal), protein: Math.round(totalProt), water: waterTotal };
     }
     
-    // Interactive toggles
     window.toggleWater = (id) => { waterLog[id] = !waterLog[id]; persistAll(); };
     window.toggleDietItem = (id) => { dietLog[id] = !dietLog[id]; persistAll(); };
     window.toggleWorkoutEx = (id) => { workoutLog[id] = !workoutLog[id]; persistAll(); };
@@ -273,7 +311,14 @@
     window.logWorkoutMins = () => { let mins = prompt("Workout duration (mins):"); if(mins && !isNaN(mins)) { exerciseVolume.totalMinsWeek = (exerciseVolume.totalMinsWeek || 0) + parseInt(mins); persistAll(); alert(`✅ +${mins} mins logged`); } };
     
     let activeTab = "home";
-    function setActiveTab(tab) { activeTab = tab; renderCurrentView(); const titles = { home: "✨ TRANSFORM Dashboard", diet: "🥗 Daily Diet Plan", workout: "💪 Home Workout", water: "💧 Water Tracker", more: "📘 Complete Guide" }; document.getElementById('global-header-title').innerText = titles[tab] || "Dashboard"; updateStreak(); }
+    function setActiveTab(tab) { 
+      activeTab = tab; 
+      renderCurrentView(); 
+      const titles = { home: "✨ TRANSFORM Dashboard", diet: "🥗 Daily Diet Plan", workout: "💪 Home Workout", water: "💧 Water Tracker", more: "📘 Complete Guide" }; 
+      document.getElementById('global-header-title').innerText = titles[tab] || "Dashboard"; 
+      updateStreak();
+      renderMobileTabBar();
+    }
     
     function renderCurrentView() {
       const container = document.getElementById('app-viewport-main');
@@ -283,7 +328,7 @@
       else if(activeTab === 'workout') container.innerHTML = renderWorkout();
       else if(activeTab === 'water') container.innerHTML = renderWater();
       else if(activeTab === 'more') container.innerHTML = renderMore();
-      renderTabBar();
+      renderDesktopTabBar();
     }
     
     function renderHome() {
@@ -364,7 +409,7 @@
       </div>`;
     }
     
-    function renderTabBar() {
+    function renderDesktopTabBar() {
       const tabs = [
         { id: "home", icon: "🏠", label: "Home" },
         { id: "diet", icon: "🥗", label: "Diet" },
@@ -376,7 +421,24 @@
       if(container) container.innerHTML = tabs.map(tab => `<button onclick="setActiveTab('${tab.id}')" class="tab-button ${activeTab === tab.id ? 'tab-button-active' : 'tab-button-inactive'}"><span class="text-xl">${tab.icon}</span><span class="text-sm font-medium">${tab.label}</span></button>`).join('');
     }
     
-    // LIVE CHRONO with full precision (Year, Month, Week, Day, Hour, Minute, Second, Millisecond)
+    function renderMobileTabBar() {
+      const tabs = [
+        { id: "home", icon: "🏠", label: "Home" },
+        { id: "diet", icon: "🥗", label: "Diet" },
+        { id: "workout", icon: "💪", label: "Workout" },
+        { id: "water", icon: "💧", label: "Water" },
+        { id: "more", icon: "📘", label: "Guide" }
+      ];
+      const container = document.getElementById('mobile-tab-bar');
+      if(container) container.innerHTML = tabs.map(tab => `
+        <div onclick="setActiveTab('${tab.id}')" class="mobile-tab-icon ${activeTab === tab.id ? 'mobile-tab-icon-active' : 'mobile-tab-icon-inactive'}">
+          <span class="text-xl">${tab.icon}</span>
+          <span class="mobile-tab-label">${tab.label}</span>
+        </div>
+      `).join('');
+    }
+    
+    // LIVE CHRONO with full precision
     function updateLiveChrono() {
       const now = new Date();
       const year = now.getFullYear();
@@ -395,12 +457,10 @@
       const timeEl = document.getElementById('live-time-display');
       const dateEl = document.getElementById('live-date-display');
       const weekEl = document.getElementById('live-week-display');
-      const mobileSpan = document.getElementById('mobile-time-compact');
       
       if(timeEl) timeEl.innerText = fullTime;
       if(dateEl) dateEl.innerText = dateStr;
       if(weekEl) weekEl.innerText = weekStr;
-      if(mobileSpan) mobileSpan.innerText = `${hours}:${minutes}:${seconds}`;
       
       requestAnimationFrame(() => setTimeout(updateLiveChrono, 15));
     }
@@ -408,6 +468,8 @@
     window._activeWorkoutDay = new Date().getDay() === 0 ? 7 : new Date().getDay();
     window.setActiveTab = setActiveTab;
     updateStreak();
+    renderDesktopTabBar();
+    renderMobileTabBar();
     renderCurrentView();
     updateLiveChrono();
   </script>
