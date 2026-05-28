@@ -1,10 +1,9 @@
-html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uday's Transformation Tracker</title>
+    <title>Uday Kumar | Transformation Tracker</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +25,22 @@ html
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         cyan: { 400: '#22d3ee', 500: '#06b6d4' }
+                    },
+                    animation: {
+                        'float': 'float 8s ease-in-out infinite',
+                        'float-delayed': 'float 10s ease-in-out infinite 2s',
+                        'float-slow': 'float 12s ease-in-out infinite 4s',
+                        'grow-up': 'growUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0) scale(1)' },
+                            '50%': { transform: 'translateY(-20px) scale(1.05)' },
+                        },
+                        growUp: {
+                            '0%': { height: '0%' },
+                            '100%': { height: 'var(--target-height)' }
+                        }
                     }
                 }
             }
@@ -33,8 +48,20 @@ html
     </script>
 
     <style>
-        .progress-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .progress-bar { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: width; }
         
+        /* Entrance Animations - Hardware Accelerated */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
         /* Glassmorphism Core Classes */
         .glass-panel {
             background: rgba(15, 23, 42, 0.45);
@@ -42,91 +69,108 @@ html
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, background 0.4s ease;
+        }
+        
+        .glass-panel:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+            background: rgba(15, 23, 42, 0.55);
         }
         
         .glass-inner {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
         .glass-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
         .glass-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
-        /* Custom Checkbox */
+        /* Custom Checkbox with Bounce */
         input[type="checkbox"] {
             appearance: none; background-color: rgba(0,0,0,0.3); margin: 0; font: inherit;
             color: currentColor; width: 1.5em; height: 1.5em; border: 1px solid rgba(255,255,255,0.15);
             border-radius: 0.35em; display: grid; place-content: center; cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            backdrop-filter: blur(4px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         input[type="checkbox"]::before {
             content: ""; width: 0.8em; height: 0.8em;
             clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-            transform: scale(0); transform-origin: bottom left; transition: 120ms transform ease-in-out;
+            transform: scale(0); transform-origin: bottom left; transition: 150ms transform cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: inset 1em 1em white; background-color: white;
         }
-        input[type="checkbox"]:checked { background-color: #06b6d4; border-color: #06b6d4; }
+        input[type="checkbox"]:checked { background-color: #06b6d4; border-color: #06b6d4; transform: scale(1.1); }
         input[type="checkbox"]:checked::before { transform: scale(1); }
 
         /* Toast Animation */
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast-enter { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUpMobile { 
+            0% { transform: translateY(-100%) translateX(-50%); opacity: 0; } 
+            100% { transform: translateY(0) translateX(-50%); opacity: 1; } 
+        }
+        @media (min-width: 768px) {
+            @keyframes slideUpMobile { 
+                0% { transform: translateY(100%) translateX(-50%); opacity: 0; } 
+                100% { transform: translateY(0) translateX(-50%); opacity: 1; } 
+            }
+        }
+        .toast-enter { animation: slideUpMobile 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; transition: background 0.3s; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         /* Table Styles (Glass Adapted) */
         .plan-table { width: 100%; text-align: left; border-collapse: separate; border-spacing: 0; }
         .plan-table th { background-color: rgba(255, 255, 255, 0.05); color: #22d3ee; padding: 12px 16px; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .plan-table th:first-child { border-top-left-radius: 0.75rem; }
         .plan-table th:last-child { border-top-right-radius: 0.75rem; }
-        .plan-table td { padding: 12px 16px; font-size: 0.875rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: #cbd5e1; }
+        .plan-table td { padding: 12px 16px; font-size: 0.875rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: #cbd5e1; transition: background-color 0.2s; }
         .plan-table tr:last-child td { border-bottom: none; }
-        .plan-table tr:hover td { background-color: rgba(255, 255, 255, 0.05); }
-        .table-container { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 0.75rem; overflow-x: auto; backdrop-filter: blur(10px); }
+        .plan-table tr:hover td { background-color: rgba(255, 255, 255, 0.08); }
+        .table-container { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 0.75rem; overflow-x: auto; }
     </style>
 </head>
-<body class="text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24 selection:bg-cyan-500 selection:text-white relative">
+<body class="text-slate-100 font-sans min-h-screen p-4 md:p-8 pb-24 selection:bg-cyan-500 selection:text-white relative overflow-x-hidden">
 
     <!-- Ambient Glass Background Orbs -->
-    <div class="fixed inset-0 z-[-1] overflow-hidden bg-slate-950">
-        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-700/20 blur-[120px] mix-blend-screen"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-700/20 blur-[120px] mix-blend-screen"></div>
-        <div class="absolute top-[30%] left-[50%] w-[30vw] h-[30vw] rounded-full bg-purple-700/15 blur-[100px] mix-blend-screen"></div>
+    <div class="fixed inset-0 z-[-1] overflow-hidden bg-slate-950 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-700/20 blur-[120px] mix-blend-screen animate-float"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-700/20 blur-[120px] mix-blend-screen animate-float-delayed"></div>
+        <div class="absolute top-[30%] left-[50%] w-[30vw] h-[30vw] rounded-full bg-purple-700/15 blur-[100px] mix-blend-screen animate-float-slow"></div>
     </div>
 
     <div class="max-w-7xl mx-auto space-y-8 relative z-10">
         
         <!-- Header & Live Clock -->
-        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mt-4">
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mt-4 animate-fade-in" style="animation-delay: 0ms;">
             <div class="text-center md:text-left space-y-2">
-                <div class="inline-flex items-center justify-center space-x-2 glass-inner px-4 py-1.5 rounded-full text-sm font-medium text-cyan-400">
-                    <i class="ph-fill ph-lightning"></i>
-                    <span>Consistency is Key</span>
+                <div class="inline-flex items-center justify-center space-x-2 glass-inner px-4 py-1.5 rounded-full text-sm font-medium text-cyan-400 hover:bg-white/10 transition-colors cursor-default">
+                    <i class="ph-fill ph-lightning animate-pulse"></i>
+                    <span>Consistency is Key, Uday</span>
                 </div>
                 <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white drop-shadow-md">
                     UDAY'S <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">TRANSFORMATION</span>
                 </h1>
-                <p class="text-slate-300 text-lg">Goal: Lean Muscular Body • Flat Stomach • Bigger Shoulders & Chest</p>
+                <p class="text-slate-300 text-lg font-light">Goal: Lean Muscular Body • Flat Stomach • Bigger Shoulders</p>
             </div>
 
             <!-- Digital Clock Badge -->
-            <div class="glass-panel p-5 rounded-2xl min-w-[280px] text-center md:text-right relative overflow-hidden flex flex-col justify-center items-center md:items-end">
-                <div class="absolute -left-6 -top-6 opacity-10">
+            <div class="glass-panel p-5 rounded-2xl min-w-[280px] text-center md:text-right relative overflow-hidden flex flex-col justify-center items-center md:items-end group cursor-default">
+                <div class="absolute -left-6 -top-6 opacity-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
                     <i class="ph-fill ph-clock text-9xl text-cyan-200"></i>
                 </div>
                 <div class="relative z-10 flex flex-col items-center md:items-end">
@@ -147,74 +191,75 @@ html
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Quick Stats -->
-            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between animate-fade-in" style="animation-delay: 100ms;">
                 <div>
                     <div class="flex items-center space-x-3 mb-6">
                         <div class="p-2.5 glass-inner rounded-xl text-cyan-400"><i class="ph-fill ph-user-focus text-xl"></i></div>
                         <h2 class="text-xl font-bold text-white drop-shadow-sm">Your Profile</h2>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="glass-inner p-3 rounded-2xl text-center">
+                        <div class="glass-inner p-3 rounded-2xl text-center hover:bg-white/10 transition-colors cursor-default">
                             <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Height</p>
                             <p class="text-xl font-bold text-white drop-shadow-sm">155 cm</p>
                         </div>
-                        <div class="glass-inner p-3 rounded-2xl text-center">
+                        <div class="glass-inner p-3 rounded-2xl text-center hover:bg-white/10 transition-colors cursor-default">
                             <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Weight</p>
                             <p class="text-xl font-bold text-white drop-shadow-sm">56.2 kg</p>
                         </div>
-                        <div class="glass-inner p-3 rounded-2xl text-center">
+                        <div class="glass-inner p-3 rounded-2xl text-center hover:bg-white/10 transition-colors group cursor-default">
                             <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Calories</p>
-                            <p class="text-xl font-bold text-cyan-400 drop-shadow-sm">1750</p>
+                            <p class="text-xl font-bold text-cyan-400 drop-shadow-sm transition-transform duration-300 group-hover:scale-110">1750</p>
                         </div>
-                        <div class="glass-inner p-3 rounded-2xl text-center">
+                        <div class="glass-inner p-3 rounded-2xl text-center hover:bg-white/10 transition-colors group cursor-default">
                             <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Protein</p>
-                            <p class="text-xl font-bold text-blue-400 drop-shadow-sm">100g</p>
+                            <p class="text-xl font-bold text-blue-400 drop-shadow-sm transition-transform duration-300 group-hover:scale-110">100g</p>
                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex items-center justify-between glass-inner bg-black/20 p-4 rounded-2xl">
+                <div class="mt-6 flex items-center justify-between glass-inner bg-black/20 p-4 rounded-2xl transition-all duration-300 hover:bg-black/40 hover:shadow-inner cursor-default">
                     <div>
                         <p class="text-sm text-slate-400">Current Streak</p>
-                        <p class="text-2xl font-bold text-orange-400 flex items-center gap-1 drop-shadow-sm"><i class="ph-fill ph-fire drop-shadow-[0_0_8px_rgba(249,115,22,0.6)]"></i> <span id="ui-streak">0</span> Days</p>
+                        <p class="text-2xl font-bold text-orange-400 flex items-center gap-1 drop-shadow-sm"><i class="ph-fill ph-fire drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] animate-pulse"></i> <span id="ui-streak">0</span> Days</p>
                     </div>
                     <div class="text-right">
                         <p class="text-sm text-slate-400">Daily Progress</p>
-                        <p class="text-2xl font-bold text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]" id="ui-workout-percent">0%</p>
+                        <p class="text-2xl font-bold text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)] transition-all duration-500" id="ui-workout-percent">0%</p>
                     </div>
                 </div>
             </div>
 
             <!-- Water Tracker -->
-            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+            <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between animate-fade-in" style="animation-delay: 200ms;">
                 <div>
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center space-x-3">
                             <div class="p-2.5 glass-inner rounded-xl text-blue-400"><i class="ph-fill ph-drop text-xl"></i></div>
                             <h2 class="text-xl font-bold text-white drop-shadow-sm">Hydration</h2>
                         </div>
-                        <span class="text-sm font-bold text-blue-300 glass-inner px-3 py-1 rounded-full border-blue-400/20" id="water-text">0 / 3 L</span>
+                        <span class="text-sm font-bold text-blue-300 glass-inner px-3 py-1 rounded-full border-blue-400/20 transition-all duration-300" id="water-text">0 / 3 L</span>
                     </div>
-                    <div class="bg-black/40 h-8 rounded-full overflow-hidden border border-white/5 mb-6 relative shadow-inner">
-                        <div id="water-progress" class="progress-bar h-full w-0 bg-gradient-to-r from-blue-600/80 to-cyan-400/90 relative backdrop-blur-sm">
-                            <div class="absolute inset-0 bg-white/20 w-full h-full" style="background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem;"></div>
+                    <div class="bg-black/40 h-8 rounded-full overflow-hidden border border-white/5 mb-6 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+                        <div id="water-progress" class="progress-bar h-full w-0 bg-gradient-to-r from-blue-600/80 to-cyan-400/90 relative backdrop-blur-sm shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                            <div class="absolute inset-0 bg-white/20 w-full h-full animate-[slide_2s_linear_infinite]" style="background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem;"></div>
                         </div>
                     </div>
+                    <style>@keyframes slide { from { background-position: 1rem 0; } to { background-position: 0 0; } }</style>
                 </div>
                 <div class="grid grid-cols-3 gap-3 mt-auto">
-                    <button onclick="addWater(0.3)" class="py-3 glass-btn rounded-xl text-sm font-medium flex flex-col items-center gap-1">
-                        <i class="ph ph-plus text-slate-300"></i><span>300 ml</span>
+                    <button onclick="addWater(0.3)" class="py-3 glass-btn rounded-xl text-sm font-medium flex flex-col items-center gap-1 group active:scale-95 transition-transform duration-200">
+                        <i class="ph ph-plus text-slate-300 group-hover:text-cyan-300 transition-colors"></i><span class="group-hover:text-white transition-colors">300 ml</span>
                     </button>
-                    <button onclick="addWater(0.5)" class="py-3 glass-btn rounded-xl text-sm font-medium flex flex-col items-center gap-1">
-                        <i class="ph ph-plus text-slate-300"></i><span>500 ml</span>
+                    <button onclick="addWater(0.5)" class="py-3 glass-btn rounded-xl text-sm font-medium flex flex-col items-center gap-1 group active:scale-95 transition-transform duration-200">
+                        <i class="ph ph-plus text-slate-300 group-hover:text-cyan-300 transition-colors"></i><span class="group-hover:text-white transition-colors">500 ml</span>
                     </button>
-                    <button onclick="resetWater()" class="py-3 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-300 rounded-xl text-sm font-medium transition-colors backdrop-blur-md flex flex-col items-center gap-1">
-                        <i class="ph ph-arrow-counter-clockwise"></i><span>Reset</span>
+                    <button onclick="resetWater()" class="py-3 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:text-white text-red-300 rounded-xl text-sm font-medium transition-all duration-300 flex flex-col items-center gap-1 active:scale-95 group">
+                        <i class="ph ph-arrow-counter-clockwise group-hover:-rotate-180 transition-transform duration-500"></i><span>Reset</span>
                     </button>
                 </div>
             </div>
 
             <!-- Today's Quick Action List -->
-            <div class="glass-panel p-6 rounded-3xl overflow-hidden flex flex-col h-full max-h-[350px]">
+            <div class="glass-panel p-6 rounded-3xl overflow-hidden flex flex-col h-full max-h-[350px] animate-fade-in" style="animation-delay: 300ms;">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="p-2.5 glass-inner rounded-xl text-emerald-400"><i class="ph-fill ph-check-square-offset text-xl"></i></div>
                     <h2 class="text-xl font-bold text-white drop-shadow-sm">Daily Tasks</h2>
@@ -227,7 +272,7 @@ html
         </div>
 
         <!-- REAL-TIME TIMELINE -->
-        <div class="glass-panel p-6 rounded-3xl mt-6 relative overflow-hidden">
+        <div class="glass-panel p-6 rounded-3xl mt-6 relative overflow-hidden animate-fade-in" style="animation-delay: 400ms;">
             <div class="absolute right-0 top-0 opacity-10 pointer-events-none mix-blend-overlay">
                 <i class="ph-fill ph-activity text-[200px] -mt-10 -mr-10"></i>
             </div>
@@ -237,14 +282,16 @@ html
                     <div class="p-2 glass-inner rounded-xl text-orange-400"><i class="ph-fill ph-navigation-arrow text-xl"></i></div>
                     Live Timeline Tracker
                 </h2>
-                <div class="text-sm font-medium glass-inner px-5 py-2 rounded-full text-slate-200 inline-block w-max">
-                    Current Focus: <span id="current-focus-text" class="text-orange-400 font-bold ml-1 drop-shadow-sm">...</span>
+                <div class="text-sm font-medium glass-inner px-5 py-2 rounded-full text-slate-200 inline-block w-max border-white/10 shadow-inner cursor-default">
+                    Current Focus: <span id="current-focus-text" class="text-orange-400 font-bold ml-1 drop-shadow-sm transition-all duration-300">...</span>
                 </div>
             </div>
             
             <div class="relative w-full overflow-hidden">
                 <!-- Timeline Connecting Line -->
-                <div class="absolute top-[45px] left-0 w-full h-px bg-white/10 z-0"></div>
+                <div class="absolute top-[45px] left-0 w-full h-px bg-white/10 z-0">
+                    <div class="absolute left-0 top-0 h-full bg-gradient-to-r from-cyan-400 to-transparent w-1/3 animate-pulse pointer-events-none"></div>
+                </div>
                 <!-- Timeline Items -->
                 <div id="live-timeline-container" class="flex items-start space-x-2 overflow-x-auto pb-6 relative z-10 scrollbar-hide snap-x snap-mandatory scroll-smooth" style="scrollbar-width: none; -ms-overflow-style: none;">
                     <!-- Injected via JS -->
@@ -253,7 +300,7 @@ html
         </div>
 
         <!-- INTERACTIVE PLAN SECTION (TABS) -->
-        <div class="mt-10">
+        <div class="mt-10 animate-fade-in" style="animation-delay: 500ms;">
             <!-- Tab Navigation -->
             <div class="flex overflow-x-auto space-x-2 glass-panel p-2 rounded-2xl mb-6 scrollbar-hide">
                 <button onclick="switchTab('tab-diet')" id="btn-tab-diet" class="tab-btn active bg-cyan-500/80 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)] border border-cyan-400/50 backdrop-blur-md px-6 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap transition-all flex items-center gap-2">
@@ -277,10 +324,10 @@ html
             </div>
 
             <!-- TAB 1: DIET PLAN -->
-            <div id="tab-diet" class="tab-content block space-y-6">
+            <div id="tab-diet" class="tab-content block space-y-6 animate-fade-in" style="animation-delay: 0ms;">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-6">
-                        <div class="glass-panel p-6 rounded-3xl">
+                        <div class="glass-panel p-6 rounded-3xl hover:bg-white/5 transition-colors">
                             <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 drop-shadow-sm"><i class="ph-fill ph-chart-pie-slice text-cyan-400"></i> Daily Nutrition Totals</h3>
                             <div class="table-container">
                                 <table class="plan-table">
@@ -292,7 +339,7 @@ html
                                 </table>
                             </div>
                         </div>
-                        <div class="glass-panel p-6 rounded-3xl">
+                        <div class="glass-panel p-6 rounded-3xl hover:bg-white/5 transition-colors">
                             <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 drop-shadow-sm"><i class="ph-fill ph-shopping-cart text-purple-400"></i> Monthly Grocery List</h3>
                             <div class="table-container">
                                 <table class="plan-table">
@@ -311,7 +358,7 @@ html
                     </div>
 
                     <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="glass-inner p-5 rounded-2xl">
+                        <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                             <h4 class="text-cyan-300 font-bold mb-3 flex justify-between drop-shadow-sm">Morning Pre-Breakfast <span class="text-xs text-slate-400 font-normal mt-1">~150 kcal</span></h4>
                             <div class="table-container"><table class="plan-table text-sm">
                                 <thead><tr><th>Food</th><th class="text-right">Qty</th></tr></thead>
@@ -323,7 +370,7 @@ html
                             </table></div>
                         </div>
 
-                        <div class="glass-inner p-5 rounded-2xl">
+                        <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                             <h4 class="text-cyan-300 font-bold mb-3 flex justify-between drop-shadow-sm">Breakfast (8:00 AM) <span class="text-xs text-slate-400 font-normal mt-1">~600 kcal / 35g P</span></h4>
                             <div class="table-container"><table class="plan-table text-sm">
                                 <thead><tr><th>Food</th><th class="text-right">Qty</th></tr></thead>
@@ -336,7 +383,7 @@ html
                             </table></div>
                         </div>
 
-                        <div class="glass-inner p-5 rounded-2xl space-y-4">
+                        <div class="glass-inner p-5 rounded-2xl space-y-4 hover:bg-white/5 transition-colors">
                             <div>
                                 <h4 class="text-cyan-300 font-bold mb-2 drop-shadow-sm">Snack (11:00 AM)</h4>
                                 <div class="table-container"><table class="plan-table text-sm">
@@ -352,7 +399,7 @@ html
                             </div>
                         </div>
 
-                        <div class="glass-inner p-5 rounded-2xl">
+                        <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                             <h4 class="text-cyan-300 font-bold mb-3 flex justify-between drop-shadow-sm">Lunch (1:30 PM) <span class="text-xs text-slate-400 font-normal mt-1">~650 kcal / 35g P</span></h4>
                             <div class="table-container"><table class="plan-table text-sm">
                                 <thead><tr><th>Food</th><th class="text-right">Qty</th></tr></thead>
@@ -366,7 +413,7 @@ html
                             </table></div>
                         </div>
 
-                        <div class="glass-inner p-5 rounded-2xl space-y-4">
+                        <div class="glass-inner p-5 rounded-2xl space-y-4 hover:bg-white/5 transition-colors">
                             <div>
                                 <h4 class="text-cyan-300 font-bold mb-2 drop-shadow-sm">Post-Workout (6:00 PM)</h4>
                                 <div class="table-container"><table class="plan-table text-sm">
@@ -382,7 +429,7 @@ html
                             </div>
                         </div>
 
-                        <div class="glass-inner p-5 rounded-2xl">
+                        <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                             <h4 class="text-cyan-300 font-bold mb-3 flex justify-between drop-shadow-sm">Dinner (8:30 PM) <span class="text-xs text-slate-400 font-normal mt-1">~500 kcal</span></h4>
                             <div class="table-container"><table class="plan-table text-sm">
                                 <thead><tr><th>Food</th><th class="text-right">Qty</th></tr></thead>
@@ -405,90 +452,91 @@ html
                         <table class="plan-table" id="weekly-split-table">
                             <thead><tr><th>Day</th><th>Target Focus</th></tr></thead>
                             <tbody>
-                                <tr data-day="Monday"><td>Monday</td><td class="font-medium text-white">Chest + Shoulders + Triceps</td></tr>
-                                <tr data-day="Tuesday"><td>Tuesday</td><td class="font-medium text-white">Back + Biceps</td></tr>
-                                <tr data-day="Wednesday"><td>Wednesday</td><td class="font-medium text-white">Legs + Abs</td></tr>
-                                <tr data-day="Thursday"><td>Thursday</td><td class="font-medium text-white">Walking/Cardio</td></tr>
-                                <tr data-day="Friday"><td>Friday</td><td class="font-medium text-white">Upper Body</td></tr>
-                                <tr data-day="Saturday"><td>Saturday</td><td class="font-medium text-white">Cardio + Abs</td></tr>
-                                <tr data-day="Sunday"><td>Sunday</td><td class="font-medium text-emerald-400">Rest & Recovery</td></tr>
+                                <tr data-day="Monday" class="transition-colors"><td>Monday</td><td class="font-medium text-white">Chest + Shoulders + Triceps</td></tr>
+                                <tr data-day="Tuesday" class="transition-colors"><td>Tuesday</td><td class="font-medium text-white">Back + Biceps</td></tr>
+                                <tr data-day="Wednesday" class="transition-colors"><td>Wednesday</td><td class="font-medium text-white">Legs + Abs</td></tr>
+                                <tr data-day="Thursday" class="transition-colors"><td>Thursday</td><td class="font-medium text-white">Walking/Cardio</td></tr>
+                                <tr data-day="Friday" class="transition-colors"><td>Friday</td><td class="font-medium text-white">Upper Body</td></tr>
+                                <tr data-day="Saturday" class="transition-colors"><td>Saturday</td><td class="font-medium text-white">Cardio + Abs</td></tr>
+                                <tr data-day="Sunday" class="transition-colors"><td>Sunday</td><td class="font-medium text-emerald-400">Rest & Recovery</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <div class="glass-inner p-5 rounded-2xl">
+                    <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                         <h4 class="text-indigo-300 font-bold mb-3 uppercase text-sm tracking-wider drop-shadow-sm">Mon/Fri: Chest & Shoulders</h4>
                         <div class="table-container"><table class="plan-table text-sm">
                             <thead><tr><th>Exercise</th><th class="text-right">Sets x Reps</th></tr></thead>
                             <tbody>
-                                <tr><td>Push-ups</td><td class="text-right text-cyan-300">4 x 10</td></tr>
-                                <tr><td>Incline Push-ups</td><td class="text-right text-cyan-300">3 x 12</td></tr>
-                                <tr><td>Pike Push-ups</td><td class="text-right text-cyan-300">3 x 8</td></tr>
-                                <tr><td>Chair Dips</td><td class="text-right text-cyan-300">3 x 10</td></tr>
-                                <tr><td>Bottle Lateral Raises</td><td class="text-right text-cyan-300">3 x 15</td></tr>
-                                <tr><td>Plank</td><td class="text-right text-cyan-300">3 x 45s</td></tr>
+                                <tr><td>Push-ups</td><td class="text-right text-cyan-300 font-medium">4 x 10</td></tr>
+                                <tr><td>Incline Push-ups</td><td class="text-right text-cyan-300 font-medium">3 x 12</td></tr>
+                                <tr><td>Pike Push-ups</td><td class="text-right text-cyan-300 font-medium">3 x 8</td></tr>
+                                <tr><td>Chair Dips</td><td class="text-right text-cyan-300 font-medium">3 x 10</td></tr>
+                                <tr><td>Bottle Lateral Raises</td><td class="text-right text-cyan-300 font-medium">3 x 15</td></tr>
+                                <tr><td>Plank</td><td class="text-right text-cyan-300 font-medium">3 x 45s</td></tr>
                             </tbody>
                         </table></div>
+                        <p class="text-xs text-slate-500 mt-2 text-center">Rest: 60 sec between sets</p>
                     </div>
-                    
-                    <div class="glass-inner p-5 rounded-2xl">
+
+                    <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                         <h4 class="text-indigo-300 font-bold mb-3 uppercase text-sm tracking-wider drop-shadow-sm">Tuesday: Back & Biceps</h4>
                         <div class="table-container"><table class="plan-table text-sm">
                             <thead><tr><th>Exercise</th><th class="text-right">Sets x Reps</th></tr></thead>
                             <tbody>
-                                <tr><td>Backpack Rows</td><td class="text-right text-cyan-300">4 x 12</td></tr>
-                                <tr><td>Towel Rows</td><td class="text-right text-cyan-300">3 x 12</td></tr>
-                                <tr><td>Backpack Curls</td><td class="text-right text-cyan-300">3 x 15</td></tr>
-                                <tr><td>Superman Hold</td><td class="text-right text-cyan-300">3 x 30s</td></tr>
-                                <tr><td>Dead Hangs</td><td class="text-right text-cyan-300">3 x Max</td></tr>
+                                <tr><td>Backpack Rows</td><td class="text-right text-cyan-300 font-medium">4 x 12</td></tr>
+                                <tr><td>Towel Rows</td><td class="text-right text-cyan-300 font-medium">3 x 12</td></tr>
+                                <tr><td>Backpack Curls</td><td class="text-right text-cyan-300 font-medium">3 x 15</td></tr>
+                                <tr><td>Superman Hold</td><td class="text-right text-cyan-300 font-medium">3 x 30s</td></tr>
+                                <tr><td>Dead Hangs</td><td class="text-right text-cyan-300 font-medium">3 x Max</td></tr>
                             </tbody>
                         </table></div>
                     </div>
 
-                    <div class="glass-inner p-5 rounded-2xl">
+                    <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                         <h4 class="text-indigo-300 font-bold mb-3 uppercase text-sm tracking-wider drop-shadow-sm">Wednesday: Legs & Abs</h4>
                         <div class="table-container"><table class="plan-table text-sm">
                             <thead><tr><th>Exercise</th><th class="text-right">Sets x Reps</th></tr></thead>
                             <tbody>
-                                <tr><td>Squats</td><td class="text-right text-cyan-300">4 x 20</td></tr>
-                                <tr><td>Lunges</td><td class="text-right text-cyan-300">3 x 12/leg</td></tr>
-                                <tr><td>Glute Bridges</td><td class="text-right text-cyan-300">3 x 15</td></tr>
-                                <tr><td>Calf Raises</td><td class="text-right text-cyan-300">4 x 25</td></tr>
-                                <tr><td>Leg Raises</td><td class="text-right text-cyan-300">3 x 15</td></tr>
-                                <tr><td>Bicycle Crunches</td><td class="text-right text-cyan-300">3 x 20</td></tr>
+                                <tr><td>Squats</td><td class="text-right text-cyan-300 font-medium">4 x 20</td></tr>
+                                <tr><td>Lunges</td><td class="text-right text-cyan-300 font-medium">3 x 12/leg</td></tr>
+                                <tr><td>Glute Bridges</td><td class="text-right text-cyan-300 font-medium">3 x 15</td></tr>
+                                <tr><td>Calf Raises</td><td class="text-right text-cyan-300 font-medium">4 x 25</td></tr>
+                                <tr><td>Leg Raises</td><td class="text-right text-cyan-300 font-medium">3 x 15</td></tr>
+                                <tr><td>Bicycle Crunches</td><td class="text-right text-cyan-300 font-medium">3 x 20</td></tr>
                             </tbody>
                         </table></div>
                     </div>
 
-                    <div class="glass-inner p-5 rounded-2xl flex flex-col justify-center text-center space-y-4">
+                    <div class="glass-inner p-5 rounded-2xl flex flex-col justify-center text-center space-y-4 hover:bg-white/5 transition-colors group">
                         <h4 class="text-indigo-300 font-bold uppercase text-sm tracking-wider drop-shadow-sm">Thursday: Light Day</h4>
-                        <i class="ph-fill ph-sneaker text-5xl text-white/50"></i>
+                        <i class="ph-fill ph-sneaker text-5xl text-white/50 group-hover:scale-110 group-hover:text-cyan-300 transition-all duration-300"></i>
                         <div>
-                            <p class="text-xl font-bold text-white drop-shadow-sm">Walking (45 mins)</p>
+                            <p class="text-xl font-bold text-white drop-shadow-sm transition-colors group-hover:text-cyan-300">Walking (45 mins)</p>
                             <p class="text-slate-400 text-sm mt-1">OR Light Jogging (20 mins)</p>
                         </div>
                     </div>
 
-                    <div class="glass-inner p-5 rounded-2xl">
+                    <div class="glass-inner p-5 rounded-2xl hover:bg-white/5 transition-colors">
                         <h4 class="text-indigo-300 font-bold mb-3 uppercase text-sm tracking-wider drop-shadow-sm">Saturday: Cardio & Abs</h4>
                         <p class="text-sm text-slate-300 mb-2 border-b border-white/10 pb-2">Walk / Jog / Skip: <span class="font-bold text-cyan-400">40 mins</span></p>
                         <div class="table-container"><table class="plan-table text-sm">
                             <thead><tr><th>Exercise</th><th class="text-right">Sets x Reps</th></tr></thead>
                             <tbody>
-                                <tr><td>Leg Raises</td><td class="text-right text-cyan-300">3 x 15</td></tr>
-                                <tr><td>Russian Twists</td><td class="text-right text-cyan-300">3 x 20</td></tr>
-                                <tr><td>Plank</td><td class="text-right text-cyan-300">3 x 1 min</td></tr>
+                                <tr><td>Leg Raises</td><td class="text-right text-cyan-300 font-medium">3 x 15</td></tr>
+                                <tr><td>Russian Twists</td><td class="text-right text-cyan-300 font-medium">3 x 20</td></tr>
+                                <tr><td>Plank</td><td class="text-right text-cyan-300 font-medium">3 x 1 min</td></tr>
                             </tbody>
                         </table></div>
                     </div>
 
-                    <div class="glass-inner p-5 rounded-2xl flex flex-col justify-center text-center space-y-4">
+                    <div class="glass-inner p-5 rounded-2xl flex flex-col justify-center text-center space-y-4 hover:bg-white/5 transition-colors group">
                         <h4 class="text-emerald-400 font-bold uppercase text-sm tracking-wider drop-shadow-sm">Sunday: Recovery</h4>
-                        <i class="ph-fill ph-battery-charging text-5xl text-emerald-400/80"></i>
+                        <i class="ph-fill ph-battery-charging text-5xl text-emerald-400/80 group-hover:scale-110 group-hover:text-emerald-400 transition-all duration-300"></i>
                         <div>
-                            <p class="text-xl font-bold text-white drop-shadow-sm">Complete Rest</p>
+                            <p class="text-xl font-bold text-white drop-shadow-sm transition-colors group-hover:text-emerald-400">Complete Rest</p>
                             <p class="text-slate-400 text-sm mt-1">Light walking for recovery only.</p>
                         </div>
                     </div>
@@ -512,7 +560,7 @@ html
                                     <tr><td class="font-medium text-cyan-300">1:30 PM</td><td>Lunch</td><td>Rice + dal + soya + curd</td></tr>
                                     <tr><td class="font-medium text-cyan-300">2:00 PM</td><td>Short Walk</td><td>10 mins</td></tr>
                                     <tr><td class="font-medium text-cyan-300">4:30 PM</td><td>Pre-Workout</td><td>Banana + black coffee</td></tr>
-                                    <tr class="bg-white/10"><td class="font-bold text-cyan-300">5:00 PM</td><td class="font-bold text-white">Workout</td><td class="font-bold">45–60 mins</td></tr>
+                                    <tr class="bg-white/10 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]"><td class="font-bold text-cyan-300">5:00 PM</td><td class="font-bold text-white">Workout</td><td class="font-bold">45–60 mins</td></tr>
                                     <tr><td class="font-medium text-cyan-300">6:00 PM</td><td>Post-Workout</td><td>Eggs/milk</td></tr>
                                     <tr><td class="font-medium text-cyan-300">7:00 PM</td><td>Evening Walk</td><td>15–20 mins</td></tr>
                                     <tr><td class="font-medium text-cyan-300">8:30 PM</td><td>Dinner</td><td>Rice + dal + eggs</td></tr>
@@ -536,7 +584,7 @@ html
                                     <tr><td>Workout</td><td class="text-right font-medium text-blue-300">500 ml</td></tr>
                                     <tr><td>Evening</td><td class="text-right font-medium text-blue-300">200 ml</td></tr>
                                     <tr><td>Before Bed</td><td class="text-right font-medium text-blue-300">300 ml</td></tr>
-                                    <tr class="bg-white/10"><td class="font-bold text-white">Total Daily Goal</td><td class="text-right font-bold text-blue-400 text-lg drop-shadow-sm">~3 Liters</td></tr>
+                                    <tr class="bg-white/10 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]"><td class="font-bold text-white">Total Daily Goal</td><td class="text-right font-bold text-blue-400 text-lg drop-shadow-sm">~3 Liters</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -553,23 +601,23 @@ html
                 </div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="glass-panel p-5 rounded-2xl text-center">
-                        <i class="ph-fill ph-target text-3xl text-cyan-400 mb-2 drop-shadow-sm"></i>
+                    <div class="glass-panel p-5 rounded-2xl text-center group">
+                        <i class="ph-fill ph-target text-3xl text-cyan-400 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform"></i>
                         <p class="text-xs text-slate-300 uppercase tracking-wider">Completion Rate</p>
                         <p class="text-3xl font-extrabold text-white mt-1 drop-shadow-sm" id="stat-completion">0%</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl text-center">
-                        <i class="ph-fill ph-drop text-3xl text-blue-400 mb-2 drop-shadow-sm"></i>
+                    <div class="glass-panel p-5 rounded-2xl text-center group">
+                        <i class="ph-fill ph-drop text-3xl text-blue-400 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform"></i>
                         <p class="text-xs text-slate-300 uppercase tracking-wider">Avg Water/Day</p>
                         <p class="text-3xl font-extrabold text-white mt-1 drop-shadow-sm" id="stat-water">0 L</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl text-center">
-                        <i class="ph-fill ph-star text-3xl text-yellow-400 mb-2 drop-shadow-sm"></i>
+                    <div class="glass-panel p-5 rounded-2xl text-center group">
+                        <i class="ph-fill ph-star text-3xl text-yellow-400 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform"></i>
                         <p class="text-xs text-slate-300 uppercase tracking-wider">Perfect Days</p>
                         <p class="text-3xl font-extrabold text-white mt-1 drop-shadow-sm" id="stat-perfect">0</p>
                     </div>
-                    <div class="glass-panel p-5 rounded-2xl text-center">
-                        <i class="ph-fill ph-fire text-3xl text-orange-400 mb-2 drop-shadow-sm"></i>
+                    <div class="glass-panel p-5 rounded-2xl text-center group">
+                        <i class="ph-fill ph-fire text-3xl text-orange-400 mb-2 drop-shadow-sm group-hover:scale-110 transition-transform"></i>
                         <p class="text-xs text-slate-300 uppercase tracking-wider">Best Streak</p>
                         <p class="text-3xl font-extrabold text-white mt-1 drop-shadow-sm" id="stat-best-streak">0</p>
                     </div>
@@ -631,23 +679,25 @@ html
             <div id="tab-vision" class="tab-content hidden space-y-6">
                 <div class="glass-panel p-6 md:p-10 rounded-3xl text-center">
                     
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3 flex items-center justify-center gap-3 drop-shadow-sm">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3 flex items-center justify-center gap-3 drop-shadow-sm animate-fade-in" style="animation-delay: 0ms;">
                         <i class="ph-fill ph-sparkle text-cyan-400"></i> Uday's Ultimate Goal <i class="ph-fill ph-sparkle text-cyan-400"></i>
                     </h2>
                     
-                    <p class="text-slate-300 mb-8 max-w-2xl mx-auto drop-shadow-sm">This is the physique you are building every single day. Keep this image in your mind when the workouts get tough. You are creating this reality.</p>
+                    <p class="text-slate-300 mb-8 max-w-2xl mx-auto drop-shadow-sm animate-fade-in" style="animation-delay: 100ms;">This is the physique you are building every single day. Keep this image in your mind when the workouts get tough. You are creating this reality.</p>
                     
-                    <div class="max-w-2xl mx-auto rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_50px_rgba(6,182,212,0.2)] relative group cursor-pointer backdrop-blur-xl bg-black/40" onclick="document.getElementById('vision-upload').click()">
+                    <div class="max-w-2xl mx-auto rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_50px_rgba(6,182,212,0.2)] relative group cursor-pointer backdrop-blur-xl bg-black/40 animate-fade-in transition-all duration-500 hover:shadow-[0_0_60px_rgba(6,182,212,0.3)]" style="animation-delay: 200ms;" onclick="document.getElementById('vision-upload').click()">
+                        
+                        <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent mix-blend-overlay z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                         
                         <!-- Vision Image -->
-                        <img src="1000300682.png" onerror="this.src='https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1000&auto=format&fit=crop'" alt="Uday's Target Physique" class="vision-img w-full h-auto max-h-[70vh] object-contain transform transition-transform duration-700 group-hover:scale-[1.02]">
+                        <img src="1000300682.png" onerror="this.src='https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1000&auto=format&fit=crop'" alt="Uday's Target Physique" class="vision-img w-full h-auto max-h-[70vh] object-contain transform transition-transform duration-700 group-hover:scale-[1.03]">
                         
                         <!-- Upload Input -->
                         <input type="file" id="vision-upload" accept="image/*" class="hidden" onchange="uploadVisionImage(event)">
                         
                         <!-- Hover Overlay -->
                         <div class="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div class="glass-inner px-6 py-3 rounded-xl flex items-center gap-2 font-semibold text-lg text-white shadow-xl">
+                            <div class="glass-inner px-6 py-3 rounded-xl flex items-center gap-2 font-semibold text-lg text-white shadow-xl hover:scale-105 transition-transform">
                                 <i class="ph-bold ph-upload-simple"></i> Set Motivation Image
                             </div>
                         </div>
@@ -659,8 +709,8 @@ html
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 glass-panel text-white px-6 py-4 rounded-2xl flex items-center space-x-4 z-50 min-w-[320px] border-emerald-400/30">
-        <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-full border border-emerald-400/20 shadow-[0_0_10px_rgba(52,211,153,0.3)]"><i class="ph-fill ph-fire text-2xl"></i></div>
+    <div id="toast" class="hidden fixed md:bottom-6 bottom-auto top-6 md:top-auto left-1/2 -translate-x-1/2 glass-panel !bg-slate-900/90 text-white px-6 py-4 rounded-2xl flex items-center space-x-4 z-50 min-w-[320px] border-emerald-400/30">
+        <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-full border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.4)]"><i class="ph-fill ph-fire text-2xl animate-pulse"></i></div>
         <div>
             <h4 class="font-bold text-white drop-shadow-sm">Outstanding Work!</h4>
             <p class="text-sm text-slate-300">All daily tasks complete. Streak updated! 🔥</p>
@@ -668,14 +718,24 @@ html
     </div>
 
     <script>
-        // Tab Logic
+        // Smooth Tab Switching Logic with hardware-accelerated animations
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.add('hidden');
+                t.classList.remove('animate-fade-in'); 
+            });
             document.querySelectorAll('.tab-btn').forEach(t => {
                 t.classList.remove('bg-cyan-500/80', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]', 'border-cyan-400/50', 'backdrop-blur-md');
                 t.classList.add('glass-btn', 'text-slate-300');
             });
-            document.getElementById(tabId).classList.remove('hidden');
+            
+            const selectedTab = document.getElementById(tabId);
+            selectedTab.classList.remove('hidden');
+            
+            // Force browser reflow to restart CSS animation perfectly
+            void selectedTab.offsetWidth;
+            selectedTab.classList.add('animate-fade-in');
+
             const activeBtn = document.getElementById('btn-' + tabId);
             activeBtn.classList.remove('glass-btn', 'text-slate-300');
             activeBtn.classList.add('bg-cyan-500/80', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.4)]', 'border-cyan-400/50', 'backdrop-blur-md');
@@ -687,7 +747,7 @@ html
         const rows = document.querySelectorAll('#weekly-split-table tbody tr');
         rows.forEach(row => {
             if(row.getAttribute('data-day') === currentDayName) {
-                row.classList.add('bg-cyan-500/20', 'border-l-4', 'border-l-cyan-400');
+                row.classList.add('bg-cyan-500/20', 'border-l-4', 'border-l-cyan-400', 'shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]');
                 row.querySelector('td:first-child').classList.add('font-bold', 'text-cyan-300');
             }
         });
@@ -706,7 +766,7 @@ html
             "10:00 PM: Curd + Water Before Bed"
         ];
         
-        const STATE_KEY = 'uday_full_tracker_glass_v4';
+        const STATE_KEY = 'uday_full_tracker_final_v1';
         const TODAY = new Date().toDateString();
 
         let state = JSON.parse(localStorage.getItem(STATE_KEY)) || {
@@ -714,7 +774,7 @@ html
         };
 
         // Initialize history if missing and seed mock data
-        if (!state.history) {
+        if (!state.history || Object.keys(state.history).length === 0) {
             state.history = {};
             const d = new Date();
             for (let i = 90; i > 0; i--) {
@@ -727,6 +787,7 @@ html
             saveState();
         }
 
+        // Daily reset logic
         if (state.date !== TODAY) {
             state.date = TODAY; state.water = 0; state.tasks = Array(TASKS_DATA.length).fill(false); state.completedToday = false; saveState();
         }
@@ -738,6 +799,7 @@ html
             state.history[TODAY] = { tasks: completed, water: state.water };
             saveState();
             
+            // Live update analytics chart if looking at it
             if(!document.getElementById('tab-analytics').classList.contains('hidden')) {
                 const activeRangeBtn = document.querySelector('.stat-btn.bg-cyan-500\\/80');
                 if(activeRangeBtn) {
@@ -752,13 +814,16 @@ html
             container.innerHTML = '';
             TASKS_DATA.forEach((taskName, index) => {
                 const isChecked = state.tasks[index] ? 'checked' : '';
-                const bgClass = state.tasks[index] ? 'bg-cyan-500/20 border-cyan-400/40 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]' : 'glass-inner hover:bg-white/5';
+                const bgClass = state.tasks[index] ? 'bg-cyan-500/20 border-cyan-400/40 shadow-[inset_0_0_10px_rgba(6,182,212,0.15)] translate-x-1' : 'glass-inner hover:bg-white/5 hover:translate-x-1';
                 const textClass = state.tasks[index] ? 'text-cyan-200 line-through opacity-80' : 'text-slate-200';
                 
+                // Safe inline style delay
+                const delayStyle = `animation-delay: ${index * 50}ms;`;
+                
                 const taskHTML = `
-                    <label class="flex items-center space-x-3 p-3.5 rounded-xl border ${bgClass} cursor-pointer transition-all duration-300">
+                    <label class="flex items-center space-x-3 p-3.5 rounded-xl border ${bgClass} cursor-pointer transition-all duration-300 ease-out animate-fade-in" style="${delayStyle}">
                         <input type="checkbox" onchange="toggleTask(${index})" ${isChecked}>
-                        <span class="text-sm font-medium ${textClass} select-none drop-shadow-sm">${taskName}</span>
+                        <span class="text-sm font-medium ${textClass} select-none drop-shadow-sm transition-all duration-300">${taskName}</span>
                     </label>
                 `;
                 container.insertAdjacentHTML('beforeend', taskHTML);
@@ -801,10 +866,20 @@ html
             }
         }
 
+        // Bug-free toast logic using clearTimeout
+        let toastTimeout;
         function showToast() {
             const toast = document.getElementById('toast');
-            toast.classList.remove('hidden'); toast.classList.add('toast-enter');
-            setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('toast-enter'); }, 4000);
+            clearTimeout(toastTimeout);
+            
+            toast.classList.remove('hidden', 'toast-enter'); 
+            void toast.offsetWidth; // Force Reflow
+            toast.classList.add('toast-enter');
+
+            toastTimeout = setTimeout(() => { 
+                toast.classList.add('hidden'); 
+                toast.classList.remove('toast-enter'); 
+            }, 4000);
         }
 
         renderTasks(); updateWaterUI(); updateDailyHistory();
@@ -852,20 +927,21 @@ html
                 }
 
                 const percentDone = (dayData.tasks / TASKS_DATA.length) * 100;
-                let barColor = 'bg-white/10 backdrop-blur-sm border-t border-white/20';
-                if (percentDone >= 100) barColor = 'bg-cyan-400/80 shadow-[0_0_12px_rgba(34,211,238,0.6)] backdrop-blur-md border-t border-cyan-200';
-                else if (percentDone >= 50) barColor = 'bg-blue-500/60 backdrop-blur-sm border-t border-blue-300/50';
+                let barColor = 'bg-white/10 backdrop-blur-sm border-t border-white/20 hover:bg-white/20';
+                if (percentDone >= 100) barColor = 'bg-cyan-400/80 shadow-[0_0_12px_rgba(34,211,238,0.6)] backdrop-blur-md border-t border-cyan-200 hover:bg-cyan-300/90 hover:shadow-[0_0_20px_rgba(34,211,238,0.8)]';
+                else if (percentDone >= 50) barColor = 'bg-blue-500/60 backdrop-blur-sm border-t border-blue-300/50 hover:bg-blue-400/70';
 
                 let widthClass = days > 30 ? 'flex-1' : (days > 7 ? 'w-2 sm:w-3' : 'w-8 sm:w-12');
+                const delayStyle = `animation-delay: ${(days - i) * (200 / days)}ms; --target-height: ${percentDone}%;`; 
 
                 const barHTML = `
-                    <div class="h-full flex flex-col justify-end items-center group relative ${widthClass}">
-                        <div class="absolute bottom-full mb-2 hidden group-hover:block glass-inner text-white text-[10px] py-1.5 px-2.5 rounded whitespace-nowrap z-10 shadow-xl">
+                    <div class="h-full flex flex-col justify-end items-center group relative ${widthClass} animate-fade-in" style="animation-delay: ${(days - i) * (200 / days)}ms;">
+                        <div class="absolute bottom-full mb-2 hidden group-hover:block glass-inner text-white text-[10px] py-1.5 px-2.5 rounded whitespace-nowrap z-10 shadow-xl transition-all">
                             ${d.toLocaleDateString(undefined, {month:'short', day:'numeric'})}<br>
                             <span class="text-cyan-300">${dayData.tasks}/${TASKS_DATA.length} Tasks</span><br>
                             <span class="text-blue-300">${dayData.water}L Water</span>
                         </div>
-                        <div class="w-full rounded-t-sm transition-all duration-700 ease-out ${barColor}" style="height: ${percentDone}%"></div>
+                        <div class="w-full rounded-t-sm animate-grow-up ${barColor}" style="${delayStyle}"></div>
                     </div>
                 `;
                 chartContainer.insertAdjacentHTML('beforeend', barHTML);
@@ -880,6 +956,7 @@ html
             document.getElementById('stat-best-streak').innerText = bestStreak;
         }
 
+        // Initialize Analytics Tab
         renderAnalytics(7);
 
         // --- LIVE CLOCK & TIMELINE LOGIC ---
@@ -946,7 +1023,8 @@ html
         }
 
         function renderTimeline(currentIndex) {
-            if (currentIndex === lastRenderedIndex) return;
+            // Only re-render if the block actually changed to save resources
+            if (currentIndex === lastRenderedIndex) return; 
             lastRenderedIndex = currentIndex;
 
             const container = document.getElementById('live-timeline-container');
@@ -971,7 +1049,7 @@ html
                 let pulseHtml = '';
 
                 if (index < currentIndex) {
-                    stateClass = 'opacity-40 hover:opacity-80 transition-opacity';
+                    stateClass = 'opacity-40 hover:opacity-80 transition-opacity cursor-pointer hover:-translate-y-1';
                     iconBg = 'text-white/50';
                     textClass = 'text-white/50';
                     borderClass = 'border-white/10 bg-white/5';
@@ -982,21 +1060,21 @@ html
                     borderClass = 'border-orange-400 bg-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.6)] backdrop-blur-md';
                     pulseHtml = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-60 z-[-1]"></span>`;
                 } else {
-                    stateClass = 'opacity-90';
+                    stateClass = 'opacity-90 hover:scale-105 transition-transform cursor-pointer';
                     iconBg = 'text-cyan-300';
                     textClass = 'text-slate-200';
                     borderClass = 'border-white/10 bg-black/20 backdrop-blur-sm';
                 }
 
                 const itemHTML = `
-                    <div class="flex-shrink-0 flex flex-col items-center w-28 snap-center ${stateClass}" id="timeline-item-${index}">
+                    <div class="flex-shrink-0 flex flex-col items-center w-28 snap-center ${stateClass} animate-fade-in" style="animation-delay: ${index * 50}ms;" id="timeline-item-${index}">
                         <div class="text-[11px] font-mono font-medium text-cyan-300 mb-2 px-2 py-1 rounded glass-inner shadow-sm">${timeString}</div>
-                        <div class="relative flex items-center justify-center w-12 h-12 rounded-full border-2 ${borderClass} ${iconBg} mb-3 transition-all duration-300">
+                        <div class="relative flex items-center justify-center w-12 h-12 rounded-full border-2 ${borderClass} ${iconBg} mb-3 transition-all duration-500 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]">
                             ${pulseHtml}
-                            <i class="ph-fill ${item.icon} text-xl relative z-10"></i>
+                            <i class="ph-fill ${item.icon} text-xl relative z-10 transition-transform group-hover:scale-110"></i>
                         </div>
                         <div class="text-center w-full px-1">
-                            <h4 class="text-sm ${textClass} leading-tight truncate drop-shadow-sm" title="${item.label}">${item.label}</h4>
+                            <h4 class="text-sm ${textClass} leading-tight truncate drop-shadow-sm transition-colors">${item.label}</h4>
                             <p class="text-[10px] text-slate-400 mt-1 truncate" title="${item.detail}">${item.detail}</p>
                         </div>
                     </div>
@@ -1004,6 +1082,7 @@ html
                 container.insertAdjacentHTML('beforeend', itemHTML);
             });
 
+            // Smooth scroll to active item only on state change
             if (currentIndex >= 0) {
                 setTimeout(() => {
                     const currentEl = document.getElementById(`timeline-item-${currentIndex}`);
@@ -1012,7 +1091,7 @@ html
                         const scrollPos = currentEl.offsetLeft - (containerEl.offsetWidth / 2) + (currentEl.offsetWidth / 2);
                         containerEl.scrollTo({ left: Math.max(0, scrollPos), behavior: 'smooth' });
                     }
-                }, 300);
+                }, 400); 
             }
         }
 
@@ -1032,7 +1111,11 @@ html
                         console.warn("Image too large to save to storage, showing for this session only.");
                     }
                     document.querySelectorAll('.vision-img').forEach(img => {
-                        img.src = dataUrl;
+                        img.style.opacity = 0;
+                        setTimeout(() => {
+                            img.src = dataUrl;
+                            img.style.opacity = 1;
+                        }, 300);
                     });
                 };
                 reader.readAsDataURL(file);
