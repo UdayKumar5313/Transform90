@@ -78,7 +78,7 @@
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- API & AUDIO ---
-        const apiKey = ""; 
+        const apiKey = ""; // Do not change or check. System intercepts this.
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let soundEnabled = true;
         document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
@@ -157,7 +157,7 @@
             workoutDay: DAYS_OF_WEEK[new Date().getDay()], history: {}, photos: [],
             restTimer: 0, timerInterval: null, showGrocery: false,
             isAIOpen: false,
-            aiMessages: [{ role: 'model', text: "Hi Uday! I perfectly monitor your live checkboxes. Ask me what you've eaten today, or what alternatives you can use for your planned foods!" }]
+            aiMessages: [{ role: 'model', text: "Hi Uday! I monitor your live checkboxes. Ask me what you've eaten today, or what alternatives you can use for your planned foods!" }]
         };
 
         // --- 3. FIREBASE CLOUD SETUP ---
@@ -372,7 +372,7 @@
                 }, 1000);
             },
 
-            // --- AI LOGIC (WITH TIME AWARENESS) ---
+            // --- AI LOGIC (LIVE STATE INJECTION) ---
             toggleAI: () => {
                 state.isAIOpen = !state.isAIOpen;
                 renderAI();
@@ -454,7 +454,7 @@ Pending Diet Items To Eat: ${pendingItems.length > 0 ? pendingItems.join(', ') :
                 const delays = [1000, 2000, 4000, 8000, 16000];
                 let responseText = "Sorry Uday, I'm having trouble connecting right now. Please try again.";
                 
-                if (apiKey === "") {
+                for (let i = 0; i < 5; i++) {
                     try {
                         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -462,22 +462,9 @@ Pending Diet Items To Eat: ${pendingItems.length > 0 ? pendingItems.join(', ') :
                         if (!res.ok) throw new Error('API Error');
                         const data = await res.json();
                         responseText = data.candidates[0].content.parts[0].text;
+                        break;
                     } catch (err) {
-                        responseText = "Hello Uday! I am your AI Assistant. Note: I can perfectly read your live checkboxes and see that today is " + todayName + " at " + currentTime + "!, but the AI API key is missing from this specific web environment to process custom questions right now. Your data is still safely saved!";
-                    }
-                } else {
-                    for (let i = 0; i < 5; i++) {
-                        try {
-                            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-                            });
-                            if (!res.ok) throw new Error('API Error');
-                            const data = await res.json();
-                            responseText = data.candidates[0].content.parts[0].text;
-                            break;
-                        } catch (err) {
-                            if (i < 4) await new Promise(r => setTimeout(r, delays[i]));
-                        }
+                        if (i < 4) await new Promise(r => setTimeout(r, delays[i]));
                     }
                 }
 
