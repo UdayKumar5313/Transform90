@@ -3,49 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uday's 90-Day Transformation</title>
+    <title>Uday Kumar's 90-Day Transformation</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Hide scrollbar for horizontal scrolling containers */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body {
-            background-color: #020617; /* slate-950 */
-            color: #f1f5f9; /* slate-100 */
+            background-color: #020617; 
+            color: #f1f5f9; 
             font-family: system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Smooth transitions */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #cloud-loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #020617; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        
+        /* Chat Bubble Styles */
+        .chat-bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 0.875rem; line-height: 1.4; }
+        .chat-user { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-ai { background-color: #1e293b; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #334155; }
     </style>
 </head>
-<body class="pb-24 md:pb-0 selection:bg-emerald-500/30">
+<body class="pb-24 md:pb-0 selection:bg-emerald-500/30 relative">
 
-    <!-- Header will be rendered here -->
+    <div id="cloud-loader">
+        <i class="fa-solid fa-cloud-arrow-down text-emerald-500 text-5xl mb-4 animate-bounce"></i>
+        <h2 class="text-xl font-bold text-white">Syncing with Cloud...</h2>
+        <p class="text-slate-500 text-sm mt-2">Fetching Uday's 90-Day Data</p>
+    </div>
+
     <div id="header-container"></div>
-
-    <!-- Main Content Area -->
     <main id="app-content" class="max-w-4xl mx-auto p-4 md:p-6 fade-in"></main>
 
-    <!-- Floating Timer (Hidden by default) -->
-    <div id="floating-timer" class="hidden fixed bottom-24 md:bottom-6 right-4 md:right-6 bg-slate-900 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-full px-6 py-3 items-center gap-3 z-50">
+    <!-- Modal Root for Camera Upload -->
+    <div id="modal-root"></div>
+
+    <!-- AI Assistant Root -->
+    <div id="ai-root"></div>
+
+    <!-- Floating Rest Timer -->
+    <div id="floating-timer" class="hidden fixed bottom-[140px] md:bottom-24 right-4 md:right-6 bg-slate-900 border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-full px-6 py-3 items-center gap-3 z-40">
         <i class="fa-solid fa-stopwatch text-emerald-400 text-2xl animate-pulse"></i>
         <div class="flex flex-col">
             <span class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider">Rest</span>
@@ -53,388 +60,577 @@
         </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- Floating AI Button -->
+    <button onclick="app.toggleAI()" class="fixed bottom-[80px] md:bottom-8 right-4 md:right-6 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center z-40 transition-transform hover:scale-105 active:scale-95">
+        <i class="fa-solid fa-robot text-2xl"></i>
+    </button>
+
+    <!-- Mobile Nav -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around p-2 z-50 md:hidden pb-safe" id="mobile-nav"></nav>
-    
-    <div class="hidden md:flex justify-center gap-4 fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex justify-center gap-2 fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
         <div class="bg-slate-900/90 backdrop-blur border border-slate-700 rounded-2xl p-2 flex shadow-2xl gap-2 pointer-events-auto" id="desktop-nav"></div>
     </div>
 
-    <script>
-        // --- 1. DATA STRUCTURES ---
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const TIMETABLE = [
-            { id: 't1', time: '6:30 AM', activity: 'Wake Up', details: 'Drink 500 ml water. Start the engine.', icon: 'fa-sun' },
-            { id: 't2', time: '6:40 AM', activity: 'Sunlight', details: '10 mins outdoor sunlight.', icon: 'fa-sun' },
-            { id: 't3', time: '7:00 AM', activity: 'Pre-Breakfast', details: '1 banana + 5 almonds + 300 ml water.', icon: 'fa-utensils' },
-            { id: 't4', time: '8:00 AM', activity: 'Breakfast', details: 'Oats, milk, peanuts, and eggs (3 whole, 2 white).', icon: 'fa-utensils' },
-            { id: 't5', time: '11:00 AM', activity: 'Snack', details: '1 banana or 1 apple.', icon: 'fa-utensils' },
-            { id: 't6', time: '1:30 PM', activity: 'Lunch', details: 'Rice, dal, vegetables, soya chunks, curd.', icon: 'fa-utensils' },
-            { id: 't7', time: '2:00 PM', activity: 'Walk', details: '10-minute slow walk for digestion.', icon: 'fa-person-walking' },
-            { id: 't8', time: '4:30 PM', activity: 'Pre-Workout', details: '1 banana + 1 cup black coffee.', icon: 'fa-fire' },
-            { id: 't9', time: '5:00 PM', activity: 'Workout', details: 'Follow daily routine.', icon: 'fa-dumbbell' },
-            { id: 't10', time: '6:00 PM', activity: 'Post-Workout', details: '3 boiled eggs + 500 ml water.', icon: 'fa-utensils' },
-            { id: 't11', time: '7:00 PM', activity: 'Walk', details: '15–20 minutes brisk walking.', icon: 'fa-person-walking' },
-            { id: 't12', time: '8:30 PM', activity: 'Dinner', details: 'Rice, dal, vegetables, 3 eggs.', icon: 'fa-utensils' },
-            { id: 't13', time: '10:00 PM', activity: 'Before Bed', details: '100g curd + 300 ml water.', icon: 'fa-moon' },
-        ];
+        // --- API & AUDIO ---
+        const apiKey = ""; 
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+        document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 
-        const WATER_SCHEDULE = [
-            { id: 'w1', time: 'Wake Up', amount: 500 }, { id: 'w2', time: 'Breakfast', amount: 300 },
-            { id: 'w3', time: 'Morning', amount: 700 }, { id: 'w4', time: 'Lunch', amount: 300 },
-            { id: 'w5', time: 'Afternoon', amount: 500 }, { id: 'w6', time: 'Workout', amount: 500 },
-            { id: 'w7', time: 'Dinner', amount: 200 }, { id: 'w8', time: 'Before Bed', amount: 300 },
-        ];
+        function playTone(freq, type, duration, vol=0.1) {
+            if (!soundEnabled || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
 
-        const MEALS = {
-            breakfast: { title: 'Power Breakfast', time: '8:00 AM', items: [
-                { id: 'm1', name: 'Oats (80g)', protein: 10, cals: 310 }, { id: 'm2', name: 'Milk (300ml)', protein: 10, cals: 180 },
-                { id: 'm3', name: 'Peanuts (15g)', protein: 4, cals: 85 }, { id: 'm4', name: 'Whole Eggs (3)', protein: 18, cals: 210 },
-                { id: 'm5', name: 'Egg Whites (2)', protein: 8, cals: 35 },
-            ]},
-            lunch: { title: 'Muscle-Building Lunch', time: '1:30 PM', items: [
-                { id: 'm6', name: 'Cooked Rice (250g)', protein: 5, cals: 325 }, { id: 'm7', name: 'Dal (150g)', protein: 8, cals: 150 },
-                { id: 'm8', name: 'Vegetables (1 Bowl)', protein: 2, cals: 50 }, { id: 'm9', name: 'Soya Chunks (60g)', protein: 30, cals: 200 },
-                { id: 'm10', name: 'Curd (100g)', protein: 4, cals: 60 },
-            ]},
-            dinner: { title: 'Recovery Dinner', time: '8:30 PM', items: [
-                { id: 'm11', name: 'Cooked Rice (200g)', protein: 4, cals: 260 }, { id: 'm12', name: 'Dal (150g)', protein: 8, cals: 150 },
-                { id: 'm13', name: 'Vegetables (1 Bowl)', protein: 2, cals: 50 }, { id: 'm14', name: 'Whole Eggs (3)', protein: 18, cals: 210 },
-            ]},
-            snacks: { title: 'Pre/Post Workout Snacks', time: 'Various', items: [
-                { id: 'm15', name: 'Bananas (2)', protein: 2, cals: 210 }, { id: 'm16', name: 'Almonds (5)', protein: 1, cals: 35 },
-                { id: 'm17', name: 'Boiled Eggs (3)', protein: 18, cals: 210 }, { id: 'm18', name: 'Curd before bed (100g)', protein: 4, cals: 60 },
-            ]}
+        const sfx = {
+            success: () => { playTone(440, 'sine', 0.1, 0.1); setTimeout(() => playTone(554.37, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(659.25, 'sine', 0.4, 0.15), 200); },
+            click: () => playTone(300, 'triangle', 0.05, 0.05),
+            tick: () => playTone(800, 'sine', 0.05, 0.02),
+            alarm: () => { playTone(880, 'square', 0.2, 0.1); setTimeout(() => playTone(880, 'square', 0.2, 0.1), 300); setTimeout(() => playTone(880, 'square', 0.4, 0.1), 600); }
         };
+
+        // --- 1. DATA STRUCTURES ---
+        const TIMETABLE = [
+            { id: 't1', time: '6:30 AM', activity: 'Wake Up', details: 'Drink 500 ml water', linked: 'n1', icon: 'fa-sun text-yellow-400' },
+            { id: 't2', time: '6:40 AM', activity: 'Sunlight', details: '10 minutes outdoor sunlight', icon: 'fa-sun text-yellow-500' },
+            { id: 't3', time: '7:00 AM', activity: 'Pre-Breakfast', details: '1 banana + 5 almonds + 300 ml water', linked: 'n2', icon: 'fa-apple-whole text-red-400' },
+            { id: 't4', time: '8:00 AM', activity: 'Breakfast', details: '80g oats + 300ml milk + 15g peanuts + 3 whole eggs + 2 egg whites', linked: 'n3', icon: 'fa-utensils text-orange-400' },
+            { id: 't5', time: '11:00 AM', activity: 'Snack & Hydrate', details: '1 banana or 1 apple + 700 ml water', linked: 'n4', icon: 'fa-apple-whole text-red-400' },
+            { id: 't6', time: '1:30 PM', activity: 'Lunch', details: '250g cooked rice + 150g dal + veg + 60g raw soya chunks + 100g curd + 300ml water', linked: 'n5', icon: 'fa-bowl-rice text-orange-400' },
+            { id: 't7', time: '2:00 PM', activity: 'Walk', details: '10-minute slow walk', icon: 'fa-person-walking text-emerald-400' },
+            { id: 't_w', time: '3:00 PM', activity: 'Afternoon Hydration', details: 'Drink 500 ml water', linked: 'n6', icon: 'fa-droplet text-blue-400' },
+            { id: 't8', time: '4:30 PM', activity: 'Pre-Workout', details: '1 banana + 1 cup black coffee', linked: 'n7', icon: 'fa-fire text-orange-500' },
+            { id: 't9', time: '5:00 PM', activity: 'Workout', details: 'Follow workout schedule + 500ml water', linked: 'workout', icon: 'fa-dumbbell text-slate-300' },
+            { id: 't10', time: '6:00 PM', activity: 'Post-Workout', details: '3 boiled eggs', linked: 'n8', icon: 'fa-utensils text-orange-400' },
+            { id: 't11', time: '7:00 PM', activity: 'Walk', details: '15–20 minutes', icon: 'fa-person-walking text-emerald-400' },
+            { id: 't12', time: '8:30 PM', activity: 'Dinner', details: '200g cooked rice + 150g dal + veg + 3 eggs + 200ml water', linked: 'n9', icon: 'fa-utensils text-orange-400' },
+            { id: 't13', time: '10:00 PM', activity: 'Before Bed', details: '100g curd + 300 ml water', linked: 'n10', icon: 'fa-moon text-indigo-300' },
+            { id: 't14', time: '10:30 PM', activity: 'Sleep', details: 'Minimum 7–8 hours', icon: 'fa-bed text-indigo-400' }
+        ];
+
+        const NUTRITION_PLAN = [
+            { id: 'n1', title: 'Wake Up', time: '6:30 AM', icon: 'fa-droplet text-blue-400', items: [{ id: 'i1', name: 'Water (Wake Up)', qty: '500 ml', pro: 0, cal: 0, water: 500 }]},
+            { id: 'n2', title: 'Pre-Breakfast', time: '7:00 AM', icon: 'fa-apple-whole text-red-400', items: [{ id: 'i2', name: 'Banana', qty: '1', pro: 1, cal: 105, water: 0 }, { id: 'i3', name: 'Almonds', qty: '5', pro: 1, cal: 35, water: 0 }, { id: 'i4', name: 'Water (Breakfast)', qty: '300 ml', pro: 0, cal: 0, water: 300 }]},
+            { id: 'n3', title: 'Breakfast', time: '8:00 AM', target: '~50g Protein', icon: 'fa-utensils text-orange-400', items: [{ id: 'i5', name: 'Oats', qty: '80 g', pro: 10, cal: 310, water: 0 }, { id: 'i6', name: 'Milk', qty: '300 ml', pro: 10, cal: 180, water: 0 }, { id: 'i7', name: 'Peanuts', qty: '15 g', pro: 4, cal: 85, water: 0 }, { id: 'i8', name: 'Whole Eggs', qty: '3', pro: 18, cal: 210, water: 0 }, { id: 'i9', name: 'Egg Whites', qty: '2', pro: 8, cal: 35, water: 0 }]},
+            { id: 'n4', title: 'Morning Snack', time: '11:00 AM', icon: 'fa-apple-whole text-red-400', items: [{ id: 'i10', name: 'Banana OR Apple', qty: '1', pro: 1, cal: 95, water: 0 }, { id: 'i11', name: 'Water (Morning)', qty: '700 ml', pro: 0, cal: 0, water: 700 }]},
+            { id: 'n5', title: 'Lunch', time: '1:30 PM', target: '~35g Protein', icon: 'fa-bowl-rice text-orange-400', items: [{ id: 'i12', name: 'Cooked Rice', qty: '250 g', pro: 0, cal: 325, water: 0 }, { id: 'i13', name: 'Dal', qty: '150 g', pro: 5, cal: 150, water: 0 }, { id: 'i14', name: 'Vegetables', qty: '1 Bowl', pro: 0, cal: 50, water: 0 }, { id: 'i15', name: 'Soya Chunks (raw)', qty: '60 g', pro: 30, cal: 200, water: 0 }, { id: 'i16', name: 'Curd', qty: '100 g', pro: 0, cal: 60, water: 0 }, { id: 'i17', name: 'Water (Lunch)', qty: '300 ml', pro: 0, cal: 0, water: 300 }]},
+            { id: 'n6', title: 'Afternoon Hydration', time: '3:00 PM', icon: 'fa-droplet text-blue-400', items: [{ id: 'i18', name: 'Water (Afternoon)', qty: '500 ml', pro: 0, cal: 0, water: 500 }]},
+            { id: 'n7', title: 'Pre-Workout', time: '4:30 PM', icon: 'fa-fire text-orange-500', items: [{ id: 'i19', name: 'Banana', qty: '1', pro: 1, cal: 105, water: 0 }, { id: 'i20', name: 'Black Coffee', qty: '1 cup', pro: 0, cal: 5, water: 0 }]},
+            { id: 'n8', title: 'Post-Workout', time: '6:00 PM', target: '18g Protein', icon: 'fa-dumbbell text-slate-300', items: [{ id: 'i21', name: 'Boiled Eggs', qty: '3', pro: 18, cal: 210, water: 0 }, { id: 'i_w_w', name: 'Water (Workout)', qty: '500 ml', pro: 0, cal: 0, water: 500 }]},
+            { id: 'n9', title: 'Dinner', time: '8:30 PM', target: '~25g Protein', icon: 'fa-utensils text-orange-400', items: [{ id: 'i23', name: 'Cooked Rice', qty: '200 g', pro: 0, cal: 260, water: 0 }, { id: 'i24', name: 'Dal', qty: '150 g', pro: 7, cal: 150, water: 0 }, { id: 'i25', name: 'Vegetables', qty: '1 Bowl', pro: 0, cal: 50, water: 0 }, { id: 'i26', name: 'Eggs', qty: '3', pro: 18, cal: 210, water: 0 }, { id: 'i27', name: 'Water (Dinner)', qty: '200 ml', pro: 0, cal: 0, water: 200 }]},
+            { id: 'n10', title: 'Before Bed', time: '10:00 PM', icon: 'fa-moon text-indigo-300', items: [{ id: 'i28', name: 'Curd', qty: '100 g', pro: 0, cal: 60, water: 0 }, { id: 'i29', name: 'Water (Before Bed)', qty: '300 ml', pro: 0, cal: 0, water: 300 }]}
+        ];
 
         const GROCERY_LIST = [
             { category: 'Proteins', items: ['Eggs (Tray of 30+)', 'Soya Chunks (500g)', 'Milk (3-4 Liters/week)', 'Curd (1.5kg/week)'] },
             { category: 'Carbs & Fats', items: ['Oats (1kg)', 'White/Brown Rice', 'Dal / Lentils (1kg)', 'Peanuts (250g)', 'Almonds (100g)'] },
-            { category: 'Produce', items: ['Bananas (Dozen)', 'Apples', 'Mixed Vegetables (Spinach, Carrots, Beans)'] },
+            { category: 'Produce', items: ['Bananas (Dozen)', 'Apples', 'Mixed Vegetables'] },
             { category: 'Extras', items: ['Black Coffee Powder'] }
         ];
 
         const BASE_WORKOUTS = {
-            Monday: { focus: 'Chest + Shoulders + Triceps', duration: '60 min', time: '5:00 PM', routine: [
-                { id: 'w_m1', name: 'Push-ups', sets: 4, reps: '10' }, { id: 'w_m2', name: 'Incline Push-ups', sets: 3, reps: '12' },
-                { id: 'w_m3', name: 'Pike Push-ups', sets: 3, reps: '8' }, { id: 'w_m4', name: 'Chair Dips', sets: 3, reps: '10' },
-                { id: 'w_m5', name: 'Water Bottle Lateral Raises', sets: 3, reps: '15' },
-            ]},
-            Tuesday: { focus: 'Back + Biceps', duration: '60 min', time: '5:00 PM', routine: [
-                { id: 'w_t1', name: 'Backpack Rows', sets: 4, reps: '12' }, { id: 'w_t2', name: 'Towel Rows', sets: 3, reps: '12' },
-                { id: 'w_t3', name: 'Backpack Curls', sets: 3, reps: '15' }, { id: 'w_t4', name: 'Superman Hold', sets: 3, reps: '30s' },
-            ]},
-            Wednesday: { focus: 'Legs + Abs', duration: '60 min', time: '5:00 PM', routine: [
-                { id: 'w_w1', name: 'Squats', sets: 4, reps: '20' }, { id: 'w_w2', name: 'Lunges', sets: 3, reps: '12/leg' },
-                { id: 'w_w3', name: 'Glute Bridges', sets: 3, reps: '15' }, { id: 'w_w4', name: 'Calf Raises', sets: 4, reps: '25' },
-                { id: 'w_w5', name: 'Leg Raises', sets: 3, reps: '15' },
-            ]},
-            Thursday: { focus: 'Cardio', duration: '45 min', time: '5:00 PM', routine: [
-                { id: 'w_th1', name: 'Brisk Walk or Jog', sets: 1, reps: '45 min' },
-            ]},
-            Friday: { focus: 'Upper Body', duration: '60 min', time: '5:00 PM', routine: [
-                { id: 'w_f1', name: 'Push-ups', sets: 5, reps: '12' }, { id: 'w_f2', name: 'Pike Push-ups', sets: 4, reps: '10' },
-                { id: 'w_f3', name: 'Backpack Rows', sets: 4, reps: '15' }, { id: 'w_f4', name: 'Chair Dips', sets: 4, reps: '12' },
-                { id: 'w_f5', name: 'Lateral Raises', sets: 4, reps: '15' },
-            ]},
-            Saturday: { focus: 'Cardio + Abs', duration: '45 min', time: '5:00 PM', routine: [
-                { id: 'w_s1', name: 'Brisk Walking', sets: 1, reps: '40 min' }, { id: 'w_s2', name: 'Leg Raises', sets: 3, reps: '15' },
-                { id: 'w_s3', name: 'Russian Twists', sets: 3, reps: '20' }, { id: 'w_s4', name: 'Plank', sets: 3, reps: '60s' },
-            ]},
-            Sunday: { focus: 'Rest', duration: 'Recovery', time: 'Anytime', routine: [
-                { id: 'w_su1', name: 'Active Recovery Walk', sets: 1, reps: '15 min' }, { id: 'w_su2', name: 'Full Body Stretch', sets: 1, reps: '15 min' },
-            ]}
+            Monday: { focus: 'Chest + Shoulders + Triceps', duration: '60 min', note: 'Rest 60–90 sec between sets.', routine: [{ id: 'w_m1', name: 'Push-ups', sets: 4, reps: '10' }, { id: 'w_m2', name: 'Incline Push-ups', sets: 3, reps: '12' }, { id: 'w_m3', name: 'Pike Push-ups', sets: 3, reps: '8' }, { id: 'w_m4', name: 'Chair Dips', sets: 3, reps: '10' }, { id: 'w_m5', name: 'Water Bottle Lateral Raises', sets: 3, reps: '15' }, { id: 'w_m6', name: 'Plank', sets: 3, reps: '45 sec' }]},
+            Tuesday: { focus: 'Back + Biceps', duration: '60 min', note: 'Use a backpack filled with books.', routine: [{ id: 'w_t1', name: 'Backpack Rows', sets: 4, reps: '12' }, { id: 'w_t2', name: 'Towel Rows', sets: 3, reps: '12' }, { id: 'w_t3', name: 'Backpack Curls', sets: 3, reps: '15' }, { id: 'w_t4', name: 'Superman Hold', sets: 3, reps: '30 sec' }, { id: 'w_t5', name: 'Dead Hangs', sets: 3, reps: 'Max Time' }]},
+            Wednesday: { focus: 'Legs + Abs', duration: '60 min', note: 'Rest 60–90 sec between sets.', routine: [{ id: 'w_w1', name: 'Squats', sets: 4, reps: '20' }, { id: 'w_w2', name: 'Lunges', sets: 3, reps: '12/leg' }, { id: 'w_w3', name: 'Glute Bridges', sets: 3, reps: '15' }, { id: 'w_w4', name: 'Calf Raises', sets: 4, reps: '25' }, { id: 'w_w5', name: 'Leg Raises', sets: 3, reps: '15' }, { id: 'w_w6', name: 'Bicycle Crunches', sets: 3, reps: '20' }]},
+            Thursday: { focus: 'Walking/Cardio', duration: '45 min', note: 'Cardio Focus.', routine: [{ id: 'w_th1', name: 'Brisk Walk', sets: 1, reps: '45 min' }, { id: 'w_th2', name: 'OR Light Jog', sets: 1, reps: '20 min' }]},
+            Friday: { focus: 'Upper Body', duration: '60 min', note: 'Rest 60–90 sec between sets.', routine: [{ id: 'w_f1', name: 'Push-ups', sets: 5, reps: '12' }, { id: 'w_f2', name: 'Pike Push-ups', sets: 4, reps: '10' }, { id: 'w_f3', name: 'Backpack Rows', sets: 4, reps: '15' }, { id: 'w_f4', name: 'Chair Dips', sets: 4, reps: '12' }, { id: 'w_f5', name: 'Lateral Raises', sets: 4, reps: '15' }, { id: 'w_f6', name: 'Plank', sets: 3, reps: '60 sec' }]},
+            Saturday: { focus: 'Cardio + Abs', duration: '45 min', note: 'Cardio first, then Abs.', routine: [{ id: 'w_s1', name: 'Brisk Walking/Jogging', sets: 1, reps: '40 min' }, { id: 'w_s2', name: 'Leg Raises', sets: 3, reps: '15' }, { id: 'w_s3', name: 'Russian Twists', sets: 3, reps: '20' }, { id: 'w_s4', name: 'Plank', sets: 3, reps: '60 sec' }]},
+            Sunday: { focus: 'Rest', duration: 'Recovery', note: 'Recover and prepare for next week.', routine: [{ id: 'w_su1', name: 'Rest & Recovery', sets: '-', reps: '-' }]}
         };
-
         const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         // --- 2. STATE MANAGEMENT ---
         const state = {
-            activeTab: 'daily',
-            currentWeek: 1,
-            strictMode: true,
-            completedTasks: new Set(),
-            completedWater: new Set(),
-            consumedDiet: new Set(),
-            completedSets: new Set(),
-            energyLevel: 0,
-            sleepBed: '22:30',
-            sleepWake: '06:30',
-            weight: 56.2,
-            showGrocery: false,
-            workoutDay: DAYS_OF_WEEK[new Date().getDay()],
-            history: {}, 
-            restTimer: 0,
-            timerInterval: null
+            activeTab: 'daily', currentWeek: 1, strictMode: true,
+            completedTasks: new Set(), consumedDiet: new Set(), completedSets: new Set(),
+            energyLevel: 0, sleepBed: '22:30', sleepWake: '06:30', steps: 0, weight: 56.2,
+            workoutDay: DAYS_OF_WEEK[new Date().getDay()], history: {}, photos: [],
+            restTimer: 0, timerInterval: null, showGrocery: false,
+            isAIOpen: false,
+            aiMessages: [{ role: 'model', text: "Hi Uday! I perfectly monitor your live checkboxes. Ask me what you've eaten today, or what alternatives you can use for your planned foods!" }]
         };
 
-        // --- 3. UTILITIES ---
+        // --- 3. FIREBASE CLOUD SETUP ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'uday-90-day-tracker';
+        let db, auth, currentUser = null;
 
+        async function initCloud() {
+            try {
+                if (typeof __firebase_config !== 'undefined') {
+                    const firebaseConfig = JSON.parse(__firebase_config); const firebaseApp = initializeApp(firebaseConfig);
+                    auth = getAuth(firebaseApp); db = getFirestore(firebaseApp);
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                    else { await signInAnonymously(auth); }
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) { currentUser = user; await loadFromCloud(); document.getElementById('cloud-loader').style.display = 'none'; renderApp(); }
+                    });
+                } else { document.getElementById('cloud-loader').style.display = 'none'; renderApp(); }
+            } catch (e) { document.getElementById('cloud-loader').innerHTML = "<h2 class='text-red-500 font-bold'>Cloud Connection Failed</h2><p class='text-white mt-2'>Running local memory mode.</p>"; setTimeout(() => {document.getElementById('cloud-loader').style.display = 'none'; renderApp();}, 1500) }
+        }
+
+        async function loadFromCloud() {
+            if (!currentUser || !db) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'trackerState');
+            const snap = await getDoc(docRef);
+            if (snap.exists()) {
+                const data = snap.data();
+                state.completedTasks = new Set(data.completedTasks || []); state.consumedDiet = new Set(data.consumedDiet || []); state.completedSets = new Set(data.completedSets || []);
+                state.energyLevel = data.energyLevel || 0; state.sleepBed = data.sleepBed || '22:30'; state.sleepWake = data.sleepWake || '06:30';
+                state.steps = data.steps || 0; state.weight = data.weight || 56.2;
+                state.history = data.history || {}; state.currentWeek = data.currentWeek || 1;
+                if(data.strictMode !== undefined) state.strictMode = data.strictMode;
+            }
+            try {
+                const photoCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'photos');
+                const photoSnap = await getDocs(photoCol);
+                state.photos = []; photoSnap.forEach(doc => state.photos.push(doc.data()));
+                state.photos.sort((a,b) => a.timestamp - b.timestamp);
+            } catch(e) { console.error("Could not load photos"); }
+        }
+
+        async function syncToCloud() {
+            if (!currentUser || !db) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'appData', 'trackerState');
+            const dataToSave = {
+                completedTasks: Array.from(state.completedTasks), consumedDiet: Array.from(state.consumedDiet), completedSets: Array.from(state.completedSets),
+                energyLevel: state.energyLevel, sleepBed: state.sleepBed, sleepWake: state.sleepWake, steps: state.steps,
+                weight: state.weight, history: state.history, currentWeek: state.currentWeek, strictMode: state.strictMode
+            };
+            try { await setDoc(docRef, dataToSave); } catch (e) { console.error("Save error:", e); }
+        }
+
+        // --- 4. CORE UTILITIES ---
         function hasTimePassed(timeString) {
             if (!timeString || !timeString.includes(':')) return true;
-            const now = new Date();
-            const parts = timeString.split(' ');
+            const now = new Date(); const parts = timeString.split(' ');
             if(parts.length < 2) return true;
-            const time = parts[0];
-            const modifier = parts[1];
-            
-            let [hours, minutes] = time.split(':');
-            hours = parseInt(hours, 10);
-            minutes = parseInt(minutes, 10);
-
-            if (hours === 12 && modifier === 'AM') hours = 0;
-            if (hours !== 12 && modifier === 'PM') hours += 12;
-
-            const taskTime = new Date();
-            taskTime.setHours(hours, minutes, 0, 0);
-
+            let [hours, minutes] = parts[0].split(':'); hours = parseInt(hours, 10); minutes = parseInt(minutes, 10);
+            if (hours === 12 && parts[1] === 'AM') hours = 0; if (hours !== 12 && parts[1] === 'PM') hours += 12;
+            const taskTime = new Date(); taskTime.setHours(hours, minutes, 0, 0);
             return now >= taskTime;
         }
 
         function getDynamicWorkouts(week) {
             const dynamic = JSON.parse(JSON.stringify(BASE_WORKOUTS));
             Object.keys(dynamic).forEach(day => {
-                const workout = dynamic[day];
-                if (workout.focus === 'Rest' || workout.focus === 'Cardio') return;
-
+                const workout = dynamic[day]; if (workout.focus === 'Rest' || workout.focus === 'Cardio' || workout.focus === 'Walking/Cardio') return;
                 workout.routine.forEach(ex => {
-                    if (week >= 3) {
-                        if (ex.reps.includes('/leg')) { ex.reps = `${parseInt(ex.reps) + 2}/leg`; } 
-                        else if (!ex.reps.includes('s') && !ex.reps.includes('min')) { ex.reps = `${parseInt(ex.reps) + 2}`; }
-                    }
-                    if (week >= 5) {
-                        if (['Squats', 'Lunges', 'Glute Bridges', 'Calf Raises', 'Towel Rows'].includes(ex.name)) { ex.name += ' 🎒 (+Wt)'; }
-                    }
-                    if (week >= 7) { ex.sets = parseInt(ex.sets) + 1; }
+                    if (week >= 3) { if (ex.reps.includes('/leg')) ex.reps = `${parseInt(ex.reps) + 2}/leg`; else if (!ex.reps.includes('sec') && !ex.reps.includes('Max') && !ex.reps.includes('min')) ex.reps = `${parseInt(ex.reps) + 2}`; }
+                    if (week >= 5) { if (['Squats', 'Lunges', 'Glute Bridges', 'Calf Raises', 'Towel Rows'].includes(ex.name)) ex.name += ' 🎒 (+Wt)'; }
+                    if (week >= 7) ex.sets = parseInt(ex.sets) + 1;
                 });
                 workout.restTimer = week >= 9 ? 45 : 60;
+                if(week >= 9) workout.note = "Reduce rest times to 45s.";
+                if(week >= 11) workout.note = "MAXIMUM EFFORT. Empty the tank.";
             });
             return dynamic;
         }
 
+        function isTaskDone(task) {
+            if (task.linked === 'workout') {
+                const todayWorkout = getDynamicWorkouts(state.currentWeek)[DAYS_OF_WEEK[new Date().getDay()]];
+                if (todayWorkout.focus === 'Rest' || todayWorkout.focus === 'Cardio' || todayWorkout.focus === 'Walking/Cardio') return state.completedTasks.has(task.id);
+                let totalSets = 0, doneSets = 0;
+                todayWorkout.routine.forEach(ex => { if(ex.sets !== '-') { for(let i=0; i<ex.sets; i++) { totalSets++; if(state.completedSets.has(`${ex.id}_${i}`)) doneSets++; } } });
+                return totalSets > 0 && totalSets === doneSets;
+            } else if (task.linked) {
+                const group = NUTRITION_PLAN.find(n => n.id === task.linked);
+                if (!group) return false;
+                return group.items.every(item => state.consumedDiet.has(item.id));
+            }
+            return state.completedTasks.has(task.id);
+        }
+
         function calculateScore() {
-            const taskScore = (state.completedTasks.size / TIMETABLE.length) * 20;
-            const waterScore = (state.completedWater.size / WATER_SCHEDULE.length) * 20;
-            
-            let totalDietItems = 0;
-            Object.values(MEALS).forEach(m => totalDietItems += m.items.length);
-            const dietScore = (state.consumedDiet.size / totalDietItems) * 30;
-
+            const isolatedTasks = TIMETABLE.filter(t => !t.linked);
+            let doneIsolated = 0; isolatedTasks.forEach(t => { if(state.completedTasks.has(t.id)) doneIsolated++; });
+            const taskScore = (doneIsolated / isolatedTasks.length) * 10;
+            let totalDietItems = 0; NUTRITION_PLAN.forEach(n => totalDietItems += n.items.length);
+            const dietScore = (state.consumedDiet.size / totalDietItems) * 45; 
             const todayWorkout = getDynamicWorkouts(state.currentWeek)[DAYS_OF_WEEK[new Date().getDay()]];
-            let totalSets = 0;
-            todayWorkout.routine.forEach(ex => totalSets += (ex.sets !== '-' ? ex.sets : 0));
-            const workoutScore = totalSets > 0 ? (state.completedSets.size / totalSets) * 30 : 30; // If rest day, full points
-
-            return Math.min(100, taskScore + waterScore + dietScore + workoutScore);
+            let totalSets = 0; todayWorkout.routine.forEach(ex => totalSets += (ex.sets !== '-' ? ex.sets : 0));
+            // FIX: If it is a rest day (totalSets === 0), require the task 't9' (Workout slot) to be checked off to earn the 30 points.
+            const workoutScore = totalSets > 0 ? (state.completedSets.size / totalSets) * 30 : (state.completedTasks.has('t9') ? 30 : 0); 
+            const stepScore = Math.min((state.steps / 8000) * 15, 15);
+            return Math.min(100, taskScore + dietScore + workoutScore + stepScore);
         }
 
         function updateHistory() {
             const todayStr = new Date().toISOString().split('T')[0];
-            state.history[todayStr] = {
-                score: calculateScore(),
-                weight: state.weight,
-                energyLevel: state.energyLevel
-            };
+            state.history[todayStr] = { score: calculateScore(), weight: state.weight, energyLevel: state.energyLevel, steps: state.steps };
         }
 
-        // --- 4. GLOBAL ACTIONS ---
-        const app = {
-            setTab: (tab) => { state.activeTab = tab; renderApp(); },
-            toggleStrictMode: () => { state.strictMode = !state.strictMode; renderApp(); },
-            toggleTask: (id) => { 
-                if (state.completedTasks.has(id)) state.completedTasks.delete(id); else state.completedTasks.add(id);
-                updateHistory(); renderApp(); 
+        function compressImageFile(file) {
+            return new Promise((resolve) => {
+                if (!file) { resolve(null); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas'); const MAX_WIDTH = 450; let scale = 1;
+                        if(img.width > MAX_WIDTH) scale = MAX_WIDTH / img.width;
+                        canvas.width = img.width * scale; canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+        }
+
+        // --- 5. GLOBAL ACTIONS ---
+        window.app = {
+            setTab: (tab) => { sfx.click(); state.activeTab = tab; renderApp(); },
+            toggleSound: () => { soundEnabled = !soundEnabled; renderApp(); if(soundEnabled) sfx.click(); },
+            toggleStrictMode: () => { sfx.click(); state.strictMode = !state.strictMode; syncToCloud(); renderApp(); },
+            toggleTask: (taskId) => { 
+                const task = TIMETABLE.find(t => t.id === taskId); const currentlyDone = isTaskDone(task);
+                if (task.linked === 'workout') {
+                    const todayWorkout = getDynamicWorkouts(state.currentWeek)[DAYS_OF_WEEK[new Date().getDay()]];
+                    if (todayWorkout.focus !== 'Rest' && todayWorkout.focus !== 'Cardio' && todayWorkout.focus !== 'Walking/Cardio') {
+                        todayWorkout.routine.forEach(ex => { if(ex.sets !== '-') { for(let i=0; i<ex.sets; i++) { if (currentlyDone) state.completedSets.delete(`${ex.id}_${i}`); else state.completedSets.add(`${ex.id}_${i}`); } } });
+                    } else { if (currentlyDone) state.completedTasks.delete(taskId); else state.completedTasks.add(taskId); }
+                } else if (task.linked) {
+                    const group = NUTRITION_PLAN.find(n => n.id === task.linked);
+                    group.items.forEach(item => { if (currentlyDone) state.consumedDiet.delete(item.id); else state.consumedDiet.add(item.id); });
+                } else { if (currentlyDone) state.completedTasks.delete(taskId); else state.completedTasks.add(taskId); }
+                if(!currentlyDone) sfx.success(); else sfx.click();
+                updateHistory(); renderApp(); syncToCloud(); 
             },
-            toggleWater: (id) => {
-                if (state.completedWater.has(id)) state.completedWater.delete(id); else state.completedWater.add(id);
-                updateHistory(); renderApp();
-            },
-            toggleDiet: (id) => {
-                if (state.consumedDiet.has(id)) state.consumedDiet.delete(id); else state.consumedDiet.add(id);
-                updateHistory(); renderApp();
-            },
+            toggleDiet: (id) => { if (state.consumedDiet.has(id)) { state.consumedDiet.delete(id); sfx.click(); } else { state.consumedDiet.add(id); sfx.success(); } updateHistory(); renderApp(); syncToCloud(); },
             toggleSet: (exId, setIdx, restSecs) => {
                 const setId = `${exId}_${setIdx}`;
-                if (state.completedSets.has(setId)) {
-                    state.completedSets.delete(setId);
-                } else {
-                    state.completedSets.add(setId);
-                    app.startRestTimer(restSecs);
-                }
-                updateHistory(); renderApp();
+                if (state.completedSets.has(setId)) { state.completedSets.delete(setId); sfx.click(); } 
+                else { state.completedSets.add(setId); sfx.success(); if(restSecs) window.app.startRestTimer(restSecs); }
+                updateHistory(); renderApp(); syncToCloud();
             },
-            setEnergy: (lvl) => { state.energyLevel = lvl; updateHistory(); renderApp(); },
-            setSleepBed: (val) => { state.sleepBed = val; renderApp(); },
-            setSleepWake: (val) => { state.sleepWake = val; renderApp(); },
-            setWeight: (val) => { state.weight = parseFloat(val); updateHistory(); renderStats(); },
-            setWeek: (val) => { state.currentWeek = parseInt(val); renderApp(); },
-            setWorkoutDay: (day) => { state.workoutDay = day; renderApp(); },
-            toggleGrocery: (show) => { state.showGrocery = show; renderApp(); },
+            setEnergy: (lvl) => { sfx.click(); state.energyLevel = lvl; updateHistory(); renderApp(); syncToCloud(); },
+            setSleepBed: (val) => { state.sleepBed = val; renderApp(); syncToCloud(); },
+            setSleepWake: (val) => { state.sleepWake = val; renderApp(); syncToCloud(); },
+            setSteps: (val) => { state.steps = parseInt(val) || 0; updateHistory(); renderDaily(); syncToCloud(); renderHeader(); },
+            setWeight: (val) => { state.weight = parseFloat(val) || 0; updateHistory(); renderStats(); syncToCloud(); },
+            setWeek: (val) => { sfx.click(); state.currentWeek = parseInt(val); renderApp(); syncToCloud(); },
+            setWorkoutDay: (day) => { sfx.click(); state.workoutDay = day; renderApp(); },
+            toggleGrocery: (show) => { sfx.click(); state.showGrocery = show; renderApp(); },
+            
+            openCameraModal: () => {
+                const modalHtml = `
+                    <div class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-2xl relative">
+                            <button onclick="document.getElementById('modal-root').innerHTML=''" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                            <h2 class="text-xl font-black text-white mb-1"><i class="fa-solid fa-camera text-blue-400"></i> Log Progress</h2>
+                            <p class="text-xs text-slate-400 mb-6">Take front & side pictures and log waist size.</p>
+                            <div class="space-y-4">
+                                <div><label class="text-xs font-bold text-slate-300 uppercase mb-2 block">Front Photo</label><input type="file" id="frontPic" accept="image/*" capture="environment" class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl p-3 text-sm outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-900/30 file:text-blue-400"></div>
+                                <div><label class="text-xs font-bold text-slate-300 uppercase mb-2 block">Side Photo</label><input type="file" id="sidePic" accept="image/*" capture="environment" class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl p-3 text-sm outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-900/30 file:text-blue-400"></div>
+                                <div><label class="text-xs font-bold text-slate-300 uppercase mb-2 block">Waist Measurement (cm)</label><input type="number" id="waistInput" placeholder="e.g. 80" class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl p-3 text-base font-bold outline-none"></div>
+                                <button onclick="app.savePhotoCheckIn()" id="savePicBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl mt-4 transition-colors"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Save to Cloud</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('modal-root').innerHTML = modalHtml;
+            },
+            savePhotoCheckIn: async () => {
+                const btn = document.getElementById('savePicBtn'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Compressing & Saving...'; btn.disabled = true;
+                const frontFile = document.getElementById('frontPic').files[0]; const sideFile = document.getElementById('sidePic').files[0]; const waistVal = document.getElementById('waistInput').value;
+                const todayStr = new Date().toISOString().split('T')[0];
+                try {
+                    const frontBase64 = await compressImageFile(frontFile); const sideBase64 = await compressImageFile(sideFile);
+                    const payload = { date: todayStr, timestamp: Date.now(), front: frontBase64, side: sideBase64, waist: parseFloat(waistVal) || null };
+                    if(currentUser && db) { const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'photos', todayStr); await setDoc(ref, payload); }
+                    const existingIndex = state.photos.findIndex(p => p.date === todayStr);
+                    if(existingIndex >= 0) state.photos[existingIndex] = payload; else state.photos.push(payload);
+                    state.photos.sort((a,b) => a.timestamp - b.timestamp);
+                    document.getElementById('modal-root').innerHTML = ''; sfx.success(); renderStats();
+                } catch(e) { console.error("Photo save failed", e); btn.innerHTML = 'Error Saving. Try Again.'; btn.classList.replace('bg-emerald-600', 'bg-red-600'); btn.disabled = false; }
+            },
             
             startRestTimer: (seconds) => {
-                state.restTimer = seconds;
-                if(state.timerInterval) clearInterval(state.timerInterval);
-                
-                const timerEl = document.getElementById('floating-timer');
-                const textEl = document.getElementById('timer-text');
-                
-                timerEl.classList.remove('hidden');
-                timerEl.classList.add('flex');
-                textEl.innerText = `${state.restTimer}s`;
-
+                state.restTimer = seconds; if(state.timerInterval) clearInterval(state.timerInterval);
+                const timerEl = document.getElementById('floating-timer'); const textEl = document.getElementById('timer-text');
+                timerEl.classList.remove('hidden'); timerEl.classList.add('flex'); textEl.innerText = `${state.restTimer}s`;
                 state.timerInterval = setInterval(() => {
                     state.restTimer--;
-                    if(state.restTimer <= 0) {
-                        clearInterval(state.timerInterval);
-                        timerEl.classList.add('hidden');
-                        timerEl.classList.remove('flex');
-                    } else {
-                        textEl.innerText = `${state.restTimer}s`;
-                    }
+                    if(state.restTimer <= 0) { clearInterval(state.timerInterval); timerEl.classList.add('hidden'); timerEl.classList.remove('flex'); sfx.alarm(); } 
+                    else { textEl.innerText = `${state.restTimer}s`; sfx.tick(); }
                 }, 1000);
+            },
+
+            // --- AI LOGIC (WITH TIME AWARENESS) ---
+            toggleAI: () => {
+                state.isAIOpen = !state.isAIOpen;
+                renderAI();
+                if(state.isAIOpen) sfx.click();
+            },
+            sendAIMessage: async () => {
+                const inputEl = document.getElementById('ai-input');
+                const text = inputEl.value.trim();
+                if(!text) return;
+                
+                inputEl.value = '';
+                state.aiMessages.push({ role: 'user', text: text });
+                renderAI();
+                
+                const btnEl = document.getElementById('ai-send-btn');
+                btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btnEl.disabled = true;
+
+                // 🧠 PRECISE CALCULATION OF WHAT IS MISSING VS DONE
+                const now = new Date();
+                const todayName = DAYS_OF_WEEK[now.getDay()];
+                const currentTime = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                
+                let consumedItems = [];
+                let pendingItems = [];
+                let totalProEaten = 0;
+                
+                NUTRITION_PLAN.forEach(n => { 
+                    n.items.forEach(i => { 
+                        if(state.consumedDiet.has(i.id)) {
+                            consumedItems.push(`${i.name} (${i.pro}g pro)`);
+                            totalProEaten += i.pro;
+                        } else {
+                            if(i.pro > 0 || i.cal > 0) pendingItems.push(`${i.name} (${i.pro}g pro, ${i.cal} kcal)`);
+                        }
+                    }); 
+                });
+                
+                let doneTasks = [];
+                TIMETABLE.forEach(t => { if(state.completedTasks.has(t.id)) doneTasks.push(t.activity); });
+
+                const daysLogged = Object.keys(state.history).length;
+                const daysLeft = 90 - daysLogged;
+
+                const todayWorkoutObj = getDynamicWorkouts(state.currentWeek)[todayName];
+                const workoutSummary = todayWorkoutObj.focus === 'Rest' ? 'Rest / Recovery Day' : 
+                    `${todayWorkoutObj.focus} (Exercises: ${todayWorkoutObj.routine.map(r => r.name).join(', ')})`;
+
+                const systemPrompt = `You are Uday Kumar's highly precise AI diet and fitness assistant. You MUST be 100% accurate based on the following specific data. DO NOT hallucinate.
+
+[USER PROFILE]
+Name: Uday Kumar
+Stats: 155 cm. Starting weight: 56.2 kg. Current weight: ${state.weight} kg.
+Timeline: ${daysLogged} days done. ${daysLeft} days left in the 90-day plan.
+Daily Targets: 1700-1800 kcal, 100-110g protein, 3L water, 8000-10000 steps, 7-8h sleep.
+
+[LIVE CONTEXT FOR EXACTLY TODAY: ${todayName}]
+Current Local Time: ${currentTime}
+Today's Workout: ${workoutSummary}
+Current Steps Logged: ${state.steps}
+Total Protein Eaten Today: ${totalProEaten}g / 110g
+
+[EXACT LIVE DIET CHECKBOXES FOR TODAY]
+Items Consumed Today: ${consumedItems.length > 0 ? consumedItems.join(', ') : 'Nothing eaten yet today.'}
+Pending Diet Items To Eat: ${pendingItems.length > 0 ? pendingItems.join(', ') : 'All major food targets hit!'}
+
+[STRICT RULES]
+1. If Uday asks what he has eaten today, read ONLY the "Items Consumed Today" list.
+2. If Uday asks what is left to eat or what he should eat next, read ONLY from the "Pending Diet Items To Eat" list.
+3. If Uday asks for alternatives (e.g., "I don't have X"), find X in the "Pending Diet Items To Eat" list, check its exact protein and calories, and suggest 2-3 precise Indian-friendly alternatives that match those EXACT macros.
+4. Pay attention to the "Current Local Time". If Uday greets you with the wrong time of day (e.g., saying "Good evening" when it is ${currentTime}), politely correct him and answer his query.
+5. Be direct, accurate, friendly, and concise. Format with bullet points.`;
+
+                const payload = {
+                    contents: state.aiMessages.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const delays = [1000, 2000, 4000, 8000, 16000];
+                let responseText = "Sorry Uday, I'm having trouble connecting right now. Please try again.";
+                
+                if (apiKey === "") {
+                    try {
+                        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                        });
+                        if (!res.ok) throw new Error('API Error');
+                        const data = await res.json();
+                        responseText = data.candidates[0].content.parts[0].text;
+                    } catch (err) {
+                        responseText = "Hello Uday! I am your AI Assistant. Note: I can perfectly read your live checkboxes and see that today is " + todayName + " at " + currentTime + "!, but the AI API key is missing from this specific web environment to process custom questions right now. Your data is still safely saved!";
+                    }
+                } else {
+                    for (let i = 0; i < 5; i++) {
+                        try {
+                            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                            });
+                            if (!res.ok) throw new Error('API Error');
+                            const data = await res.json();
+                            responseText = data.candidates[0].content.parts[0].text;
+                            break;
+                        } catch (err) {
+                            if (i < 4) await new Promise(r => setTimeout(r, delays[i]));
+                        }
+                    }
+                }
+
+                state.aiMessages.push({ role: 'model', text: responseText });
+                btnEl.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                btnEl.disabled = false;
+                renderAI();
+                sfx.success();
             }
         };
 
-        // --- 5. RENDER FUNCTIONS ---
+        // --- 6. RENDER FUNCTIONS ---
+        function renderAI() {
+            const root = document.getElementById('ai-root');
+            if (!state.isAIOpen) { root.innerHTML = ''; return; }
+            
+            const messagesHtml = state.aiMessages.map(m => `
+                <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} mb-3">
+                    <div class="chat-bubble ${m.role === 'user' ? 'chat-user' : 'chat-ai'} shadow-sm">
+                        ${m.role === 'model' ? '<i class="fa-solid fa-robot text-blue-400 mr-1 mb-1"></i> ' : ''}
+                        ${formatText(m.text)}
+                    </div>
+                </div>
+            `).join('');
+
+            root.innerHTML = `
+                <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] sm:p-4 flex items-end sm:items-center justify-center fade-in">
+                    <div class="bg-slate-900 border border-slate-700 w-full sm:max-w-md sm:rounded-2xl shadow-2xl flex flex-col h-[80vh] sm:h-[600px] overflow-hidden relative">
+                        <div class="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center shadow-sm z-10">
+                            <div>
+                                <h2 class="font-black text-white flex items-center gap-2"><i class="fa-solid fa-robot text-blue-500"></i> Plan Assistant</h2>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">App-Aware AI</p>
+                            </div>
+                            <button onclick="app.toggleAI()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        </div>
+                        <div id="ai-chat-box" class="flex-1 overflow-y-auto p-4 bg-slate-950/50">${messagesHtml}</div>
+                        <div class="p-3 bg-slate-900 border-t border-slate-800">
+                            <div class="flex items-center gap-2 bg-slate-800 rounded-full border border-slate-700 p-1 pl-4">
+                                <input type="text" id="ai-input" placeholder="Ask about your diet or schedule..." class="flex-1 bg-transparent text-sm text-white outline-none placeholder-slate-500" onkeypress="if(event.key === 'Enter') app.sendAIMessage()">
+                                <button id="ai-send-btn" onclick="app.sendAIMessage()" class="bg-blue-600 hover:bg-blue-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => { const box = document.getElementById('ai-chat-box'); if(box) box.scrollTop = box.scrollHeight; }, 50);
+        }
 
         function renderHeader() {
             const score = calculateScore();
-            const headerHtml = `
+            document.getElementById('header-container').innerHTML = `
                 <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-40 shadow-lg">
                     <div class="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div class="flex justify-between items-center w-full sm:w-auto">
                             <div>
-                                <h1 class="text-xl font-black text-white flex items-center gap-2">
-                                    <i class="fa-solid fa-bullseye text-emerald-500"></i> 100x Precision Plan
-                                </h1>
-                                <p class="text-xs text-slate-400 mt-0.5 font-medium">Uday • Day 1 of 90</p>
+                                <h1 class="text-xl font-black text-white flex items-center gap-2"><i class="fa-solid fa-bullseye text-emerald-500"></i> Uday Kumar</h1>
+                                <p class="text-[11px] text-slate-400 mt-0.5 font-bold uppercase tracking-wider">90-Day Transformation</p>
                             </div>
-                            
-                            <button onclick="app.toggleStrictMode()" class="flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${state.strictMode ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 'bg-orange-900/20 text-orange-400 border-orange-900/50'}">
-                                <i class="fa-solid ${state.strictMode ? 'fa-lock' : 'fa-lock-open'}"></i>
-                                ${state.strictMode ? 'Strict' : 'Flexible'}
-                            </button>
+                            <div class="flex sm:hidden items-center gap-2">
+                                <button onclick="app.toggleSound()" class="p-2 rounded-lg text-xs font-bold border transition-colors ${soundEnabled ? 'bg-slate-800 text-emerald-400 border-slate-700' : 'bg-slate-900 text-slate-500 border-slate-800'}"><i class="fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}"></i></button>
+                                <button onclick="app.toggleStrictMode()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${state.strictMode ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 'bg-orange-900/20 text-orange-400 border-orange-900/50'}"><i class="fa-solid ${state.strictMode ? 'fa-lock' : 'fa-lock-open'}"></i></button>
+                            </div>
                         </div>
-                        
                         <div class="flex items-center gap-4 justify-between sm:justify-end w-full sm:w-auto">
-                            <button onclick="app.toggleStrictMode()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${state.strictMode ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 'bg-orange-900/20 text-orange-400 border-orange-900/50'}">
-                                <i class="fa-solid ${state.strictMode ? 'fa-lock' : 'fa-lock-open'}"></i>
-                                ${state.strictMode ? 'Strict Mode' : 'Flexible Mode'}
-                            </button>
-
+                            <div class="hidden sm:flex items-center gap-2">
+                                <button onclick="app.toggleSound()" class="p-2 px-3 rounded-lg text-xs font-bold border transition-colors ${soundEnabled ? 'bg-slate-800 text-emerald-400 border-slate-700' : 'bg-slate-900 text-slate-500 border-slate-800'}"><i class="fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}"></i> Sound</button>
+                                <button onclick="app.toggleStrictMode()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${state.strictMode ? 'bg-blue-900/20 text-blue-400 border-blue-900/50' : 'bg-orange-900/20 text-orange-400 border-orange-900/50'}"><i class="fa-solid ${state.strictMode ? 'fa-lock' : 'fa-lock-open'}"></i> ${state.strictMode ? 'Strict Mode' : 'Flexible Mode'}</button>
+                            </div>
                             <div class="text-right flex flex-col items-end w-full sm:w-auto">
-                                <div class="text-sm font-black text-emerald-400 flex items-center gap-1">
-                                    <i class="fa-solid fa-bolt"></i> Accuracy: ${Math.round(score)}%
-                                </div>
-                                <div class="w-full sm:w-24 h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
-                                    <div class="h-full bg-emerald-500 transition-all duration-500" style="width: ${score}%"></div>
-                                </div>
+                                <div class="text-sm font-black text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-bolt"></i> Score: ${Math.round(score)}%</div>
+                                <div class="w-full sm:w-24 h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden"><div class="h-full bg-emerald-500 transition-all duration-500" style="width: ${score}%"></div></div>
                             </div>
                         </div>
                     </div>
                 </header>
             `;
-            document.getElementById('header-container').innerHTML = headerHtml;
         }
 
         function renderNav() {
-            const navItems = [
-                { id: 'daily', icon: 'fa-clock', label: 'Daily' },
-                { id: 'diet', icon: 'fa-utensils', label: 'Diet' },
-                { id: 'workout', icon: 'fa-dumbbell', label: 'Train' },
-                { id: 'stats', icon: 'fa-calendar', label: 'Stats' },
-            ];
-
+            const navItems = [{ id: 'daily', icon: 'fa-table-cells-large', label: 'Dashboard' }, { id: 'diet', icon: 'fa-utensils', label: 'Diet/Water' }, { id: 'workout', icon: 'fa-dumbbell', label: 'Train' }, { id: 'stats', icon: 'fa-chart-pie', label: 'Stats' }, { id: 'guide', icon: 'fa-map', label: 'Guide' }];
             let html = '';
             navItems.forEach(item => {
                 const isActive = state.activeTab === item.id;
-                html += `
-                    <button onclick="app.setTab('${item.id}')" class="flex flex-col items-center justify-center w-16 sm:w-[72px] py-2 px-1 rounded-xl transition-all ${isActive ? 'text-emerald-400 bg-emerald-400/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}">
-                        <i class="fa-solid ${item.icon} text-lg mb-1 ${isActive ? '' : 'opacity-80'}"></i>
-                        <span class="text-[10px] font-semibold tracking-wide">${item.label}</span>
-                    </button>
-                `;
+                html += `<button onclick="app.setTab('${item.id}')" class="flex flex-col items-center justify-center w-14 sm:w-[72px] py-2 px-1 rounded-xl transition-all ${isActive ? 'text-emerald-400 bg-emerald-400/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}"><i class="fa-solid ${item.icon} text-lg mb-1 ${isActive ? '' : 'opacity-80'}"></i><span class="text-[9px] sm:text-[10px] font-semibold tracking-wide">${item.label}</span></button>`;
             });
-
-            document.getElementById('mobile-nav').innerHTML = html;
-            document.getElementById('desktop-nav').innerHTML = html;
+            document.getElementById('mobile-nav').innerHTML = html; document.getElementById('desktop-nav').innerHTML = html;
         }
 
         function renderDaily() {
-            // Sleep Calc
-            let [bH, bM] = state.sleepBed.split(':').map(Number);
-            let [wH, wM] = state.sleepWake.split(':').map(Number);
-            if (wH < bH) wH += 24;
-            const totalMins = (wH * 60 + wM) - (bH * 60 + bM);
-            const sHrs = Math.floor(totalMins / 60);
-            const sMins = totalMins % 60;
-            const sleepOk = (totalMins / 60) >= 7;
+            let [bH, bM] = state.sleepBed.split(':').map(Number); let [wH, wM] = state.sleepWake.split(':').map(Number); if (wH < bH) wH += 24;
+            const totalMins = (wH * 60 + wM) - (bH * 60 + bM); const sHrs = Math.floor(totalMins / 60); const sMins = totalMins % 60; const sleepOk = (totalMins / 60) >= 7;
 
-            let html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
-                        <h3 class="text-sm font-bold text-slate-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> Morning Readiness</h3>
-                        <div class="flex justify-between gap-2">
-                            ${[1,2,3,4,5].map(lvl => `
-                                <button onclick="app.setEnergy(${lvl})" class="flex-1 py-2 rounded-lg text-lg border transition-all ${state.energyLevel === lvl ? 'bg-orange-500/20 border-orange-500 text-orange-400' : 'bg-slate-800 border-slate-700 text-slate-500'}">
-                                    ${lvl===1?'😫' : lvl===2?'🥱' : lvl===3?'😐' : lvl===4?'🙂' : '🔥'}
-                                </button>
-                            `).join('')}
+            let totalPro = 0; let totalWater = 0; let totalCal = 0;
+            NUTRITION_PLAN.forEach(n => { n.items.forEach(i => { if (state.consumedDiet.has(i.id)) { totalPro += i.pro; totalWater += i.water; totalCal += i.cal; } }); });
+
+            document.getElementById('app-content').innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-6">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4"><i class="fa-solid fa-chart-line text-emerald-400 mr-1"></i> Live Daily Targets</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl">
+                            <div class="text-[9px] uppercase font-bold text-orange-400 mb-1">Calories</div>
+                            <div class="text-xl font-black text-white">${totalCal}<span class="text-[10px] text-slate-500 ml-1">/1800</span></div>
+                        </div>
+                        <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl">
+                            <div class="text-[9px] uppercase font-bold text-red-400 mb-1">Protein</div>
+                            <div class="text-xl font-black text-white">${totalPro}g<span class="text-[10px] text-slate-500 ml-1">/110g</span></div>
+                            <div class="w-full h-1 bg-slate-900 rounded-full mt-2"><div class="h-full bg-red-500" style="width: ${Math.min((totalPro/110)*100, 100)}%"></div></div>
+                        </div>
+                        <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl">
+                            <div class="text-[9px] uppercase font-bold text-blue-400 mb-1">Water</div>
+                            <div class="text-xl font-black text-white">${totalWater}m<span class="text-[10px] text-slate-500 ml-1">/3.3L</span></div>
+                            <div class="w-full h-1 bg-slate-900 rounded-full mt-2"><div class="h-full bg-blue-500" style="width: ${Math.min((totalWater/3300)*100, 100)}%"></div></div>
+                        </div>
+                        <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex flex-col justify-center">
+                            <div class="text-[9px] uppercase font-bold text-emerald-400 mb-1">Steps</div>
+                            <input type="number" value="${state.steps}" onchange="app.setSteps(this.value)" class="bg-transparent text-white text-xl font-black outline-none w-full p-0">
+                            <div class="w-full h-1 bg-slate-900 rounded-full mt-1"><div class="h-full bg-emerald-500" style="width: ${Math.min((state.steps/8000)*100, 100)}%"></div></div>
+                        </div>
+                        <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-xl col-span-2 md:col-span-1">
+                            <div class="text-[9px] uppercase font-bold text-indigo-400 mb-1">Sleep Logs</div>
+                            <div class="text-xl font-black ${sleepOk ? 'text-white' : 'text-red-400'}">${sHrs}h ${sMins}m</div>
+                            <div class="w-full h-1 bg-slate-900 rounded-full mt-2"><div class="h-full ${sleepOk ? 'bg-indigo-500' : 'bg-red-500'}" style="width: ${Math.min(((totalMins/60)/7)*100, 100)}%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 flex flex-col justify-between">
+                        <h3 class="text-sm font-bold text-slate-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-bolt text-orange-400"></i> Morning Readiness</h3>
+                        <div class="flex justify-between gap-2 h-full items-end">
+                            ${[1,2,3,4,5].map(lvl => `<button onclick="app.setEnergy(${lvl})" class="flex-1 py-2 rounded-lg text-lg border transition-all ${state.energyLevel === lvl ? 'bg-orange-500/20 border-orange-500 text-orange-400' : 'bg-slate-800 border-slate-700 text-slate-500 hover:border-slate-500'}">${lvl===1?'😫':lvl===2?'🥱':lvl===3?'😐':lvl===4?'🙂':'🔥'}</button>`).join('')}
                         </div>
                     </section>
                     <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-sm font-bold text-slate-400 flex items-center gap-2"><i class="fa-solid fa-moon"></i> Sleep Calculator</h3>
-                            <span class="text-xs font-bold px-2 py-1 rounded ${sleepOk ? 'bg-emerald-900/40 text-emerald-400' : 'bg-red-900/40 text-red-400'}">${sHrs}h ${sMins}m</span>
+                            <h3 class="text-sm font-bold text-slate-400 flex items-center gap-2"><i class="fa-solid fa-bed text-indigo-400"></i> Sleep Log</h3>
                         </div>
                         <div class="flex gap-4 items-center">
-                            <div class="flex-1">
-                                <label class="text-[10px] uppercase text-slate-500 font-bold">Bed Time</label>
-                                <input type="time" value="${state.sleepBed}" onchange="app.setSleepBed(this.value)" class="w-full bg-slate-800 text-white rounded p-2 text-sm outline-none border border-slate-700">
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[10px] uppercase text-slate-500 font-bold">Wake Time</label>
-                                <input type="time" value="${state.sleepWake}" onchange="app.setSleepWake(this.value)" class="w-full bg-slate-800 text-white rounded p-2 text-sm outline-none border border-slate-700">
-                            </div>
+                            <div class="flex-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Bed Time</label><input type="time" value="${state.sleepBed}" onchange="app.setSleepBed(this.value)" class="w-full bg-slate-800 text-white rounded p-2 text-sm outline-none border border-slate-700"></div>
+                            <div class="flex-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Wake Time</label><input type="time" value="${state.sleepWake}" onchange="app.setSleepWake(this.value)" class="w-full bg-slate-800 text-white rounded p-2 text-sm outline-none border border-slate-700"></div>
                         </div>
                     </section>
                 </div>
-
-                <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 mb-6">
-                    <div class="flex justify-between items-end mb-4">
-                        <h2 class="text-lg font-bold flex items-center gap-2 text-white"><i class="fa-solid fa-droplet text-blue-400"></i> Water Log</h2>
-                        <span class="text-sm font-bold text-blue-400 bg-blue-900/30 px-3 py-1 rounded-full">${state.completedWater.size * 375} / 3000 ml</span>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        ${WATER_SCHEDULE.map(item => {
-                            const isDone = state.completedWater.has(item.id);
-                            return `
-                            <button onclick="app.toggleWater('${item.id}')" class="flex flex-col p-3 rounded-xl border transition-all text-left ${isDone ? 'bg-blue-900/40 border-blue-500/50 text-blue-200' : 'bg-slate-800/50 border-slate-700 text-slate-400'}">
-                                <div class="flex justify-between items-start mb-2 w-full">
-                                    <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">${item.time}</span>
-                                    <i class="fa-solid ${isDone ? 'fa-circle-check text-blue-400' : 'fa-circle opacity-40'}"></i>
-                                </div>
-                            </button>`;
-                        }).join('')}
-                    </div>
-                </section>
-
+                
                 <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
-                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-clock text-emerald-400"></i> Schedule</h2>
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-list-check text-emerald-400"></i> Daily Timetable</h2>
                     <div class="relative border-l-2 border-slate-800/80 ml-4 space-y-6 pb-2">
                         ${TIMETABLE.map(item => {
-                            const isDone = state.completedTasks.has(item.id);
-                            const isLocked = state.strictMode && !hasTimePassed(item.time);
-                            return `
-                            <div class="relative pl-6 flex items-start gap-3 group">
-                                <button onclick="${!isLocked ? `app.toggleTask('${item.id}')` : ''}" ${isLocked ? 'disabled' : ''} class="absolute -left-[11px] top-0.5 rounded-full p-1 transition-all z-10 bg-slate-900 border-2 ${isLocked ? 'border-slate-800 text-slate-700 opacity-60' : isDone ? 'border-emerald-500 text-emerald-500' : 'border-slate-600 text-slate-600'}">
-                                    <i class="fa-solid ${isLocked ? 'fa-lock text-xs' : isDone ? 'fa-circle-check text-xs' : 'fa-circle text-xs'}"></i>
-                                </button>
+                            const isDone = isTaskDone(item); const isLocked = state.strictMode && !hasTimePassed(item.time);
+                            return `<div class="relative pl-6 flex items-start gap-3 group">
+                                <button onclick="${!isLocked ? `app.toggleTask('${item.id}')` : ''}" ${isLocked ? 'disabled' : ''} class="absolute -left-[11px] top-0.5 rounded-full p-1 transition-all z-10 bg-slate-900 border-2 ${isLocked ? 'border-slate-800 text-slate-700 opacity-60' : isDone ? 'border-emerald-500 text-emerald-500 scale-110 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'border-slate-600 text-slate-600 hover:border-slate-500'}"><i class="fa-solid ${isLocked ? 'fa-lock text-[10px]' : isDone ? 'fa-circle-check text-xs' : 'fa-circle text-xs'}"></i></button>
                                 <div class="flex-1 transition-all ${isLocked ? 'opacity-40 grayscale' : isDone ? 'opacity-50' : 'opacity-100'}">
-                                    <div class="flex flex-wrap items-center gap-2 mb-1">
-                                        <span class="text-xs font-bold text-slate-300 bg-slate-800 px-2 py-1 rounded-md">${item.time}</span>
-                                        <h3 class="text-sm sm:text-base font-bold text-slate-100">${item.activity}</h3>
-                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 mb-1"><span class="text-[10px] sm:text-xs font-bold text-slate-300 bg-slate-800 px-2 py-1 rounded-md">${item.time}</span><h3 class="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid ${item.icon} text-sm"></i> ${item.activity}</h3></div>
                                     <p class="text-xs sm:text-sm text-slate-400 mt-1">${item.details}</p>
                                 </div>
                             </div>`;
@@ -442,235 +638,186 @@
                     </div>
                 </section>
             `;
-            document.getElementById('app-content').innerHTML = html;
         }
 
         function renderDiet() {
             if (state.showGrocery) {
-                let gHtml = `
-                    <button onclick="app.toggleGrocery(false)" class="text-emerald-400 text-sm font-bold flex items-center gap-2 mb-4 hover:underline">
-                        &larr; Back to Macro Counter
-                    </button>
+                document.getElementById('app-content').innerHTML = `
+                    <button onclick="app.toggleGrocery(false)" class="text-emerald-400 text-sm font-bold flex items-center gap-2 mb-4 hover:underline">&larr; Back to Timed Nutrition</button>
                     <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
                         <h2 class="text-2xl font-black text-white flex items-center gap-3 mb-6"><i class="fa-solid fa-cart-shopping text-emerald-500"></i> Weekly Grocery List</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            ${GROCERY_LIST.map(sec => `
-                                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                                    <h3 class="font-bold text-slate-200 mb-3 border-b border-slate-700 pb-2">${sec.category}</h3>
-                                    <ul class="space-y-2">
-                                        ${sec.items.map(i => `<li class="flex items-center gap-2 text-sm text-slate-300"><i class="fa-solid fa-list-check text-emerald-500"></i> ${i}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            `).join('')}
+                            ${GROCERY_LIST.map(sec => `<div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50"><h3 class="font-bold text-slate-200 mb-3 border-b border-slate-700 pb-2">${sec.category}</h3><ul class="space-y-2">${sec.items.map(i => `<li class="flex items-center gap-2 text-sm text-slate-300"><i class="fa-solid fa-list-check text-emerald-500"></i> ${i}</li>`).join('')}</ul></div>`).join('')}
                         </div>
-                    </div>
-                `;
-                document.getElementById('app-content').innerHTML = gHtml;
+                    </div>`;
                 return;
             }
 
-            let totalPro = 0, totalCal = 0;
-            Object.values(MEALS).forEach(meal => {
-                meal.items.forEach(item => {
-                    if (state.consumedDiet.has(item.id)) { totalPro += item.protein; totalCal += item.cals; }
-                });
-            });
+            let totalPro = 0, totalCal = 0, totalWater = 0;
+            NUTRITION_PLAN.forEach(n => { n.items.forEach(i => { if (state.consumedDiet.has(i.id)) { totalPro += i.pro; totalCal += i.cal; totalWater += i.water; } }); });
 
-            let dHtml = `
-                <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+            document.getElementById('app-content').innerHTML = `
+                <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
                     <div>
-                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Live Macros Today</h3>
-                        <div class="flex gap-6">
-                            <div class="flex flex-col">
-                                <span class="text-3xl font-black text-red-400">${totalPro}<span class="text-sm font-medium text-slate-500 ml-1">/100g</span></span>
-                                <span class="text-[10px] text-slate-500 font-bold uppercase">Protein</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-3xl font-black text-orange-400">${totalCal}<span class="text-sm font-medium text-slate-500 ml-1">/1800</span></span>
-                                <span class="text-[10px] text-slate-500 font-bold uppercase">Calories</span>
-                            </div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Live Intake</h3>
+                        <div class="flex gap-4 sm:gap-6">
+                            <div class="flex flex-col"><span class="text-2xl sm:text-3xl font-black text-red-400">${totalPro}<span class="text-[10px] sm:text-xs font-bold text-slate-500 ml-1">/110g</span></span><span class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase">Protein</span></div>
+                            <div class="flex flex-col"><span class="text-2xl sm:text-3xl font-black text-orange-400">${totalCal}<span class="text-[10px] sm:text-xs font-bold text-slate-500 ml-1">/1800</span></span><span class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase">Calories</span></div>
+                            <div class="flex flex-col"><span class="text-2xl sm:text-3xl font-black text-blue-400">${totalWater}<span class="text-[10px] sm:text-xs font-bold text-slate-500 ml-1">/3.3L</span></span><span class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase">Water</span></div>
                         </div>
                     </div>
-                    <button onclick="app.toggleGrocery(true)" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors">
-                        <i class="fa-solid fa-cart-shopping"></i> Grocery List
-                    </button>
+                    <button onclick="app.toggleGrocery(true)" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"><i class="fa-solid fa-cart-shopping"></i> Grocery</button>
                 </div>
-                <div class="space-y-4">
-                    ${Object.entries(MEALS).map(([k, meal]) => `
-                        <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
-                            <div class="p-4 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
-                                <h2 class="text-base font-bold text-white">${meal.title}</h2>
-                                <span class="text-xs font-bold bg-slate-950 text-slate-400 px-2 py-1 rounded">${meal.time}</span>
+                
+                <div class="relative border-l-2 border-slate-800/80 ml-2 sm:ml-4 space-y-6 pb-2">
+                    ${NUTRITION_PLAN.map(n => {
+                        const isLocked = state.strictMode && !hasTimePassed(n.time);
+                        return `
+                        <div class="relative pl-4 sm:pl-6 ${isLocked ? 'opacity-40 grayscale' : ''}">
+                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 bg-slate-900 border-2 border-slate-700 rounded-full"></div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-[10px] sm:text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded">${n.time} ${isLocked ? '<i class="fa-solid fa-lock ml-1 text-[9px]"></i>' : ''}</span>
+                                <h3 class="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-solid ${n.icon}"></i> ${n.title}</h3>
+                                ${n.target ? `<span class="text-[9px] sm:text-[10px] font-bold bg-slate-950 text-emerald-400 px-2 py-0.5 rounded border border-slate-800 hidden sm:inline-block ml-auto">${n.target}</span>` : ''}
                             </div>
-                            <div class="p-2 space-y-1">
-                                ${meal.items.map(item => {
+                            <div class="space-y-2">
+                                ${n.items.map(item => {
                                     const isDone = state.consumedDiet.has(item.id);
                                     return `
-                                    <button onclick="app.toggleDiet('${item.id}')" class="w-full flex items-center justify-between p-3 rounded-xl transition-colors border ${isDone ? 'bg-emerald-900/20 border-emerald-900/50' : 'bg-transparent border-transparent hover:bg-slate-800/50'}">
+                                    <button onclick="${!isLocked ? `app.toggleDiet('${item.id}')` : ''}" ${isLocked ? 'disabled' : ''} class="w-full flex items-center justify-between p-2.5 sm:p-3 rounded-xl transition-colors border ${isDone ? 'bg-emerald-900/20 border-emerald-900/50' : 'bg-slate-800/30 border-slate-700/50 hover:bg-slate-800/70'}">
                                         <div class="flex items-center gap-3">
-                                            <i class="fa-solid ${isDone ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-600'} text-lg"></i>
-                                            <span class="text-sm font-bold ${isDone ? 'text-slate-300' : 'text-slate-100'}">${item.name}</span>
+                                            <i class="fa-solid ${isDone ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-600'} text-base sm:text-lg"></i>
+                                            <div class="text-left flex flex-col">
+                                                <span class="text-xs sm:text-sm font-bold ${isDone ? 'text-slate-400' : 'text-slate-200'}">${item.name}</span>
+                                                <span class="text-[10px] text-slate-500 font-medium">${item.qty}</span>
+                                            </div>
                                         </div>
-                                        <div class="flex gap-3 text-xs font-bold text-slate-500">
-                                            <span class="w-12 text-right">${item.cals} kcal</span>
-                                            <span class="w-10 text-right text-red-400/80">${item.protein}g</span>
+                                        <div class="flex gap-2 sm:gap-3 text-[10px] sm:text-xs font-bold">
+                                            ${item.water > 0 ? `<span class="text-blue-400">${item.water}ml</span>` : ''}
+                                            ${item.cal > 0 ? `<span class="text-orange-400 w-10 text-right">${item.cal}kc</span>` : ''}
+                                            ${item.pro > 0 ? `<span class="text-red-400 w-8 text-right">${item.pro}g</span>` : ''}
                                         </div>
                                     </button>`;
                                 }).join('')}
                             </div>
-                        </section>
-                    `).join('')}
+                        </div>`;
+                    }).join('')}
                 </div>
             `;
-            document.getElementById('app-content').innerHTML = dHtml;
         }
 
         function renderWorkout() {
-            const dynamicWorkouts = getDynamicWorkouts(state.currentWeek);
-            const workout = dynamicWorkouts[state.workoutDay];
-
-            let wHtml = `
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="font-bold text-slate-200 text-sm">Progression Phase</h3>
-                        <p class="text-[10px] text-slate-400">Controls sets, reps, and rest timers.</p>
-                    </div>
-                    <select onchange="app.setWeek(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold outline-none">
-                        ${[1,3,5,7,9,11].map(w => `<option value="${w}" ${state.currentWeek===w?'selected':''}>Weeks ${w}-${w+1}</option>`).join('')}
-                    </select>
+            const dynamicWorkouts = getDynamicWorkouts(state.currentWeek); const workout = dynamicWorkouts[state.workoutDay];
+            document.getElementById('app-content').innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between mb-6"><div><h3 class="font-bold text-slate-200 text-sm">Progression Phase</h3><p class="text-[10px] text-slate-400">Controls sets, reps, and rest timers.</p></div>
+                    <select onchange="app.setWeek(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold outline-none">${[1,3,5,7,9,11].map(w => `<option value="${w}" ${state.currentWeek===w?'selected':''}>Weeks ${w}-${w+1}</option>`).join('')}</select>
                 </div>
-
                 <div class="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 snap-x hide-scrollbar gap-2 mb-4">
-                    ${Object.keys(dynamicWorkouts).map(day => `
-                        <button onclick="app.setWorkoutDay('${day}')" class="snap-center shrink-0 px-4 py-2 rounded-full text-xs font-bold border transition-all ${state.workoutDay === day ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-700'}">
-                            ${day.substring(0,3).toUpperCase()}
-                        </button>
-                    `).join('')}
+                    ${Object.keys(dynamicWorkouts).map(day => `<button onclick="app.setWorkoutDay('${day}')" class="snap-center shrink-0 px-4 py-2 rounded-full text-xs font-bold border transition-all ${state.workoutDay === day ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-700 hover:bg-slate-800'}">${day.substring(0,3).toUpperCase()}</button>`).join('')}
                 </div>
-
-                <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-5 border-b border-slate-800 bg-slate-800/30">
-                        <h2 class="text-xl font-black text-white mb-1">${state.workoutDay} <span class="text-emerald-400">•</span> ${workout.focus}</h2>
-                        <div class="flex gap-3 text-xs font-bold text-slate-400">
-                            <span><i class="fa-solid fa-stopwatch mr-1"></i> ${workout.duration}</span>
-                            <span><i class="fa-solid fa-clock mr-1"></i> ${workout.time}</span>
-                            <span class="text-blue-400"><i class="fa-solid fa-bolt mr-1"></i> Rest: ${workout.restTimer}s</span>
-                        </div>
+                <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden"><div class="p-5 border-b border-slate-800 bg-slate-800/30"><h2 class="text-xl font-black text-white mb-1">${state.workoutDay} <span class="text-emerald-400">•</span> ${workout.focus}</h2>
+                    <div class="flex flex-wrap gap-3 text-xs font-bold text-slate-400 mt-2"><span><i class="fa-solid fa-stopwatch mr-1 text-blue-400"></i> Duration: ${workout.duration}</span><span><i class="fa-solid fa-bolt mr-1 text-orange-400"></i> Rest: ${workout.restTimer}s</span></div>
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg mt-4 text-sm text-slate-300 font-medium"><i class="fa-solid fa-circle-info text-blue-400 mr-1"></i> ${workout.note}</div>
                     </div>
                     <div class="p-4 sm:p-5 space-y-4">
                         ${workout.routine.length > 0 ? workout.routine.map(ex => {
                             let setsHtml = '';
-                            if (ex.sets !== '-') {
-                                for(let i=0; i<ex.sets; i++) {
-                                    const setId = `${ex.id}_${i}`;
-                                    const isDone = state.completedSets.has(setId);
-                                    setsHtml += `
-                                        <button onclick="app.toggleSet('${ex.id}', ${i}, ${workout.restTimer})" class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition-all flex-1 min-w-[60px] ${isDone ? 'bg-emerald-900/40 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}">
-                                            ${isDone ? '<i class="fa-solid fa-circle-check"></i>' : `Set ${i+1}`}
-                                        </button>
-                                    `;
-                                }
-                            }
-                            return `
-                            <div class="bg-slate-800/40 rounded-xl border border-slate-700/50 p-4">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-slate-100 text-sm">${ex.name}</h3>
-                                    <span class="bg-slate-950 text-slate-300 text-xs font-bold px-2 py-1 rounded">Target: ${ex.reps} reps</span>
-                                </div>
-                                ${ex.sets !== '-' ? `<div class="flex flex-wrap gap-2">${setsHtml}</div>` : `<div class="text-xs text-slate-500 font-medium italic">Continuous movement. No sets tracked.</div>`}
-                            </div>
-                            `;
+                            if (ex.sets !== '-') { for(let i=0; i<ex.sets; i++) { const setId = `${ex.id}_${i}`; const isDone = state.completedSets.has(setId); setsHtml += `<button onclick="app.toggleSet('${ex.id}', ${i}, ${workout.restTimer})" class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition-all flex-1 min-w-[60px] ${isDone ? 'bg-emerald-900/40 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}">${isDone ? '<i class="fa-solid fa-check"></i>' : `Set ${i+1}`}</button>`; } }
+                            return `<div class="bg-slate-800/40 rounded-xl border border-slate-700/50 p-4">
+                                <div class="flex justify-between items-start mb-2"><h3 class="font-bold text-slate-100 text-sm sm:text-base">${ex.name}</h3><span class="bg-slate-950 text-slate-300 text-[10px] sm:text-xs font-bold px-2 py-1 rounded whitespace-nowrap border border-slate-800">${ex.sets !== '-' ? ex.sets + ' Sets x ' : ''}${ex.reps}</span></div>
+                                ${ex.tips ? `<p class="text-[11px] sm:text-xs text-slate-400 mb-4 bg-slate-900/50 p-2 rounded">${ex.tips}</p>` : ''}
+                                ${ex.sets !== '-' ? `<div class="flex flex-wrap gap-2">${setsHtml}</div>` : ''}</div>`;
                         }).join('') : '<div class="text-center py-8 text-slate-500">Rest Day. No tracked sets.</div>'}
-                    </div>
-                </section>
-            `;
-            document.getElementById('app-content').innerHTML = wHtml;
+                    </div></section>`;
         }
 
         function renderStats() {
-            const isSunday = new Date().getDay() === 0;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isSunday = new Date().getDay() === 0; 
             const daysArray = Array.from({ length: 90 }, (_, i) => i + 1);
-            const historyKeys = Object.keys(state.history).sort();
+            const historyKeys = Object.keys(state.history).sort(); 
             const daysActive = historyKeys.length;
+            
+            const photoTakenToday = state.photos.some(p => p.date === todayStr);
 
             let gridHtml = '';
             daysArray.forEach(dayNum => {
-                let bgColor = "bg-slate-800/30"; let borderColor = "border-slate-800/50";
-                let tooltip = '';
+                let bgColor = "bg-slate-800/30"; let borderColor = "border-slate-800/50"; let tooltip = '';
                 if (dayNum <= daysActive) {
-                    const histDate = historyKeys[dayNum - 1];
-                    const data = state.history[histDate];
+                    const data = state.history[historyKeys[dayNum - 1]];
                     if(data) {
                         if (data.score > 85) { bgColor = "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"; borderColor = "border-emerald-400"; }
                         else if (data.score > 50) { bgColor = "bg-emerald-600/80"; borderColor = "border-emerald-500"; }
                         else if (data.score > 10) { bgColor = "bg-emerald-900/60"; borderColor = "border-emerald-800"; }
-                        tooltip = `<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-20">
-                                      <div class="bg-slate-800 text-white text-[10px] font-bold py-1 px-2 rounded shadow-xl whitespace-nowrap">Day ${dayNum} • Score: ${Math.round(data.score)}%</div>
-                                   </div>`;
+                        tooltip = `<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-20"><div class="bg-slate-800 text-white text-[10px] font-bold py-1 px-2 rounded shadow-xl whitespace-nowrap">Day ${dayNum} • Score: ${Math.round(data.score)}%</div></div>`;
                     }
                 }
                 gridHtml += `<div class="w-[18px] h-[18px] rounded-[4px] border ${bgColor} ${borderColor} transition-colors group relative">${tooltip}</div>`;
             });
 
-            let sHtml = `
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-400 flex items-center gap-2 mb-1"><i class="fa-solid fa-weight-scale"></i> Current Weight</h3>
-                        <p class="text-xs text-slate-500">Starting point: 56.2 kg</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="number" step="0.1" value="${state.weight}" onchange="app.setWeight(this.value)" class="bg-slate-800 border border-slate-700 text-white text-xl font-black rounded-lg w-24 text-center py-2 outline-none">
-                        <span class="text-slate-400 font-bold">kg</span>
-                    </div>
-                </div>
-
-                ${isSunday ? `
-                <div class="bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-500/30 p-5 rounded-2xl flex items-start gap-4 mb-6">
-                    <div class="bg-blue-500/20 p-3 rounded-full shrink-0"><i class="fa-solid fa-camera text-blue-400 text-xl"></i></div>
-                    <div>
-                        <h3 class="font-bold text-white text-base mb-1">Sunday Check-in Required</h3>
-                        <p class="text-sm text-slate-300">It's time to take your weekly front and side progress photos and measure your waist.</p>
-                    </div>
-                </div>` : ''}
-
-                <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 overflow-hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-bullseye text-orange-400"></i> 90-Day Journey</h2>
-                        <span class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-1 rounded-full">${daysActive}/90 Days Logged</span>
-                    </div>
-                    ${daysActive === 0 ? `
-                        <div class="text-center py-10">
-                            <i class="fa-solid fa-calendar text-4xl text-slate-700 mb-3 block"></i>
-                            <p class="text-slate-400 text-sm font-bold">Start checking off tasks today to build your heat map.</p>
-                        </div>
-                    ` : `
-                        <div class="flex flex-wrap gap-1.5 justify-start">${gridHtml}</div>
-                    `}
-                </section>
-            `;
-            document.getElementById('app-content').innerHTML = sHtml;
-        }
-
-        // --- 6. CORE RENDER ENGINE ---
-        function renderApp() {
-            renderHeader();
-            renderNav();
-            
-            if (state.activeTab === 'daily') renderDaily();
-            else if (state.activeTab === 'diet') renderDiet();
-            else if (state.activeTab === 'workout') renderWorkout();
-            else if (state.activeTab === 'stats') renderStats();
-        }
-
-        // --- INIT ---
-        renderApp();
-
-        // Refresh Daily View every minute to unlock time-based tasks automatically
-        setInterval(() => {
-            if (state.activeTab === 'daily' && state.strictMode) {
-                renderDaily();
+            let galleryHtml = '';
+            if (state.photos.length > 0) {
+                const day1 = state.photos[0]; const latest = state.photos[state.photos.length - 1]; let waistDiffHtml = '';
+                if(day1.waist && latest.waist && day1.waist !== latest.waist) {
+                    const diff = (latest.waist - day1.waist).toFixed(1);
+                    waistDiffHtml = `<div class="mt-4 bg-slate-950 p-3 rounded-lg border border-slate-800 text-center"><span class="text-xs text-slate-400 font-bold uppercase block mb-1">Waist Change</span><span class="text-lg font-black ${diff < 0 ? 'text-emerald-400' : 'text-red-400'}">${diff} cm</span></div>`;
+                }
+                galleryHtml = `
+                    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 mb-6">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2 mb-4"><i class="fa-solid fa-images text-blue-400"></i> Transformation Gallery</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><div class="text-[10px] uppercase font-bold text-slate-400 mb-2">Day 1 (${day1.date})</div>${day1.front ? `<img src="${day1.front}" class="w-full rounded-xl border border-slate-700 object-cover aspect-[3/4] bg-slate-950">` : `<div class="w-full aspect-[3/4] bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center text-xs text-slate-500">No Image</div>`}</div>
+                            <div><div class="text-[10px] uppercase font-bold text-emerald-400 mb-2">Latest (${latest.date})</div>${latest.front ? `<img src="${latest.front}" class="w-full rounded-xl border border-emerald-900 object-cover aspect-[3/4] bg-slate-950">` : `<div class="w-full aspect-[3/4] bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center text-xs text-slate-500">No Image</div>`}</div>
+                        </div>${waistDiffHtml}
+                    </section>`;
             }
-        }, 60000);
+
+            document.getElementById('app-content').innerHTML = `
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex justify-between items-center mb-6"><div><h3 class="text-sm font-bold text-slate-400 flex items-center gap-2 mb-1"><i class="fa-solid fa-weight-scale text-orange-400"></i> Weight Tracking</h3><p class="text-xs text-slate-500">Starting point: 56.2 kg</p></div><div class="flex items-center gap-2"><input type="number" step="0.1" value="${state.weight}" onchange="app.setWeight(this.value)" class="bg-slate-800 border border-slate-700 text-white text-xl font-black rounded-lg w-24 text-center py-2 outline-none"><span class="text-slate-400 font-bold">kg</span></div></div>
+                
+                ${isSunday && !photoTakenToday ? `<div class="bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-500/50 p-5 rounded-2xl flex flex-col items-center text-center gap-3 mb-6 shadow-[0_0_20px_rgba(59,130,246,0.15)]"><div class="bg-blue-500 p-3 rounded-full shrink-0 shadow-lg"><i class="fa-solid fa-camera text-white text-xl"></i></div><div><h3 class="font-black text-white text-lg mb-1">Sunday Check-in Required</h3><p class="text-xs sm:text-sm text-slate-300 font-medium max-w-md">Take your weekly front & side progress photos and measure your waist to visually track your 90-day transformation.</p></div><button onclick="app.openCameraModal()" class="mt-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-lg"><i class="fa-solid fa-plus mr-2"></i> Log Progress Photos</button></div>` 
+                : photoTakenToday ? `<div class="bg-emerald-900/20 border border-emerald-500/30 p-4 rounded-2xl flex items-center gap-4 mb-6"><div class="bg-emerald-500/20 p-2 rounded-full text-emerald-400"><i class="fa-solid fa-check"></i></div><div><h3 class="font-bold text-emerald-400 text-sm">Progress Logged Today</h3><p class="text-xs text-slate-400">Great job staying accountable.</p></div></div>` 
+                : `<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between gap-4 mb-6"><div><h3 class="font-bold text-slate-200 text-sm">Progress Camera</h3><p class="text-[10px] text-slate-400">Required every Sunday.</p></div><button onclick="app.openCameraModal()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2 px-4 rounded-lg border border-slate-600"><i class="fa-solid fa-camera mr-1"></i> Open</button></div>`}
+                
+                ${galleryHtml}
+
+                <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 overflow-hidden"><div class="flex justify-between items-center mb-6"><h2 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-bullseye text-orange-400"></i> 90-Day Map</h2><span class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-1 rounded-full">${daysActive}/90 Days</span></div>
+                    ${daysActive === 0 ? `<div class="text-center py-10"><i class="fa-solid fa-calendar text-4xl text-slate-700 mb-3 block"></i><p class="text-slate-400 text-sm font-bold">Start checking off tasks today to build your map.</p></div>` : `<div class="flex flex-wrap gap-1.5 justify-start">${gridHtml}</div>`}
+                </section>`;
+        }
+
+        function renderGuide() {
+            document.getElementById('app-content').innerHTML = `
+                <div class="space-y-6">
+                    <section class="bg-gradient-to-br from-red-950 to-slate-900 p-6 rounded-2xl border border-red-900/50 relative overflow-hidden shadow-lg">
+                        <i class="fa-solid fa-award text-9xl absolute -top-4 -right-4 opacity-10 text-white"></i>
+                        <h2 class="text-xl font-black text-red-500 mb-3 relative z-10 uppercase tracking-wide">The Golden Rule</h2>
+                        <p class="text-slate-200 text-sm md:text-base leading-relaxed mb-5 relative z-10 font-medium">Missing one day doesn't matter. Missing weeks does. Consistency for 6–12 months is what will get you close to that edited physique.</p>
+                        <div class="space-y-2.5 relative z-10 bg-slate-950/50 p-4 rounded-xl border border-slate-800/50">
+                            <p class="font-bold text-white text-[10px] sm:text-sm uppercase tracking-wider mb-2 sm:mb-3">NEVER MISS:</p>
+                            ${['Protein target (100 g)', 'Workout', 'Sleep', 'Water'].map(rule => `<div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-slate-300"><i class="fa-solid fa-circle-check text-emerald-500"></i> ${rule}</div>`).join('')}
+                        </div>
+                    </section>
+                    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+                        <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-line text-blue-400"></i> Expected Results</h2>
+                        <div class="relative border-l-2 border-slate-700 ml-3 space-y-6 pb-2">
+                            ${[{ t: '30 Days', c: 'Better energy, tighter waist' }, { t: '60 Days', c: 'Visible chest and shoulder improvement' }, { t: '90 Days', c: 'Noticeable transformation' }, { t: '180 Days', c: 'Close to the physique in the edited image' }, { t: '365 Days', c: 'Lean athletic physique if consistent' }].map(res => `<div class="relative pl-6"><div class="absolute -left-[7px] top-1 w-3 h-3 bg-blue-500 rounded-full border-[3px] border-slate-900 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></div><div class="font-black text-white text-base mb-1">${res.t}</div><div class="text-sm font-medium text-slate-400">${res.c}</div></div>`).join('')}
+                        </div>
+                    </section>
+                    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+                        <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Progression Plan</h2>
+                        <div class="space-y-3">
+                            ${[{ w: 'Week 1–2', g: 'Learn exercises' }, { w: 'Week 3–4', g: 'Add 2 reps per set' }, { w: 'Week 5–6', g: 'Add backpack weight' }, { w: 'Week 7–8', g: 'Increase sets' }, { w: 'Week 9–10', g: 'Reduce rest times' }, { w: 'Week 11–12', g: 'Maximum effort' }].map(item => `<div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3 sm:p-4 bg-slate-800/40 border border-slate-700/30 rounded-xl"><div class="font-black text-emerald-400 text-xs sm:text-sm shrink-0 sm:w-24">${item.w}</div><div class="text-xs sm:text-sm font-medium text-slate-300">${item.g}</div></div>`).join('')}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderApp() { renderHeader(); renderNav(); if (state.activeTab === 'daily') renderDaily(); else if (state.activeTab === 'diet') renderDiet(); else if (state.activeTab === 'workout') renderWorkout(); else if (state.activeTab === 'stats') renderStats(); else if (state.activeTab === 'guide') renderGuide(); renderAI(); }
+
+        initCloud();
+        setInterval(() => { if (state.activeTab === 'daily' && state.strictMode) renderDaily(); }, 60000);
 
     </script>
 </body>
