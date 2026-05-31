@@ -446,8 +446,14 @@ Pending Diet Items To Eat: ${pendingItems.length > 0 ? pendingItems.join(', ') :
 4. Pay attention to the "Current Local Time". If Uday greets you with the wrong time of day (e.g., saying "Good evening" when it is ${currentTime}), politely correct him and answer his query.
 5. Be direct, accurate, friendly, and concise. Format with bullet points.`;
 
+                // The Gemini API STRICTLY requires the first message in the history to be from the 'user'.
+                // We filter out the initial hardcoded welcome message (index 0) so the API doesn't reject it.
+                const apiContents = state.aiMessages
+                    .filter((m, i) => i !== 0) 
+                    .map(m => ({ role: m.role, parts: [{ text: m.text }] }));
+
                 const payload = {
-                    contents: state.aiMessages.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
+                    contents: apiContents,
                     systemInstruction: { parts: [{ text: systemPrompt }] }
                 };
 
