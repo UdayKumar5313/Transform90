@@ -3,263 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Body Transformation Command Center</title>
+    <title>Body Transformation Command Center v16</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Manrope', 'sans-serif'] },
+                    fontFamily: { sans: ['Manrope', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        primary: '#10b981',
+                        'primary-light': '#34d399',
+                        'primary-dark': '#059669',
+                        secondary: '#14b8a6',
+                        current: '#3b82f6', 
+                        'bg-main': '#050505',
+                        'bg-secondary': '#0f0f0f',
+                        'bg-card': '#151515',
+                        'bg-card-hover': '#1d1d1d',
+                        'text-muted': '#737373',
+                        elite: '#fbbf24', 
+                    }
                 }
             }
         }
     </script>
     
-    <!-- Chart.js & Lucide -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* =====================================================
-           BODY TRANSFORMATION TRACKER PRO
-           PREMIUM BLACK + EMERALD (v3.5)
-           ===================================================== */
         :root {
-            /* PRIMARY BRAND COLORS */
             --primary: #10b981;
-            --primary-light: #34d399;
-            --primary-dark: #059669;
-
             --secondary: #14b8a6;
-            --secondary-light: #5eead4; /* FIX: Added secondary-light */
-            --accent: #10b981;
-
-            /* BACKGROUND COLORS */
+            --current: #3b82f6;
             --bg-main: #050505;
             --bg-secondary: #0f0f0f;
             --bg-card: #151515;
             --bg-card-hover: #1d1d1d;
-
-            /* TEXT COLORS */
             --text-primary: #ffffff;
             --text-secondary: #d4d4d4;
             --text-muted: #737373;
             --text-disabled: #525252;
-
-            /* FITNESS COLORS */
             --calories: #f59e0b;
             --protein: #ef4444;
             --water: #06b6d4;
-            --steps: #10b981;
-            --sleep: #8b5cf6;
-            --weight: #f97316;
             --workout: #10b981;
-
-            /* SYSTEM COLORS */
-            --warning: #f59e0b;
+            --weight: #ec4899;
             --danger: #ef4444;
-            --info: #06b6d4;
-
-            /* BORDERS */
+            --elite: #fbbf24;
             --border-light: rgba(255,255,255,.05);
             --border-medium: rgba(255,255,255,.1);
-
-            /* SHADOWS */
             --shadow-card: 0 10px 30px rgba(0,0,0,.25);
-            --shadow-primary: 0 10px 25px rgba(16,185,129,.3);
+            --shadow-primary: 0 10px 25px rgba(16,185,129,.2);
+            --shadow-current: 0 0 15px rgba(59,130,246,.3);
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        body {
-            -webkit-tap-highlight-color: transparent;
-            background: var(--bg-main);
-            color: var(--text-primary);
-            font-family: "Manrope", system-ui, sans-serif;
-            min-height: 100vh;
-        }
+        body { -webkit-tap-highlight-color: transparent; background: var(--bg-main); color: var(--text-primary); font-family: "Manrope", system-ui, sans-serif; min-height: 100vh; }
 
-        /* PREMIUM FLAT CARD (No heavy blur, strict borders) */
-        .glass-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            box-shadow: var(--shadow-card);
-            transition: 0.3s ease;
-            backdrop-filter: none; /* Removed heavy glassmorphism per request */
-        }
+        .glass-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 24px; box-shadow: var(--shadow-card); transition: 0.3s ease; }
+        .glass-card:hover { background: var(--bg-card-hover); }
+        .hero-card { background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-light); border-radius: 32px; padding: 32px; box-shadow: var(--shadow-card); transition: all 0.5s ease; }
+
+        .master-timeline { position: relative; padding-left: 24px; margin-left: 12px; border-left: 2px solid var(--border-medium); }
+        .master-node { position: absolute; left: -31px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--bg-main); border: 2px solid var(--border-medium); z-index: 10; transition: 0.3s; }
         
-        .glass-card:hover {
-            transform: translateY(-4px);
-            background: var(--bg-card-hover);
-        }
+        .master-node.completed { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 10px rgba(16,185,129,0.5); }
+        .master-node.current { background: var(--current); border-color: var(--current); box-shadow: var(--shadow-current); }
+        .master-node.upcoming { background: var(--bg-main); border-color: var(--border-medium); }
+        .master-node.missed { background: var(--danger); border-color: var(--danger); }
 
-        /* METRIC CARDS (Used for grids) */
-        .metric-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 24px;
-            transition: 0.3s ease;
-        }
-        .metric-card:hover { 
-            transform: translateY(-4px); 
-            background: var(--bg-card-hover);
-        }
-
-        /* HERO CARD */
-        .hero-card {
-            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-            border: 1px solid var(--border-light);
-            border-radius: 32px;
-            padding: 32px;
-            box-shadow: var(--shadow-card);
-        }
-
-        /* PROGRESS RINGS (Minimal) */
-        .circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 250px; }
-        .circle-bg { fill: none; stroke: var(--border-light); stroke-width: 3.8; }
-        .circle { fill: none; stroke-width: 3.8; stroke-linecap: round; transition: stroke-dasharray 1s ease-out; }
-        .color-primary { stroke: var(--primary); }
-
-        /* TIMELINE UI */
-        .timeline-stepper { border-left: 2px solid var(--border-light); margin-left: 10px; padding-left: 24px; position: relative; }
-        .timeline-step { position: relative; margin-bottom: 24px; }
-        .timeline-step:last-child { margin-bottom: 0; }
-        .timeline-step::before {
-            content: ''; position: absolute; left: -31px; top: 0; width: 14px; height: 14px;
-            border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border-medium);
-            transition: 0.3s;
-        }
-        .timeline-step.completed::before { background: var(--primary); border-color: var(--primary); }
-
-        /* DIET & WORKOUT UPGRADES */
-        .meal-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px; padding: 24px; transition: 0.3s; }
-        .meal-card.completed { border-color: var(--primary); background: rgba(16,185,129,0.03); }
+        .item-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px; padding: 20px; transition: 0.3s; margin-bottom: 24px; }
+        .item-card.completed { border-color: var(--primary); background: rgba(16,185,129,0.02); }
+        .item-card.current { border-color: var(--current); box-shadow: 0 0 20px rgba(59,130,246,0.1); }
+        .item-card.missed { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); opacity: 0.8; }
         
-        .exercise-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 20px; padding: 24px; transition: 0.3s; margin-bottom: 16px; }
-        .exercise-card.completed { border-color: var(--primary); background: rgba(16,185,129,0.03); }
-        
-        .weekly-dash-day { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .weekly-dash-day.completed { background: var(--primary); color: #000; box-shadow: 0 0 15px rgba(16,185,129,0.3); }
-        .weekly-dash-day.missed { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--danger); }
-        .weekly-dash-day.pending { background: var(--bg-secondary); border: 1px solid var(--border-light); color: var(--text-muted); }
+        .rep-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border-medium); border-radius: 8px; color: white; text-align: center; font-weight: bold; width: 48px; height: 32px; outline: none; transition: 0.2s; }
+        .rep-input:focus { border-color: var(--primary); background: rgba(16,185,129,0.1); }
 
-        /* BUTTONS & NAV */
-        .nav-item {
-            height: 54px; display: flex; align-items: center; gap: 14px; padding: 0 20px;
-            border-radius: 16px; color: var(--text-muted); transition: .2s; font-weight: 700; cursor: pointer;
-        }
+        .nav-item { height: 54px; display: flex; align-items: center; gap: 14px; padding: 0 20px; border-radius: 16px; color: var(--text-muted); transition: .2s; font-weight: 700; cursor: pointer; }
         .nav-item:hover { background: var(--border-light); color: var(--text-primary); }
-        .nav-item.active-nav {
-            background: rgba(16, 185, 129, 0.1); /* Emerald tint */
-            color: var(--primary); 
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
+        .nav-item.active-nav { background: rgba(16, 185, 129, 0.1); color: var(--primary); border: 1px solid rgba(16, 185, 129, 0.2); }
 
-        .btn-primary {
-            background: var(--primary); color: #000; border-radius: 16px; font-weight: 800;
-            transition: 0.2s; border: none; box-shadow: var(--shadow-primary);
-        }
+        .btn-primary { background: var(--primary); color: #000; border-radius: 16px; font-weight: 800; transition: 0.2s; border: none; box-shadow: var(--shadow-primary); cursor: pointer; }
         .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .btn-secondary {
-            background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-light);
-            border-radius: 16px; font-weight: 700; transition: 0.2s;
-        }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-light); border-radius: 16px; font-weight: 700; transition: 0.2s; cursor: pointer;}
         .btn-secondary:hover { background: var(--border-medium); }
 
-        /* FAB */
-        .fab {
-            position: fixed; bottom: 32px; right: 32px; width: 64px; height: 64px; border-radius: 50%;
-            background: var(--primary); color: #000; border: none; cursor: pointer; z-index: 990; 
-            box-shadow: var(--shadow-primary); transition: .2s; display: flex; align-items: center; justify-content: center;
-        }
-        .fab:hover { transform: scale(1.05); }
-
-        /* VIEW TRANSITIONS */
         .view-section { display: none; }
         .view-section.active { display: block; animation: slideFade 0.4s ease; }
         @keyframes slideFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* TOAST */
-        .toast {
-            position: fixed; top: 24px; right: 24px; background: var(--bg-card);
-            border: 1px solid var(--border-light); padding: 16px 24px; border-radius: 20px; 
-            box-shadow: var(--shadow-card); z-index: 1000; display: flex; align-items: center; gap: 16px;
-            transform: translateX(120%); opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .toast { position: fixed; top: 24px; right: 24px; background: var(--bg-card); border: 1px solid var(--border-light); padding: 16px 24px; border-radius: 20px; box-shadow: var(--shadow-card); z-index: 1000; display: flex; align-items: center; gap: 16px; transform: translateX(120%); opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { transform: translateX(0); opacity: 1; }
-
-        /* COMMAND PALETTE */
-        .command-palette { position:fixed; top:20%; left:50%; transform:translateX(-50%) scale(0.95); width:600px; max-width:90%; padding:24px; background:var(--bg-card); border:1px solid var(--border-medium); border-radius:24px; display:none; opacity:0; z-index:9999; box-shadow: 0 30px 60px rgba(0,0,0,0.8); transition: 0.2s;}
-        .command-palette.show { display:block; opacity:1; transform:translateX(-50%) scale(1); }
-
+        
+        .trans-score-gradient { background: -webkit-linear-gradient(45deg, var(--primary), #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        @keyframes pulse-border-blue { 0% { border-color: rgba(59,130,246,0.3); box-shadow: 0 0 10px rgba(59,130,246,0.1); } 50% { border-color: rgba(59,130,246,0.8); box-shadow: 0 0 20px rgba(59,130,246,0.3); } 100% { border-color: rgba(59,130,246,0.3); box-shadow: 0 0 10px rgba(59,130,246,0.1); } }
+        .pulse-border-active { animation: pulse-border-blue 2s infinite; }
+        .digital-font { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
-<body>
-
-    <!-- NOTIFICATION TOAST -->
+<body id="app-body">
+    
     <div id="toast" class="toast">
-        <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shrink-0" id="toast-icon-wrapper">
-            <i data-lucide="bell" id="toast-icon" class="w-6 h-6"></i>
+        <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border" id="toast-icon-wrapper">
+            <i data-lucide="check-circle" id="toast-icon" class="w-6 h-6"></i>
         </div>
         <div>
-            <p class="text-xs text-blue-400 font-bold uppercase tracking-wider mb-1" id="toast-title">System Alert</p>
-            <p class="text-white font-black text-sm" id="toast-msg">Action Recorded</p>
+            <p class="text-xs font-bold uppercase tracking-wider mb-1" id="toast-title">Notification</p>
+            <p class="text-white font-black text-sm" id="toast-msg">Status Updated</p>
         </div>
     </div>
 
-    <!-- COMMAND PALETTE -->
-    <div id="commandPalette" class="command-palette">
-        <div class="flex items-center gap-3 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-xl px-4 py-3 mb-4">
-            <i data-lucide="search" class="w-5 h-5 text-[var(--text-muted)]"></i>
-            <input type="text" id="cmdInput" placeholder="Search commands..." class="w-full bg-transparent border-none outline-none text-white font-bold placeholder:text-[var(--text-muted)]" autocomplete="off">
-            <span class="text-xs font-bold text-[var(--text-muted)] bg-[var(--border-light)] px-2 py-1 rounded">ESC</span>
-        </div>
-        <div class="space-y-1" id="cmdResults">
-            <p class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-2">Quick Actions</p>
-            <div class="p-3 hover:bg-[var(--border-light)] rounded-xl cursor-pointer text-white font-bold flex items-center gap-3 transition" onclick="window.execCmd('nav-diet')"><i data-lucide="apple" class="w-4 h-4 text-[var(--primary)]"></i> Diet Engine</div>
-            <div class="p-3 hover:bg-[var(--border-light)] rounded-xl cursor-pointer text-white font-bold flex items-center gap-3 transition" onclick="window.execCmd('nav-workout')"><i data-lucide="dumbbell" class="w-4 h-4 text-[var(--primary)]"></i> Workout Plan</div>
-            <div class="p-3 hover:bg-[var(--border-light)] rounded-xl cursor-pointer text-white font-bold flex items-center gap-3 transition" onclick="window.execCmd('log-water')"><i data-lucide="droplet" class="w-4 h-4 text-[var(--water)]"></i> Log +250ml Water</div>
-        </div>
-    </div>
-
-    <!-- MAIN APP LAYOUT (Sidebar + Main) -->
     <div class="w-full max-w-[1600px] mx-auto min-h-screen relative z-10 flex flex-col lg:flex-row bg-[var(--bg-main)]">
         
-        <!-- DESKTOP SIDEBAR -->
         <aside class="hidden lg:flex w-[280px] flex-col border-r border-[var(--border-light)] bg-[var(--bg-secondary)] relative z-30 shrink-0">
-            <div class="p-8 border-b border-[var(--border-light)]">
-                <h1 class="text-3xl font-black text-white tracking-tight">Body<span style="color: var(--primary)">Pro</span></h1>
+            <div class="p-8 border-b border-[var(--border-light)] relative">
+                <h1 class="text-3xl font-black text-white tracking-tight">Body<span style="color: var(--primary)">Pro</span><span class="text-xs text-[var(--text-muted)] ml-1">v16</span></h1>
             </div>
             
             <nav class="flex-1 p-6 space-y-2">
-                <button data-tab="dashboard" class="nav-item active-nav w-full"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
-                <button data-tab="diet" class="nav-item w-full"><i data-lucide="apple" class="w-5 h-5"></i> Diet</button>
-                <button data-tab="workout" class="nav-item w-full"><i data-lucide="dumbbell" class="w-5 h-5"></i> Workout</button>
-                <button data-tab="analytics" class="nav-item w-full"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Analytics</button>
-                <button data-tab="settings" class="nav-item w-full"><i data-lucide="settings" class="w-5 h-5"></i> Settings</button>
+                <button data-tab="dashboard" class="nav-item active-nav w-full"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Command Center</button>
+                <button data-tab="master" class="nav-item w-full"><i data-lucide="list-todo" class="w-5 h-5"></i> Master Timeline</button>
+                <button data-tab="analytics" class="nav-item w-full"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Deep Analytics</button>
+                <button data-tab="settings" class="nav-item w-full"><i data-lucide="settings" class="w-5 h-5"></i> System Data</button>
             </nav>
 
             <div class="p-6 border-t border-[var(--border-light)]">
-                <div class="flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-card)]">
-                    <div class="w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center font-black text-[#000] shrink-0">UK</div>
-                    <div class="overflow-hidden">
+                <div class="flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-card)] mb-3 relative overflow-hidden">
+                    <div class="w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center font-black text-[#000] shrink-0" id="sidebar-level-avatar">W1</div>
+                    <div class="overflow-hidden w-full">
                         <p class="text-sm font-bold text-white truncate">Uday Kumar</p>
-                        <p class="text-xs text-[var(--primary)] font-bold flex items-center gap-1 mt-0.5"><i data-lucide="flame" class="w-3 h-3"></i> <span id="sidebar-streak">0 Day Streak</span></p>
+                        <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-1" id="sidebar-start-date">Started: Standby</p>
                     </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="text-[10px] text-[var(--primary)] font-bold flex flex-col items-center justify-center bg-[var(--bg-card)] p-2 rounded-xl border border-[var(--border-light)]"><i data-lucide="flame" class="w-4 h-4 mb-1"></i> <span id="sidebar-streak">0 Global</span></div>
+                    <div class="text-[10px] text-[var(--workout)] font-bold flex flex-col items-center justify-center bg-[var(--bg-card)] p-2 rounded-xl border border-[var(--border-light)]"><i data-lucide="activity" class="w-4 h-4 mb-1"></i> <span id="sidebar-wk-lvl">Level 0</span></div>
                 </div>
             </div>
         </aside>
 
-        <!-- MOBILE HEADER -->
         <header class="lg:hidden sticky top-0 z-20 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] p-4 flex items-center justify-between">
-            <h1 class="text-2xl font-black text-white tracking-tight">Body<span style="color: var(--primary)">Pro</span></h1>
+            <h1 class="text-2xl font-black text-white tracking-tight relative">Body<span style="color: var(--primary)">Pro</span></h1>
             <div class="flex items-center gap-2">
                 <div class="text-xs font-bold px-2 py-1 rounded-lg border border-[var(--primary)] text-[var(--primary)] bg-[var(--primary)]/10 flex items-center gap-1">
                     <i data-lucide="flame" class="w-3 h-3"></i> <span id="mobile-streak">0</span>
@@ -267,195 +159,180 @@
             </div>
         </header>
 
-        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 overflow-y-auto p-4 lg:p-8 hide-scrollbar relative z-10 bg-[var(--bg-main)] pb-24 lg:pb-8">
             
-            <!-- ================= DASHBOARD (Restructured to Option 1) ================= -->
-            <div id="view-dashboard" class="view-section active max-w-5xl mx-auto space-y-6">
+            <div id="view-dashboard" class="view-section active max-w-[1400px] mx-auto space-y-6">
                 
-                <!-- ROW 1: Hero / Today's Score -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="md:col-span-2 hero-card flex flex-col justify-center">
-                        <h2 class="text-3xl sm:text-4xl font-black mb-2" id="greeting-text">Good Morning, Uday</h2>
-                        <p class="text-[var(--text-secondary)] font-medium text-lg mb-6">Let's build muscle today.</p>
-                        <div class="flex items-start gap-4 bg-[var(--bg-secondary)] p-4 rounded-2xl border border-[var(--border-light)]">
-                            <div class="p-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-xl shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                <div id="recovery-banner" class="hidden bg-gradient-to-r from-red-500/10 to-[var(--bg-card)] border border-red-500/40 rounded-2xl p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center shrink-0"><i data-lucide="alert-octagon" class="w-5 h-5"></i></div>
+                        <div>
+                            <h4 class="text-red-500 font-bold text-sm tracking-wider uppercase" id="recovery-banner-title">Protocol Exception</h4>
+                            <p class="text-xs text-[var(--text-muted)] font-medium" id="recovery-banner-desc">Binary execution target failed in previous checklist iteration. Focus window reset.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-card p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div id="digitalClock" class="text-3xl font-black text-white tracking-tight digital-font relative z-10">00:00:00</div>
+                        <div id="clockDate" class="text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest mt-1 mb-4 relative z-10">Loading Date...</div>
+                        
+                        <div class="w-full pt-4 border-t border-[var(--border-light)]">
+                            <h4 class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1 flex items-center justify-center gap-1"><i data-lucide="moon" class="w-3 h-3 text-indigo-400"></i> Time Until Sleep</h4>
+                            <p class="text-lg font-black text-indigo-400 digital-font" id="sleep-countdown">--:--:--</p>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 hero-card flex flex-col justify-center relative overflow-hidden">
+                        <div class="absolute top-6 right-6 text-right">
+                            <span class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1">Transformation Score</span>
+                            <div class="text-3xl font-black trans-score-gradient"><span id="dash-trans-score">0</span><span class="text-lg">%</span></div>
+                        </div>
+                        
+                        <h2 class="text-3xl sm:text-4xl font-black mb-1 relative z-10 flex items-center gap-2">
+                            <span id="greeting-text">🌅 Good Morning, Uday</span>
+                        </h2>
+                        
+                        <div class="flex items-center gap-3 mt-2 mb-6">
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-[var(--workout)]/10 text-[var(--workout)] border border-[var(--workout)]/20 px-2 py-1 rounded" id="hero-level">Level 0 Setup Needed</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-[var(--bg-main)] text-white border border-[var(--border-medium)] px-2 py-1 rounded flex items-center gap-1"><i data-lucide="bar-chart" class="w-3 h-3"></i> Diff: <span id="hero-diff" class="text-zinc-500">Unset</span></span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 relative z-10">
+                            <button onclick="document.querySelector('.nav-item[data-tab=\'master\']').click()" class="btn-primary py-3 px-6 flex items-center justify-center gap-2 text-sm"><i data-lucide="play-circle" class="w-4 h-4 text-black"></i> Execute Timeline</button>
+                            <button onclick="window.runEveningAudit()" class="bg-[var(--bg-main)] border border-[var(--border-medium)] text-white hover:bg-[var(--border-light)] py-3 px-6 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all text-sm"><i data-lucide="check-square" class="w-4 h-4 text-[var(--primary)]"></i> Daily Debrief</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-6 flex flex-col justify-center bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-secondary)]">
+                        <div class="mb-4">
+                            <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2 mb-1"><i data-lucide="battery-charging" class="w-4 h-4 text-[var(--primary)]"></i> Recovery Engine</h3>
+                            <div class="flex items-end gap-2">
+                                <span class="text-4xl font-black text-white" id="recovery-score">0%</span>
+                                <span class="text-sm font-bold text-[var(--primary)] mb-1" id="recovery-status">Optimal</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-4 border-t border-[var(--border-light)]">
+                            <div class="flex justify-between text-[10px] font-bold uppercase"><span class="text-[var(--text-muted)]">Sleep & Water</span><span class="text-white" id="rec-sw">--</span></div>
+                            <div class="flex justify-between text-[10px] font-bold uppercase"><span class="text-[var(--text-muted)]">Nutrition</span><span class="text-white" id="rec-nut">--</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card p-4 flex items-center gap-4 border-l-4 border-l-[var(--calories)]">
+                        <div class="w-12 h-12 rounded-full bg-[var(--calories)]/10 text-[var(--calories)] flex items-center justify-center shrink-0"><i data-lucide="utensils" class="w-5 h-5"></i></div>
+                        <div class="flex-1">
+                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Next Nutrition</p>
+                            <h4 class="text-lg font-black text-white truncate" id="next-meal-title">Loading...</h4>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-[var(--calories)] uppercase tracking-wider mb-0.5" id="next-meal-status">Starts In</p>
+                            <p class="text-xl font-black digital-font text-white" id="next-meal-time">--:--:--</p>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-4 flex items-center gap-4 border-l-4 border-l-[var(--workout)]">
+                        <div class="w-12 h-12 rounded-full bg-[var(--workout)]/10 text-[var(--workout)] flex items-center justify-center shrink-0"><i data-lucide="dumbbell" class="w-5 h-5"></i></div>
+                        <div class="flex-1">
+                            <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Next Protocol</p>
+                            <h4 class="text-lg font-black text-white truncate" id="next-work-title">Loading...</h4>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-[var(--workout)] uppercase tracking-wider mb-0.5" id="next-work-status">Starts In</p>
+                            <p class="text-xl font-black digital-font text-white" id="next-work-time">--:--:--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest pl-2 border-l-2 border-[var(--primary)] mt-8">Today's Execution</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-light)] flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border-4 border-[var(--calories)] flex items-center justify-center shrink-0"><i data-lucide="apple" class="w-5 h-5 text-[var(--calories)]"></i></div>
+                        <div><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Diet</p><p class="text-xl font-black text-white"><span id="ucc-diet">0</span>%</p></div>
+                    </div>
+                    <div class="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-light)] flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border-4 border-[var(--workout)] flex items-center justify-center shrink-0"><i data-lucide="dumbbell" class="w-5 h-5 text-[var(--workout)]"></i></div>
+                        <div><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Workout</p><p class="text-xl font-black text-white"><span id="ucc-work">0</span>%</p></div>
+                    </div>
+                    <div class="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-light)] flex justify-between items-center col-span-2 sm:col-span-1 cursor-pointer hover:border-[var(--water)] transition" onclick="window.updateMetric('water', 250)">
+                        <div><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Water (+250)</p><p class="text-xl font-black text-white"><span id="ucc-wat">0</span><span class="text-[10px] text-[var(--text-muted)] ml-1">ml</span></p></div>
+                        <i data-lucide="droplet" class="w-6 h-6 text-[var(--water)] opacity-50"></i>
+                    </div>
+                    <div class="bg-[var(--bg-card)] p-4 rounded-2xl border border-[var(--border-light)] flex justify-between items-center col-span-2 sm:col-span-1 cursor-pointer hover:border-indigo-400 transition" onclick="window.updateMetric('sleep', 0.5)">
+                        <div><p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Sleep (+0.5)</p><p class="text-xl font-black text-white"><span id="ucc-slp">0</span><span class="text-[10px] text-[var(--text-muted)] ml-1">h</span></p></div>
+                        <i data-lucide="moon" class="w-6 h-6 text-indigo-400 opacity-50"></i>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card p-6 flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider"><i data-lucide="trending-up" class="inline w-3 h-3 mr-1"></i> Smart Weight Trend</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <h3 class="text-sm font-bold text-white mb-1">AI Coach</h3>
-                                <p id="ai-coach-text" class="text-sm text-[var(--text-secondary)] leading-relaxed">Analyzing metrics...</p>
+                                <p class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Current</p>
+                                <span class="text-3xl font-black text-white" id="pred-current">0.0<span class="text-sm text-[var(--text-muted)]">kg</span></span>
+                            </div>
+                            <div class="pl-4 border-l border-[var(--border-light)]">
+                                <p class="text-[10px] font-bold text-[var(--weight)] uppercase tracking-wider mb-1">90-Day Prediction</p>
+                                <span class="text-3xl font-black text-[var(--weight)]" id="pred-future">0.0<span class="text-sm text-[var(--weight)]/50">kg</span></span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="glass-card p-6 flex flex-col items-center justify-center text-center">
-                        <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Fitness Score</h3>
-                        <div class="relative w-32 h-32 flex items-center justify-center">
-                            <svg viewBox="0 0 36 36" class="circular-chart color-primary absolute inset-0 w-full h-full transform -rotate-90">
-                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path class="circle" id="fitness-score-ring" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            </svg>
-                            <span class="text-3xl font-black text-white" id="dash-fitness-score">0</span>
+                    <div class="glass-card p-6 flex flex-col justify-between">
+                        <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 text-[var(--current)]"></i> Progressive Overload Engine</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-white font-bold mb-1">Current Training Week: <span class="text-[var(--current)] text-xl font-black ml-2" id="dash-train-week">0</span></p>
+                            <p class="text-xs text-[var(--text-muted)] leading-relaxed">Sets and reps automatically scale based on elapsed time from start date to force continuous adaptation.</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- ROW 2: 4 Core Metrics -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                    <div class="metric-card p-5">
-                        <div class="flex items-center gap-2 mb-3 text-[var(--calories)]"><i data-lucide="flame" class="w-4 h-4"></i><span class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Calories</span></div>
-                        <div class="text-2xl font-black mb-1"><span id="dash-cal-val">0</span></div>
-                        <div class="text-xs text-[var(--text-muted)] font-bold mb-3">/ 2200 kcal</div>
-                        <div class="w-full bg-[var(--bg-secondary)] h-1.5 rounded-full overflow-hidden"><div id="dash-cal-bar" class="h-full bg-[var(--calories)] transition-all duration-1000 w-0"></div></div>
-                    </div>
-                    <div class="metric-card p-5">
-                        <div class="flex items-center gap-2 mb-3 text-[var(--protein)]"><i data-lucide="activity" class="w-4 h-4"></i><span class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Protein</span></div>
-                        <div class="text-2xl font-black mb-1"><span id="dash-pro-val">0</span></div>
-                        <div class="text-xs text-[var(--text-muted)] font-bold mb-3">/ 115 g</div>
-                        <div class="w-full bg-[var(--bg-secondary)] h-1.5 rounded-full overflow-hidden"><div id="dash-pro-bar" class="h-full bg-[var(--protein)] transition-all duration-1000 w-0"></div></div>
-                    </div>
-                    <div class="metric-card p-5 cursor-pointer hover:border-[var(--water)]" onclick="window.updateMetric('water', 250)">
-                        <div class="flex items-center gap-2 mb-3 text-[var(--water)]"><i data-lucide="droplet" class="w-4 h-4"></i><span class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Water</span></div>
-                        <div class="text-2xl font-black mb-1"><span id="dash-wat-val">0</span></div>
-                        <div class="text-xs text-[var(--text-muted)] font-bold mb-3">/ 3500 ml</div>
-                        <div class="w-full bg-[var(--bg-secondary)] h-1.5 rounded-full overflow-hidden"><div id="dash-wat-bar" class="h-full bg-[var(--water)] transition-all duration-1000 w-0"></div></div>
-                    </div>
-                    <div class="metric-card p-5">
-                        <div class="flex items-center gap-2 mb-4 text-[var(--steps)]"><i data-lucide="footprints" class="w-4 h-4"></i><span class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Steps</span></div>
-                        <div class="flex items-center justify-between">
-                            <button onclick="window.updateMetric('steps', -1000)" class="text-[var(--text-muted)] hover:text-white"><i data-lucide="minus-circle" class="w-5 h-5"></i></button>
-                            <span class="text-2xl font-black" id="dash-steps-val">0</span>
-                            <button onclick="window.updateMetric('steps', 1000)" class="text-[var(--text-muted)] hover:text-white"><i data-lucide="plus-circle" class="w-5 h-5"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ROW 3: Today's Diet -->
-                <div class="glass-card p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold">Today's Diet</h3>
-                        <div class="text-sm font-bold text-[var(--primary)]"><span id="dash-diet-pct">0</span>% Complete</div>
-                    </div>
-                    <div class="timeline-stepper" id="daily-mini-timeline"></div>
-                </div>
-
-                <!-- ROW 4: Today's Workout -->
-                <div class="glass-card p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold" id="dash-workout-title">Workout</h3>
-                        <div class="text-sm font-bold text-[var(--primary)]"><span id="dash-wk-pct">0</span>% Complete</div>
-                    </div>
-                    <button onclick="window.execCmd('nav-workout')" class="w-full btn-secondary py-4 font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="play-circle" class="w-5 h-5 text-[var(--primary)]"></i> Open Workout Engine
-                    </button>
-                </div>
-
-                <!-- ROW 5: Analytics / Weight / Recovery Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6">
-                        <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Current Mass</h3>
-                        <div class="text-3xl font-black mb-1"><span id="dash-weight-val">0.0</span> <span class="text-lg text-[var(--text-muted)]">kg</span></div>
-                        <p class="text-sm font-bold text-[var(--primary)]">Target: 60 kg</p>
-                    </div>
-                    <div class="glass-card p-6">
-                        <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Recovery</h3>
-                        <div class="text-3xl font-black text-[var(--water)]"><span id="recoveryScore">0</span>%</div>
-                    </div>
-                    <div class="glass-card p-6">
-                        <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Energy</h3>
-                        <div class="text-3xl font-black text-[var(--calories)]"><span id="energyScore">0</span>/100</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================= DIET ENGINE ================= -->
-            <div id="view-diet" class="view-section max-w-4xl mx-auto space-y-6">
-                <div class="mb-6">
-                    <h2 class="text-3xl font-black text-white tracking-tight">Nutrition Progress</h2>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6 flex flex-col items-center justify-center">
-                        <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Diet Progress</h3>
-                        <div class="relative w-32 h-32 flex items-center justify-center">
-                            <svg viewBox="0 0 36 36" class="circular-chart color-primary absolute inset-0 w-full h-full transform -rotate-90">
-                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path class="circle" id="diet-page-ring" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            </svg>
-                            <span class="text-3xl font-black text-white"><span id="diet-page-pct">0</span>%</span>
-                        </div>
+            <div id="view-master" class="view-section max-w-3xl mx-auto space-y-6">
+                <div class="sticky top-0 z-40 bg-[var(--bg-main)]/90 backdrop-blur-md pt-4 pb-6 border-b border-[var(--border-medium)] mb-6 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-black text-white tracking-tight mb-1">Smart Timeline</h2>
+                        <p class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+                            <span id="master-date-display">Today</span>
+                            <span class="bg-[var(--bg-secondary)] px-2 py-1 rounded text-[10px] text-white font-bold digital-font" id="master-clock">00:00</span>
+                        </p>
                     </div>
-                    <div class="glass-card p-6 md:col-span-2 flex flex-col justify-center space-y-6">
-                        <div>
-                            <div class="flex justify-between items-end mb-2">
-                                <div>
-                                    <span class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Calories</span>
-                                    <div class="text-2xl font-black text-[var(--calories)]"><span id="diet-cal-curr">0</span> <span class="text-sm text-[var(--text-muted)] font-bold">/ 2200 kcal</span></div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Remaining</span>
-                                    <div class="text-xl font-black text-white"><span id="diet-cal-rem">2200</span></div>
-                                </div>
-                            </div>
-                            <div class="h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden"><div id="diet-cal-bar" class="h-full bg-[var(--calories)] transition-all duration-1000 w-0"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-end mb-2">
-                                <div>
-                                    <span class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Protein</span>
-                                    <div class="text-2xl font-black text-[var(--protein)]"><span id="diet-pro-curr">0</span> <span class="text-sm text-[var(--text-muted)] font-bold">/ 115 g</span></div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Remaining</span>
-                                    <div class="text-xl font-black text-white" id="diet-pro-rem">115g</div>
-                                </div>
-                            </div>
-                            <div class="h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden"><div id="diet-pro-bar" class="h-full bg-[var(--protein)] transition-all duration-1000 w-0"></div></div>
-                        </div>
+                    <div class="text-right flex flex-col items-end">
+                        <div class="text-3xl font-black text-[var(--primary)]" id="master-top-fraction">0/0</div>
+                        <div class="w-24 bg-[var(--bg-secondary)] h-1.5 rounded-full overflow-hidden mt-1"><div id="master-top-bar" class="h-full bg-[var(--primary)] transition-all duration-1000 w-0"></div></div>
                     </div>
-                </div>
-
-                <div class="mt-8 mb-4 flex items-center justify-between">
-                    <h3 class="text-xl font-black text-white tracking-tight">Today's Timeline</h3>
-                </div>
-                <div class="relative border-l-2 border-[var(--border-medium)] ml-4 sm:ml-8 space-y-8 pb-8 pt-4" id="diet-timeline-full"></div>
-            </div>
-
-            <!-- ================= WORKOUT ENGINE ================= -->
-            <div id="view-workout" class="view-section max-w-4xl mx-auto space-y-6">
-                <div class="mb-6">
-                    <h2 class="text-3xl font-black text-white tracking-tight">Workout Progress</h2>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="glass-card p-6 md:col-span-2 flex flex-col justify-center">
-                        <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Weekly Dashboard</h3>
-                        <div class="flex justify-between gap-2" id="weekly-workout-dash">
-                            <!-- populated by js -->
-                        </div>
+                <div class="master-timeline" id="master-timeline-container">
                     </div>
-                    <div class="glass-card p-6 flex flex-col items-center justify-center text-center">
-                        <h3 class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Today's Score</h3>
-                        <div class="text-5xl font-black text-[var(--workout)]"><span id="workout-page-score">0</span>%</div>
-                        <div class="text-xs font-bold text-slate-400 mt-2" id="workout-page-fraction">0 / 0 Exercises</div>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 overflow-x-auto hide-scrollbar py-2" id="workout-day-selector"></div>
-                
-                <div class="hero-card border border-[var(--border-light)] p-6 sm:p-8 flex flex-col md:flex-row justify-between gap-6" id="workout-header-card" style="background: linear-gradient(135deg, var(--bg-card-hover), var(--bg-card)); box-shadow: var(--shadow-card);">
-                    <!-- populated by JS -->
-                </div>
-
-                <div id="workout-exercises-container" class="space-y-4 mt-6"></div>
             </div>
 
-            <!-- ================= ANALYTICS ================= -->
             <div id="view-analytics" class="view-section max-w-5xl mx-auto space-y-6">
-                <div class="mb-6">
-                    <h2 class="text-3xl font-black text-white tracking-tight">Analytics Pro</h2>
+                <div class="mb-6 flex justify-between items-end">
+                    <h2 class="text-3xl font-black text-white tracking-tight">Deep Analytics</h2>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h3 class="font-bold text-white text-lg mb-6 flex items-center gap-2"><i data-lucide="crown" class="text-[var(--calories)] w-5 h-5"></i> Personal Records</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="pr-trends-container">
+                        </div>
+                </div>
+
+                <div class="glass-card p-6 border border-[var(--current)]/20 shadow-[0_0_30px_rgba(59,130,246,0.05)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-white text-lg flex items-center gap-2"><i data-lucide="zap" class="text-[var(--current)] w-5 h-5"></i> Auto-Overload Targets</h3>
+                        <span class="text-xs font-bold bg-[var(--current)]/10 text-[var(--current)] px-3 py-1 rounded border border-[var(--current)]/30">Week <span id="an-train-week">0</span></span>
+                    </div>
+                    <div class="space-y-3 max-h-[300px] overflow-y-auto hide-scrollbar pr-2 grid grid-cols-1 md:grid-cols-2 gap-4" id="an-active-targets">
+                        </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div class="glass-card p-6 flex flex-col">
                         <h3 class="font-bold text-white text-lg mb-6 flex items-center gap-2"><i data-lucide="scale" class="text-[var(--weight)] w-5 h-5"></i> Weight Trends</h3>
                         <div class="h-[250px] w-full relative mt-auto"><canvas id="weightChart"></canvas></div>
@@ -467,179 +344,601 @@
                 </div>
             </div>
 
-            <!-- ================= SETTINGS ================= -->
-            <div id="view-settings" class="view-section max-w-2xl mx-auto space-y-6">
-                <div class="hero-card text-center mt-4">
-                    <div class="w-24 h-24 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-black text-[var(--primary)] shadow-lg">UK</div>
+            <div id="view-settings" class="view-section max-w-4xl mx-auto space-y-6">
+                <div class="hero-card text-center mt-4 border border-[var(--border-light)] relative">
+                    <div class="w-24 h-24 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-black text-[var(--primary)] shadow-lg transition-colors" id="settings-avatar">UK</div>
                     <h2 class="text-2xl font-black text-white">Uday Kumar</h2>
-                    <p class="text-sm font-bold mt-1 text-[var(--text-secondary)] uppercase tracking-widest">Pro Tracker Active</p>
+                    <p class="text-sm font-bold mt-1 text-[var(--text-secondary)] uppercase tracking-widest">Started: <span id="set-start-date">Standby</span></p>
                 </div>
-                
-                <div class="glass-card overflow-hidden">
-                    <div class="p-6 border-b border-[var(--border-light)]"><h3 class="font-bold text-white text-lg">Workout Settings</h3></div>
-                    <div class="p-6">
-                        <label class="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Protocol Difficulty</label>
-                        <select id="difficulty-select" onchange="window.updateDifficulty(event)" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-medium)] rounded-xl px-4 py-3 text-white font-bold outline-none focus:border-[var(--primary)] cursor-pointer">
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Advanced">Advanced</option>
-                        </select>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 space-y-4">
+                        <div class="flex items-center gap-2 border-b border-white/5 pb-2">
+                            <i data-lucide="scale" class="text-[var(--weight)] w-5 h-5"></i>
+                            <h3 class="font-bold text-white text-base">Weight Log & History</h3>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" step="0.1" id="settingsWeight" placeholder="Logged (kg)" class="flex-1 bg-[var(--bg-main)] border border-[var(--border-medium)] rounded-xl px-4 py-2.5 text-white text-sm font-bold outline-none focus:border-[var(--primary)]">
+                            <button onclick="window.saveWeightFromSettings()" class="btn-primary px-4 text-xs">Commit</button>
+                        </div>
+                        <div class="max-h-[160px] overflow-y-auto hide-scrollbar text-xs space-y-1.5 pt-2" id="weightLogsContainer">
+                            </div>
+                    </div>
+
+                    <div class="glass-card p-6 space-y-4">
+                        <div class="flex items-center gap-2 border-b border-white/5 pb-2">
+                            <i data-lucide="camera" class="text-[var(--water)] w-5 h-5"></i>
+                            <h3 class="font-bold text-white text-base">Upload Weekly Photo</h3>
+                        </div>
+                        <div class="glass-card p-4 border-dashed border-2 border-[var(--border-medium)] text-center relative hover:border-[var(--primary)]/50 transition duration-300">
+                            <input type="file" accept="image/*" capture="environment" id="photoUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            <div class="flex flex-col items-center justify-center p-2">
+                                <i data-lucide="upload" class="w-5 h-5 mb-1 text-zinc-400"></i>
+                                <p class="text-xs font-bold text-white">Snap/Upload progression</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 max-h-[110px] overflow-y-auto hide-scrollbar pt-1" id="photoGallery">
+                            </div>
                     </div>
                 </div>
 
-                <div class="glass-card overflow-hidden">
-                    <div class="p-6 border-b border-[var(--border-light)]"><h3 class="font-bold text-white text-lg">Data Management</h3></div>
-                    <div class="p-6 flex gap-4">
-                        <button onclick="window.exportData()" class="flex-1 btn-secondary py-3"><i data-lucide="download" class="w-4 h-4 inline mr-2"></i> Export</button>
-                        <label class="flex-1 btn-primary text-center cursor-pointer py-3 flex items-center justify-center">
-                            <i data-lucide="upload" class="w-4 h-4 inline mr-2 text-black"></i> Import
+                <div class="glass-card p-6 border border-amber-500/20 bg-gradient-to-b from-amber-500/5 to-transparent">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="calendar-days" class="text-amber-400 w-5 h-5"></i>
+                            <h3 class="font-bold text-white text-lg">Weekly Sunday Check-In</h3>
+                        </div>
+                        <span id="sunday-checkin-status" class="text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-wider bg-zinc-800 text-zinc-400">Standby</span>
+                    </div>
+                    
+                    <p class="text-xs text-[var(--text-muted)] mb-4">Update raw measurement records here to lock strategic weekly comparative metrics.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[10px] uppercase font-black tracking-wider text-zinc-400 block mb-1">Waist Circumference (cm)</label>
+                            <input type="number" step="0.1" id="checkinWaist" placeholder="e.g. 72" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-medium)] rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-black tracking-wider text-zinc-400 block mb-1">Arm Circumference (cm)</label>
+                            <input type="number" step="0.1" id="checkinArm" placeholder="e.g. 31" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-medium)] rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <label class="btn-secondary py-2 text-xs text-center cursor-pointer relative flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="image" class="w-3 h-3 text-zinc-400"></i> <span id="lbl-fPhoto">Front View</span>
+                            <input type="file" accept="image/*" id="chkFront" class="hidden" onchange="window.handleCheckInFile(this, 'fPhoto')">
+                        </label>
+                        <label class="btn-secondary py-2 text-xs text-center cursor-pointer relative flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="image" class="w-3 h-3 text-zinc-400"></i> <span id="lbl-sPhoto">Side View</span>
+                            <input type="file" accept="image/*" id="chkSide" class="hidden" onchange="window.handleCheckInFile(this, 'sPhoto')">
+                        </label>
+                        <label class="btn-secondary py-2 text-xs text-center cursor-pointer relative flex flex-col items-center justify-center gap-1">
+                            <i data-lucide="image" class="w-3 h-3 text-zinc-400"></i> <span id="lbl-bPhoto">Back View</span>
+                            <input type="file" accept="image/*" id="chkBack" class="hidden" onchange="window.handleCheckInFile(this, 'bPhoto')">
+                        </label>
+                    </div>
+
+                    <button onclick="window.submitWeeklyCheckIn()" class="w-full bg-amber-500 text-black font-black py-3 rounded-xl hover:bg-amber-400 transition text-sm flex items-center justify-center gap-2 shadow-lg">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Lock Check-In Node
+                    </button>
+
+                    <div class="mt-6 border-t border-[var(--border-light)] pt-4 space-y-2" id="checkInHistoryLog">
+                        </div>
+                </div>
+
+                <div class="glass-card overflow-hidden mt-6">
+                    <div class="p-6 border-b border-[var(--border-light)] flex items-center gap-2"><i data-lucide="database" class="text-[var(--primary)] w-5 h-5"></i><h3 class="font-bold text-white text-lg">System Data Operations</h3></div>
+                    <div class="p-6 flex flex-col gap-4">
+                        <button onclick="window.exportData()" class="w-full btn-secondary py-4 font-bold flex justify-center items-center gap-2 hover:text-white"><i data-lucide="download" class="w-4 h-4"></i> Export Backup (JSON)</button>
+                        <label class="w-full btn-secondary py-4 font-bold flex justify-center items-center gap-2 hover:text-white cursor-pointer transition">
+                            <i data-lucide="upload" class="w-4 h-4 text-white"></i> Import Backup
                             <input type="file" class="hidden" accept=".json" onchange="window.importData(event)">
                         </label>
+                        <button onclick="window.freshStart()" class="w-full btn-danger py-4 font-bold flex justify-center items-center gap-2 mt-8"><i data-lucide="power" class="w-4 h-4"></i> Factory Reset</button>
                     </div>
                 </div>
             </div>
 
         </main>
         
-        <!-- Floating Action Button -->
-        <button id="fab" class="fab" title="Log Weight" onclick="window.promptWeight()"><i data-lucide="scale" class="w-6 h-6"></i></button>
-
-        <!-- BOTTOM NAVIGATION (Mobile) -->
         <nav class="lg:hidden fixed bottom-0 left-0 right-0 w-full border-t border-[var(--border-light)] bg-[var(--bg-card)] pb-[env(safe-area-inset-bottom)] z-30 flex justify-around p-2">
             <button data-tab="dashboard" class="nav-item active-nav flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !shadow-none !text-[var(--primary)]"><i data-lucide="layout-dashboard" class="w-6 h-6"></i></button>
-            <button data-tab="diet" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="apple" class="w-6 h-6"></i></button>
-            <button data-tab="workout" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="dumbbell" class="w-6 h-6"></i></button>
-            <button data-tab="analytics" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="line-chart" class="w-6 h-6"></i></button>
+            <button data-tab="master" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="list-todo" class="w-6 h-6"></i></button>
+            <button data-tab="analytics" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="bar-chart-2" class="w-6 h-6"></i></button>
+            <button data-tab="settings" class="nav-item flex-col gap-1 p-2 w-16 h-auto !bg-transparent !border-none !text-[var(--text-disabled)]"><i data-lucide="settings" class="w-6 h-6"></i></button>
         </nav>
     </div>
 
-    <!-- Weight Entry Modal -->
-    <div id="weight-modal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 z-[1000]">
-        <div class="glass-card p-8 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="weight-modal-content">
-            <h3 class="text-xl font-black text-white mb-6 text-center">Log Current Weight</h3>
-            <input type="number" id="quick-weight-input" placeholder="e.g. 58.5" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-medium)] rounded-2xl px-6 py-4 text-2xl font-black text-white outline-none focus:border-[var(--primary)] mb-6 text-center shadow-inner">
-            <div class="flex gap-3">
-                <button onclick="window.closeWeightModal()" class="flex-1 btn-secondary py-4">Cancel</button>
-                <button onclick="window.saveQuickWeight()" class="flex-1 btn-primary py-4">Save</button>
+    <div id="welcome-modal" class="fixed inset-0 z-[2000] bg-black/95 backdrop-blur-md flex items-center justify-center hidden opacity-0 transition-opacity duration-500">
+        <div class="glass-card p-8 w-full max-w-md mx-4 border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)]">
+            <div class="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 mx-auto">
+                <i data-lucide="shield-alert" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white text-center mb-1">Initialize Transformation</h3>
+            <p class="text-xs text-[var(--text-muted)] text-center mb-6">Establish absolute baseline weight and execution boundary criteria.</p>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-1">Current Base Weight (kg)</label>
+                    <input type="number" step="0.1" id="initCurrentWeight" placeholder="45.0" class="w-full bg-[var(--bg-secondary)] border border-zinc-800 rounded-xl px-4 py-3 text-white font-black text-lg outline-none focus:border-[var(--primary)] text-center shadow-inner">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-1">Target Milestone Weight (kg)</label>
+                    <input type="number" step="0.1" id="initGoalWeight" placeholder="60.0" class="w-full bg-[var(--bg-secondary)] border border-zinc-800 rounded-xl px-4 py-3 text-white font-black text-lg outline-none focus:border-[var(--primary)] text-center shadow-inner">
+                </div>
+            </div>
+            <button onclick="window.finalizeOnboarding()" class="w-full btn-primary py-4 uppercase tracking-widest text-xs font-black">Begin Transformation Protocol</button>
+        </div>
+    </div>
+
+    <div id="audit-modal" class="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-sm flex items-center justify-center hidden opacity-0 transition-opacity duration-300 overflow-y-auto py-8">
+        <div class="glass-card p-6 sm:p-8 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300 relative border border-[var(--primary)] shadow-[0_0_40px_rgba(16,185,129,0.2)] my-auto" id="audit-modal-content">
+            <button onclick="window.closeAuditModal()" class="absolute top-4 right-4 text-[var(--text-muted)] hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h3 class="text-2xl font-black text-white mb-2 text-center uppercase tracking-widest">Daily Audit & Debrief</h3>
+            
+            <div class="text-center mb-6 mt-2">
+                <div class="text-5xl font-black trans-score-gradient leading-none" id="audit-grade">0%</div>
+                <p class="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest mt-2">Transformation Score</p>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between items-center p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)]">
+                    <span class="font-bold text-white flex items-center gap-2 text-sm"><i data-lucide="apple" class="w-4 h-4 text-[var(--calories)]"></i> Diet Compliance</span>
+                    <span class="font-black text-base" id="audit-diet-score">0%</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)]">
+                    <span class="font-bold text-white flex items-center gap-2 text-sm"><i data-lucide="dumbbell" class="w-4 h-4 text-[var(--workout)]"></i> Physical Protocol</span>
+                    <span class="font-black text-base" id="audit-workout-score">0%</span>
+                </div>
+            </div>
+
+            <div class="text-center pt-4 border-t border-[var(--border-medium)]">
+                <button onclick="window.saveAndCloseAudit()" class="w-full btn-primary py-4">Sign Off Day</button>
             </div>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // 1. DATA ARCHITECTURE
+        // 1. DATA ARCHITECTURE & PARAMETERS
         // ==========================================
-        const TARGETS = { weight: 60, calories: 2200, protein: 115, water: 3500, sleep: 8, steps: 10000 };
+        let TARGETS = { weight: 60, calories: 2200, protein: 115, water: 3500, sleep: 7.5, steps: 10000 };
+        const STORAGE_KEY = 'body_pro_v16'; 
 
         const SCHEDULE = [
-            { id: 'wake', time: '6:30 AM', title: 'Wake Up', items: ['500 ml Water', '5 min walk', '10 min sunlight'], water: 500, calories: 0, protein: 0 },
-            { id: 'pre-brk', time: '7:00 AM', title: 'Pre-Breakfast', items: ['1 Banana', '5 soaked Almonds'], water: 0, calories: 140, protein: 3 },
-            { id: 'breakfast', time: '8:00 AM', title: 'Breakfast', items: ['100g Oats', '300ml Milk', '4 Whole Eggs', '20g Peanuts', '300 ml Water'], prep: 'Cook oats in milk. Eat eggs boiled.', water: 300, calories: 725, protein: 39 },
-            { id: 'mid-morn', time: '11:00 AM', title: 'Mid-Morning', items: ['100g Sprouts', '1 Banana', '300 ml Water'], prep: 'Add onion, tomato, lemon.', water: 300, calories: 150, protein: 11 },
-            { id: 'lunch', time: '1:30 PM', title: 'Lunch', items: ['300g Cooked Rice', '200g Dal', '1 bowl Veg', '50g Soya', '100g Curd', '400 ml Water'], prep: 'Boil soya 5m. Cook with spices.', water: 400, calories: 700, protein: 38 },
-            { id: 'walk-1', time: '2:00 PM', title: 'Afternoon Walk', items: ['10–15 mins walk'], water: 0, calories: 0, protein: 0 },
-            { id: 'pre-work', time: '4:30 PM', title: 'Pre-Workout', items: ['1 Banana', 'Black Coffee'], water: 250, calories: 105, protein: 1 },
-            { id: 'post-work', time: '6:15 PM', title: 'Post-Workout', items: ['3 Boiled Eggs', '500 ml Water'], water: 500, calories: 210, protein: 18 },
-            { id: 'walk-2', time: '7:30 PM', title: 'Evening Walk', items: ['15 mins walk'], water: 0, calories: 0, protein: 0 },
-            { id: 'dinner', time: '8:30 PM', title: 'Dinner', items: ['250g Cooked Rice', '150g Dal', '1 bowl Veg', '3 Eggs OR 40g Soya'], water: 0, calories: 500, protein: 25 },
-            { id: 'bedtime', time: '10:00 PM', title: 'Before Bed', items: ['100g Curd', '300 ml Water'], water: 300, calories: 98, protein: 4 },
-            { id: 'sleep', time: '10:30 PM', title: 'Sleep Protocol', items: ['Minimum 7.5 - 8 hours sleep'], water: 0, calories: 0, protein: 0 }
+            { id: 'wake', time: '6:30 AM', title: 'Wake Up Routine', items: ['500ml Water', '5 min walk', '10 min sunlight'], water: 500, calories: 0, protein: 0 },
+            { id: 'pre-brk', time: '7:00 AM', title: 'Pre-Breakfast', items: ['1 Banana', '5 Soaked Almonds'], water: 0, calories: 140, protein: 3 },
+            { id: 'breakfast', time: '8:00 AM', title: 'Breakfast', items: ['100g Oats', '300ml Milk', '4 Eggs', '20g Peanuts'], water: 0, calories: 725, protein: 39 },
+            { id: 'mid-morn', time: '11:00 AM', title: 'Mid-Morning', items: ['100g Sprouts', '1 Banana'], water: 0, calories: 150, protein: 11 },
+            { id: 'lunch', time: '1:30 PM', title: 'Lunch', items: ['300g Rice', '200g Dal', '1 Bowl Vegetables', '50g Soya Chunks', '100g Curd'], water: 0, calories: 700, protein: 38 },
+            { id: 'walk-1', time: '2:00 PM', title: 'Afternoon Movement', items: ['10-15 Min Walk'], water: 0, calories: 0, protein: 0 },
+            { id: 'pre-work', time: '4:30 PM', title: 'Pre-Workout Fuel', items: ['Banana', 'Black Coffee'], water: 0, calories: 105, protein: 1 },
+            { id: 'post-work', time: '6:15 PM', title: 'Post-Workout', items: ['3 Boiled Eggs', '500ml Water'], water: 500, calories: 210, protein: 18 },
+            { id: 'walk-2', time: '7:30 PM', title: 'Evening Movement', items: ['15 Min Walk'], water: 0, calories: 0, protein: 0 },
+            { id: 'dinner', time: '8:30 PM', title: 'Dinner', items: ['250g Rice', '150g Dal', 'Vegetables', '3 Eggs OR 40g Soya Chunks'], water: 0, calories: 500, protein: 25 },
+            { id: 'bedtime', time: '10:00 PM', title: 'Before Bed', items: ['100g Curd', '300ml Water'], water: 300, calories: 98, protein: 4 },
         ];
 
-        const WORKOUTS = {
-            1: { day: 'Monday', type: 'Push', desc: 'Chest, Shoulders, Triceps', warmup: [{ id: 'w1', name: 'Jumping Jacks', sets: '1 set', reps: '50 reps' }, { id: 'w2', name: 'Arm Circles', sets: '2 sets', reps: '20 reps' }], routine: [{ id: 'e1', name: 'Push-ups', sets: '5 sets', reps: '10–15 reps' }, { id: 'e2', name: 'Incline Push-ups', sets: '4 sets', reps: '12 reps' }, { id: 'e3', name: 'Pike Push-ups', sets: '4 sets', reps: '8–10 reps' }, { id: 'e4', name: 'Chair Dips', sets: '4 sets', reps: '10–12 reps' }, { id: 'e5', name: 'Plank', sets: '3 sets', reps: '60 sec' }] },
-            2: { day: 'Tuesday', type: 'Pull', desc: 'Back & Biceps', warmup: [{ id: 'w1', name: 'Jumping Jacks', sets: '1 set', reps: '50 reps' }], routine: [{ id: 'e1', name: 'Backpack Rows', sets: '5 sets', reps: '15 reps' }, { id: 'e2', name: 'Towel Rows', sets: '4 sets', reps: '12 reps' }, { id: 'e3', name: 'Backpack Curls', sets: '4 sets', reps: '15 reps' }, { id: 'e4', name: 'Superman Hold', sets: '4 sets', reps: '30 sec' }, { id: 'e5', name: 'Reverse Snow Angels', sets: '3 sets', reps: '15 reps' }] },
-            3: { day: 'Wednesday', type: 'Legs', desc: 'Quads, Hams, Calves', warmup: [{ id: 'w1', name: 'High Knees', sets: '1 set', reps: '30 sec' }], routine: [{ id: 'e1', name: 'Squats', sets: '5 sets', reps: '20 reps' }, { id: 'e2', name: 'Lunges', sets: '4 sets', reps: '15 reps' }, { id: 'e3', name: 'Glute Bridges', sets: '4 sets', reps: '20 reps' }, { id: 'e4', name: 'Calf Raises', sets: '5 sets', reps: '25 reps' }, { id: 'e5', name: 'Wall Sit', sets: '3 sets', reps: '60 sec' }] },
-            4: { day: 'Thursday', type: 'Recovery', desc: 'Light movement', warmup: [{ id: 'w1', name: 'Walk', sets: '1 session', reps: '45 mins' }], routine: [{ id: 'e1', name: 'Slow Squats', sets: '3 sets', reps: '20 reps' }, { id: 'e2', name: 'Knee Push-ups', sets: '3 sets', reps: '15 reps' }, { id: 'e3', name: 'Mountain Climbers', sets: '3 sets', reps: '20 reps' }, { id: 'e4', name: 'Side Plank', sets: '3 sets', reps: '30 sec' }] },
-            5: { day: 'Friday', type: 'Push Hard', desc: 'Advanced Push', warmup: [{ id: 'w1', name: 'Jumping Jacks', sets: '1 set', reps: '50 reps' }], routine: [{ id: 'e1', name: 'Push-ups', sets: '5 sets', reps: 'Max reps' }, { id: 'e2', name: 'Diamond Push-ups', sets: '4 sets', reps: '8 reps' }, { id: 'e3', name: 'Pike Push-ups', sets: '4 sets', reps: '10 reps' }, { id: 'e4', name: 'Chair Dips', sets: '4 sets', reps: '12 reps' }, { id: 'e5', name: 'Plank', sets: '3 sets', reps: '90 sec' }] },
-            6: { day: 'Saturday', type: 'Pull + Legs', desc: 'Compound Day', warmup: [{ id: 'w1', name: 'Jumping Jacks', sets: '1 set', reps: '50 reps' }], routine: [{ id: 'e1', name: 'Backpack Rows', sets: '4 sets', reps: '15 reps' }, { id: 'e2', name: 'Towel Rows', sets: '4 sets', reps: '12 reps' }, { id: 'e3', name: 'Squats', sets: '4 sets', reps: '25 reps' }, { id: 'e4', name: 'Lunges', sets: '3 sets', reps: '15 reps' }, { id: 'e5', name: 'Calf Raises', sets: '4 sets', reps: '25 reps' }, { id: 'e6', name: 'Leg Raises', sets: '3 sets', reps: '15 reps' }] },
-            0: { day: 'Sunday', type: 'Full Body', desc: 'Circuit (5 Rnds, 2m rest)', warmup: [{ id: 'w1', name: 'Arm Circles/Squats', sets: '1 set', reps: 'Light' }], routine: [{ id: 'e1', name: 'Push-ups', sets: 'Circuit', reps: '10 reps' }, { id: 'e2', name: 'Squats', sets: 'Circuit', reps: '20 reps' }, { id: 'e3', name: 'Backpack Rows', sets: 'Circuit', reps: '12 reps' }, { id: 'e4', name: 'Mountain Climbers', sets: 'Circuit', reps: '20 reps' }, { id: 'e5', name: 'Plank', sets: 'Circuit', reps: '45 sec' }] }
+        const BASE_WORKOUTS = {
+            1: { day: 'Monday', type: 'Push', desc: 'Chest, Shoulders, Triceps', warmup: [{ id: 'w1', name: 'Jumping Jacks', baseSets: 1, baseReps: 50 }], routine: [{ id: 'e1', name: 'Pushups', baseSets: 5, baseReps: 10 }, { id: 'e2', name: 'Incline Pushups', baseSets: 4, baseReps: 12 }, { id: 'e3', name: 'Pike Pushups', baseSets: 4, baseReps: 8 }, { id: 'e4', name: 'Chair Dips', baseSets: 4, baseReps: 10 }] },
+            2: { day: 'Tuesday', type: 'Pull', desc: 'Back & Biceps', warmup: [{ id: 'w1', name: 'Jumping Jacks', baseSets: 1, baseReps: 50 }], routine: [{ id: 'e1', name: 'Backpack Rows', baseSets: 5, baseReps: 15 }, { id: 'e2', name: 'Towel Rows', baseSets: 4, baseReps: 12 }, { id: 'e3', name: 'Backpack Curls', baseSets: 4, baseReps: 15 }] },
+            3: { day: 'Wednesday', type: 'Legs', desc: 'Quads, Hams, Calves', warmup: [{ id: 'w1', name: 'High Knees', baseSets: 1, baseReps: 30 }], routine: [{ id: 'e1', name: 'Squats', baseSets: 5, baseReps: 20 }, { id: 'e2', name: 'Lunges', baseSets: 4, baseReps: 15 }] },
+            4: { day: 'Thursday', type: 'Recovery', desc: 'Light movement', warmup: [], routine: [{ id: 'e1', name: 'Slow Squats', baseSets: 3, baseReps: 20 }, { id: 'e2', name: 'Knee Pushups', baseSets: 3, baseReps: 15 }] },
+            5: { day: 'Friday', type: 'Push Hard', desc: 'Advanced Push', warmup: [{ id: 'w1', name: 'Jumping Jacks', baseSets: 1, baseReps: 50 }], routine: [{ id: 'e1', name: 'Pushups', baseSets: 5, baseReps: 12 }, { id: 'e2', name: 'Pike Pushups', baseSets: 4, baseReps: 10 }, { id: 'e4', name: 'Chair Dips', baseSets: 4, baseReps: 12 }] },
+            6: { day: 'Saturday', type: 'Pull + Legs', desc: 'Compound Day', warmup: [], routine: [{ id: 'e1', name: 'Backpack Rows', baseSets: 4, baseReps: 15 }, { id: 'e3', name: 'Squats', baseSets: 4, baseReps: 25 }] },
+            0: { day: 'Sunday', type: 'Full Body', desc: 'Circuit', warmup: [], routine: [{ id: 'e1', name: 'Pushups', baseSets: 5, baseReps: 10 }, { id: 'e2', name: 'Squats', baseSets: 5, baseReps: 20 }] }
         };
 
-        // ==========================================
-        // 2. STATE & INITIALIZATION
-        // ==========================================
+        // Absolutely Zero Setup Model Array Blocks
         let state = {
+            startDate: null,
             todayStr: new Date().toISOString().split('T')[0],
             activeTab: 'dashboard',
-            activeWorkoutDay: new Date().getDay(),
-            completedDiet: [],
-            completedWorkout: {},
+            dietProgress: {}, 
+            workoutProgress: {}, 
+            workoutReps: {}, 
+            prs: {}, 
+            specialTrackers: { almonds: [], dinnerChoice: null, sunlightTime: null },
             history: {},
-            manualMetrics: { weight: 56, water: 0, sleep: 0, steps: 0 },
-            streaks: { global: 0 },
-            difficulty: 'Beginner'
+            weightHistory: [], 
+            progressPhotos: [], 
+            weeklyCheckIn: [], 
+            manualMetrics: { weight: 0, water: 0, sleep: 0, steps: 0 },
+            streaks: { global: 0, workout: 0, diet: 0, water: 0, sleep: 0, protein: 0 },
         };
 
-        let wChart = null;
-        let mChart = null;
+        let clockInterval = null;
+        let localCheckInFiles = { fPhoto: null, sPhoto: null, bPhoto: null };
 
-        // ==========================================
-        // 3. NAMESPACE ENGINES
-        // ==========================================
+        function formatTime(date) { return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
         
-        // Helper function for Weekly Workout Dashboard
-        function getOffsetDate(targetDay) { 
-            const d = new Date(state.todayStr);
-            const curr = d.getDay();
-            const diff = curr >= targetDay ? curr - targetDay : 7 - (targetDay - curr);
-            d.setDate(d.getDate() - diff);
-            return d.toISOString().split('T')[0];
+        function parseToTodayDate(timeStr) {
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if(!match) return new Date();
+            let [_, hours, minutes, modifier] = match;
+            hours = parseInt(hours, 10);
+            if (hours === 12) hours = 0;
+            if (modifier.toUpperCase() === 'PM') hours += 12;
+            const d = new Date(); d.setHours(hours, parseInt(minutes, 10), 0, 0);
+            return d;
         }
 
-        const AppStorage = {
-            init() {
-                const stored = localStorage.getItem('body_pro_v6');
-                if (stored) {
-                    try {
-                        const parsed = JSON.parse(stored);
-                        if (parsed.todayStr !== state.todayStr) {
-                            if (!parsed.history) parsed.history = {};
-                            parsed.history[parsed.todayStr] = {
-                                dietPct: Math.round(((parsed.completedDiet?.length || 0) / SCHEDULE.length) * 100),
-                                workoutPct: (parsed.completedWorkout && parsed.completedWorkout[new Date(parsed.todayStr).getDay()]?.length > 0) ? 100 : 0,
-                                weight: parsed.manualMetrics?.weight || 0, cal: 2000, pro: 100
-                            };
-                            parsed.todayStr = state.todayStr; 
-                            parsed.completedDiet = []; 
-                            parsed.completedWorkout = {};
-                            if (parsed.manualMetrics) { 
-                                parsed.manualMetrics.water = 0; 
-                                parsed.manualMetrics.steps = 0; 
-                                parsed.manualMetrics.sleep = 0; 
-                            }
-                        }
-                        state = { ...state, ...parsed, activeTab: 'dashboard', activeWorkoutDay: new Date().getDay() };
-                    } catch(e) { console.error("Could not parse storage", e); }
-                } else {
-                    AppStorage.generateMockHistory();
-                }
-                const diffSelect = document.getElementById('difficulty-select');
-                if(diffSelect) diffSelect.value = state.difficulty;
-                AppStorage.save();
+        // ==========================================
+        // 2. STREAK REVOLUTION & METRIC ENGINES
+        // ==========================================
+        const OverloadEngine = {
+            getDaysSinceStart() {
+                if(!state.startDate) return 0;
+                const start = new Date(state.startDate);
+                const now = new Date(state.todayStr);
+                return Math.floor(Math.abs(now - start) / (1000 * 60 * 60 * 24));
             },
-            save() {
-                const toSave = { ...state }; 
-                delete toSave.activeTab; 
-                delete toSave.activeWorkoutDay;
-                localStorage.setItem('body_pro_v6', JSON.stringify(toSave));
+            getTrainingWeek() {
+                if(!state.startDate) return 0;
+                return Math.floor(this.getDaysSinceStart() / 7) + 1;
             },
-            generateMockHistory() {
-                let mockWeight = 64; 
-                for (let i = 28; i > 0; i--) {
-                    const d = new Date(); d.setDate(d.getDate() - i);
-                    mockWeight -= (Math.random() * 0.1);
-                    state.history[d.toISOString().split('T')[0]] = {
-                        dietPct: 40 + Math.random()*60, workoutPct: Math.random() > 0.3 ? 100 : 0,
-                        weight: parseFloat(mockWeight.toFixed(1)), cal: 2000, pro: 100
-                    };
-                }
+            getWorkoutLevel() {
+                if(!state.startDate) return { lvl: 0, name: "Level 0 Inactive" };
+                const w = this.getTrainingWeek();
+                if(w <= 4) return { lvl: 1, name: "Level 1 Beginner" };
+                if(w <= 12) return { lvl: 2, name: "Level 2 Intermediate" };
+                return { lvl: 3, name: "Level 3 Advanced" };
+            },
+            getDifficulty() {
+                if(!state.startDate) return { label: "Unset", color: "#525252" };
+                const w = this.getTrainingWeek();
+                if(w === 1) return { label: "Easy", color: "var(--primary)" };
+                if(w <= 3) return { label: "Medium", color: "var(--calories)" };
+                if(w <= 8) return { label: "Hard", color: "var(--danger)" };
+                return { label: "Elite", color: "var(--elite)" };
+            },
+            getDailyWorkout(dayId) {
+                const baseWk = JSON.parse(JSON.stringify(BASE_WORKOUTS[dayId])); 
+                const tWeek = Math.max(0, this.getTrainingWeek() - 1);
+                
+                baseWk.routine = baseWk.routine.map(ex => {
+                    let sets = ex.baseSets + Math.floor(tWeek / 2);
+                    let reps = ex.baseReps + tWeek;
+                    if (sets > 8) sets = 8;
+                    return { ...ex, dynamicSets: sets, dynamicReps: reps };
+                });
+                baseWk.warmup = baseWk.warmup.map(ex => ({...ex, dynamicSets: ex.baseSets, dynamicReps: ex.baseReps}));
+                return baseWk;
             }
         };
 
-        // ==========================================
-        // 4. UI ENGINE
-        // ==========================================
+        const ScoreEngine = {
+            getTransformationScore() {
+                if(!state.startDate) return 0;
+                const dPct = DietEngine.getOverallProgress().pct;
+                const wPct = WorkoutEngine.getProgress(new Date().getDay()).pct;
+                const macros = DietEngine.calculateMacros();
+                
+                const pPct = Math.min(100, (macros.protein / TARGETS.protein) * 100);
+                const wtrPct = Math.min(100, (macros.water / TARGETS.water) * 100);
+                const slpPct = Math.min(100, (state.manualMetrics.sleep / TARGETS.sleep) * 100);
+                
+                return Math.round((wPct * 0.3) + (dPct * 0.3) + (pPct * 0.2) + (wtrPct * 0.1) + (slpPct * 0.1));
+            },
+            getRecoveryScore() {
+                let sleep = state.manualMetrics.sleep;
+                let water = DietEngine.calculateMacros().water;
+                
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                const yStr = yesterday.toISOString().split('T')[0];
+                const yHist = state.history[yStr];
+                if(yHist) sleep = sleep || yHist.sleep || 0; 
+
+                const sScore = TARGETS.sleep === 0 ? 0 : Math.min(100, (sleep / TARGETS.sleep) * 100);
+                const wScore = Math.min(100, (water / TARGETS.water) * 100);
+                const score = (sScore * 0.6) + (wScore * 0.4);
+                
+                let status = "Optimal";
+                if(score < 50) status = "Depleted";
+                else if (score < 80) status = "Sub-Optimal";
+                return { pct: Math.round(score), status };
+            }
+        };
+
+        const AppStorage = {
+            init() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    try {
+                        const parsed = JSON.parse(stored);
+                        
+                        // Enforce absolute structures maps arrays
+                        if(!parsed.streaks) parsed.streaks = { global: 0, workout: 0, diet: 0, water: 0, sleep: 0, protein: 0 };
+                        if(!parsed.weightHistory) parsed.weightHistory = [];
+                        if(!parsed.progressPhotos) parsed.progressPhotos = [];
+                        if(!parsed.weeklyCheckIn) parsed.weeklyCheckIn = [];
+                        if(!parsed.history) parsed.history = {};
+
+                        // Multi-Day / Midnight Strict Binary Streak Evaluation Engine Rules
+                        if (parsed.startDate && parsed.todayStr !== state.todayStr) {
+                            const todayDate = new Date(state.todayStr);
+                            const parsedDate = new Date(parsed.todayStr);
+                            const gap = Math.floor((todayDate - parsedDate) / (1000 * 60 * 60 * 24));
+
+                            const oldDiet = DietEngine.getOverallProgress(parsed.dietProgress || {});
+                            const oldWk = WorkoutEngine.getProgress(parsedDate.getDay(), parsed.workoutProgress || {});
+                            const oldWater = parsed.manualMetrics?.water || 0;
+                            const oldSleep = parsed.manualMetrics?.sleep || 0;
+                            const oldMacros = DietEngine.calculateMacros(parsed.dietProgress || {}, parsed.manualMetrics || {});
+
+                            const perfectDiet = oldDiet.pct === 100;
+                            const perfectWk = oldWk.pct === 100;
+                            const perfectWater = oldWater >= 3500;
+                            const perfectSleep = oldSleep >= 7.5;
+                            const perfectProtein = oldMacros.protein >= 115;
+
+                            // Strict individual streak reset protocols
+                            if(!perfectWk) parsed.streaks.workout = 0;
+                            if(!perfectDiet) parsed.streaks.diet = 0;
+                            if(!perfectWater) parsed.streaks.water = 0;
+                            if(!perfectSleep) parsed.streaks.sleep = 0;
+                            if(!perfectProtein) parsed.streaks.protein = 0;
+
+                            // Dynamic binary execution baseline verification
+                            const allMetricsMet = perfectDiet && perfectWk && perfectWater && perfectSleep && perfectProtein;
+                            
+                            if (gap === 1) {
+                                if (allMetricsMet) {
+                                    parsed.streaks.global += 1;
+                                    if(perfectWk) parsed.streaks.workout = (parsed.streaks.workout || 0) + 1;
+                                    if(perfectDiet) parsed.streaks.diet = (parsed.streaks.diet || 0) + 1;
+                                    if(perfectWater) parsed.streaks.water = (parsed.streaks.water || 0) + 1;
+                                    if(perfectSleep) parsed.streaks.sleep = (parsed.streaks.sleep || 0) + 1;
+                                    if(perfectProtein) parsed.streaks.protein = (parsed.streaks.protein || 0) + 1;
+                                } else {
+                                    parsed.streaks.global = 0; 
+                                    parsed.missedWorkoutFlag = true; 
+                                }
+                            } else if (gap > 1) {
+                                // Full erasure boundary failure
+                                parsed.streaks = { global: 0, workout: 0, diet: 0, water: 0, sleep: 0, protein: 0 };
+                                parsed.missedWorkoutFlag = true;
+                            }
+
+                            // Commit historical index snapshots
+                            const oldTransScore = (oldWk.pct * 0.3) + (oldDiet.pct * 0.3) + (Math.min(100, (oldMacros.protein/115)*100) * 0.2) + (Math.min(100, (oldWater/3500)*100) * 0.1) + (Math.min(100, (oldSleep/7.5)*100) * 0.1);
+                            parsed.history[parsed.todayStr] = {
+                                dietPct: oldDiet.pct, workoutPct: oldWk.pct, weight: parsed.manualMetrics?.weight || 0,
+                                score: Math.round(oldTransScore), pro: oldMacros.protein, cal: oldMacros.calories,
+                                sleep: oldSleep, perfectDay: allMetricsMet
+                            };
+
+                            parsed.todayStr = state.todayStr; 
+                            parsed.dietProgress = {}; parsed.workoutProgress = {}; parsed.workoutReps = {};
+                            parsed.specialTrackers = { almonds: [], dinnerChoice: null, sunlightTime: null };
+                            if (parsed.manualMetrics) { parsed.manualMetrics.water = 0; parsed.manualMetrics.steps = 0; parsed.manualMetrics.sleep = 0; }
+                        }
+                        state = { ...state, ...parsed };
+                    } catch(e) { console.error("Error reading Storage Engine", e); }
+                } 
+                AppStorage.save();
+                
+                // Show Onboarding verification system explicitly
+                if(!state.startDate) { window.showWelcomeModal(); }
+            },
+            save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        };
+
+        const MasterEngine = {
+            getTasksProgress() {
+                let total = 0, done = 0;
+                const dailyWk = OverloadEngine.getDailyWorkout(new Date().getDay());
+
+                SCHEDULE.forEach(meal => {
+                    total += meal.items.length;
+                    meal.items.forEach((it, idx) => {
+                        if(it === '5 Soaked Almonds') { done += state.specialTrackers.almonds.length === 5 ? 1 : 0; }
+                        else if(it === '10 min sunlight') { done += state.specialTrackers.sunlightTime ? 1 : 0; }
+                        else { done += (state.dietProgress[meal.id] || []).includes(idx) ? 1 : 0; }
+                    });
+                    
+                    if (meal.id === 'pre-work' && dailyWk && state.startDate) {
+                        const wkProg = state.workoutProgress[new Date().getDay()] || {};
+                        [...dailyWk.warmup, ...dailyWk.routine].forEach(ex => {
+                            total += ex.dynamicSets; done += (wkProg[ex.id] || []).length;
+                        });
+                    }
+                });
+                return { total, done, pct: total === 0 ? 0 : Math.round((done / total) * 100) };
+            },
+            getSchedulingInfo() {
+                const now = new Date();
+                let activeTask = null; let nextTask = null;
+                
+                const workoutStart = parseToTodayDate("4:30 PM");
+                const workoutEnd = parseToTodayDate("6:15 PM");
+                if(now >= workoutStart && now <= workoutEnd) {
+                    activeTask = { id: "workout", title: "Physical Workout Protocol" };
+                }
+
+                const sortedSched = [...SCHEDULE].sort((a,b) => parseToTodayDate(a.time) - parseToTodayDate(b.time));
+                for (let i=0; i<sortedSched.length; i++) {
+                    const meal = sortedSched[i];
+                    const mTime = parseToTodayDate(meal.time);
+                    const isComplete = DietEngine.getMealProgress(meal.id).pct === 1;
+                    const graceTime = new Date(mTime.getTime() + 90 * 60000); 
+
+                    if (!isComplete) {
+                        if (!activeTask && now <= graceTime && now >= mTime) activeTask = meal;
+                        else if (!nextTask && now < mTime) nextTask = meal;
+                    }
+                }
+                return { activeTask, nextTask: nextTask || (activeTask ? null : sortedSched.find(m => DietEngine.getMealProgress(m.id).pct < 1)) };
+            },
+            renderMasterTimeline() {
+                const c = document.getElementById('master-timeline-container');
+                if(!c) return;
+                if(!state.startDate) {
+                    c.innerHTML = `<p class="text-sm text-[var(--text-muted)] text-center py-8">Complete initialization onboarding to construct the tracking timeline network.</p>`;
+                    return;
+                }
+
+                let html = '';
+                const dailyWk = OverloadEngine.getDailyWorkout(new Date().getDay());
+                const { activeTask } = this.getSchedulingInfo();
+                const now = new Date();
+
+                SCHEDULE.forEach(meal => {
+                    const checkedItems = state.dietProgress[meal.id] || [];
+                    let localDone = 0;
+                    
+                    meal.items.forEach((it, idx) => {
+                        if(it === '5 Soaked Almonds') { if(state.specialTrackers.almonds.length === 5) localDone++; }
+                        else if(it === '10 min sunlight') { if(state.specialTrackers.sunlightTime) localDone++; }
+                        else if(checkedItems.includes(idx)) { localDone++; }
+                    });
+
+                    const isDone = localDone === meal.items.length && meal.items.length > 0;
+                    const mTime = parseToTodayDate(meal.time);
+                    const isPastGrace = now > new Date(mTime.getTime() + 90 * 60000);
+                    const isActive = activeTask && activeTask.id === meal.id;
+                    const isMissed = !isDone && isPastGrace;
+
+                    let nodeClass = 'upcoming'; let cardClass = ''; let textAccent = 'text-white bg-[var(--border-medium)]';
+
+                    if (isDone) { nodeClass = 'completed'; cardClass = 'completed'; textAccent = 'text-[var(--primary)] bg-[var(--primary)]/10'; } 
+                    else if (isActive) { nodeClass = 'current pulse-border-active'; cardClass = 'current'; textAccent = 'text-[var(--current)] bg-[var(--current)]/10'; } 
+                    else if (isMissed) { nodeClass = 'missed'; cardClass = 'missed'; textAccent = 'text-[var(--danger)] bg-[var(--danger)]/10'; }
+
+                    html += `
+                        <div class="relative mb-6" id="task-card-${meal.id}">
+                            <div class="master-node ${nodeClass}"></div>
+                            <div class="item-card ${cardClass} !mb-0 !p-5">
+                                <div class="flex items-center gap-2 mb-4 border-b border-[var(--border-light)] pb-3">
+                                    <span class="text-[10px] font-black ${textAccent} px-2 py-1 rounded-md tracking-wider">${meal.time}</span>
+                                    <h4 class="font-black text-white text-lg">${meal.title}</h4>
+                                    ${isActive ? '<span class="ml-auto text-[10px] font-bold text-[var(--current)] uppercase tracking-wider animate-pulse flex items-center gap-1"><i data-lucide="play" class="w-3 h-3"></i> Current</span>' : ''}
+                                    ${isMissed ? '<span class="ml-auto text-[10px] font-bold text-[var(--danger)] uppercase tracking-wider flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Missed</span>' : ''}
+                                </div>
+                                <div class="space-y-2">
+                                    ${meal.items.map((it, idx) => {
+                                        if(it === '10 min sunlight') {
+                                            const hasSun = !!state.specialTrackers.sunlightTime;
+                                            return `
+                                            <div class="bg-[var(--bg-secondary)] border ${hasSun?'border-amber-500/50 bg-amber-500/10':'border-[var(--border-light)]'} rounded-xl p-3 flex justify-between items-center transition">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full ${hasSun?'bg-amber-500/20 text-amber-500':'bg-[var(--border-light)] text-[var(--text-muted)]'} flex items-center justify-center"><i data-lucide="sun" class="w-4 h-4"></i></div>
+                                                    <p class="text-sm font-bold text-white">10 Min Sunlight</p>
+                                                </div>
+                                                <button onclick="window.toggleSunlight()" class="btn-primary !bg-amber-500 py-2 px-4 text-xs ${hasSun?'!bg-zinc-700 !text-white':''}">${hasSun?'Undo':'Start'}</button>
+                                            </div>`;
+                                        }
+                                        const ckd = checkedItems.includes(idx);
+                                        return `
+                                            <div class="flex items-center gap-3 p-2 hover:bg-[var(--bg-secondary)] rounded-lg cursor-pointer transition" onclick="window.toggleDietItem('${meal.id}', ${idx})">
+                                                <div class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${ckd ? `border-[var(--primary)] bg-[var(--primary)]` : 'border-[var(--text-muted)]'}">
+                                                    <i data-lucide="check" class="w-3 h-3 text-black ${ckd ? '' : 'hidden'}"></i>
+                                                </div>
+                                                <span class="${ckd ? 'line-through text-[var(--text-disabled)]' : 'text-white font-medium'} text-sm">${it}</span>
+                                            </div>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+
+                    if (meal.id === 'pre-work' && dailyWk) {
+                        const wkProg = state.workoutProgress[new Date().getDay()] || {};
+                        const allEx = [...dailyWk.warmup, ...dailyWk.routine];
+                        
+                        html += `<div class="relative mb-6 mt-8">
+                                    <div class="absolute -left-[45px] top-6 w-8 h-8 rounded-full bg-[var(--bg-card)] border-2 border-[var(--workout)] flex items-center justify-center z-10"><i data-lucide="dumbbell" class="w-4 h-4 text-[var(--workout)]"></i></div>
+                                    <h3 class="text-xl font-black text-[var(--workout)] mb-4 uppercase tracking-widest pl-2">${dailyWk.type} Protocol <span class="text-xs text-[var(--text-muted)] ml-2">W${OverloadEngine.getTrainingWeek()}</span></h3>
+                                 </div>`;
+                        
+                        allEx.forEach((ex) => {
+                            const totalSets = ex.dynamicSets; const checkedSets = wkProg[ex.id] || [];
+                            const exReps = (state.workoutReps[new Date().getDay()] && state.workoutReps[new Date().getDay()][ex.id]) ? state.workoutReps[new Date().getDay()][ex.id] : {};
+                            const isExDone = checkedSets.length === totalSets;
+
+                            let setsHtml = '';
+                            for(let i=0; i<totalSets; i++) {
+                                const ckd = checkedSets.includes(i); const loggedReps = exReps[i] || ex.dynamicReps;
+                                setsHtml += `
+                                    <div class="flex items-center gap-2 mb-2 w-full sm:w-auto">
+                                        <button onclick="window.toggleWorkoutSet('${new Date().getDay()}', '${ex.id}', ${i})" class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border-2 transition flex-1 sm:flex-none min-w-[80px] ${ckd ? 'bg-[var(--workout)] border-[var(--workout)] text-black' : 'border-[var(--border-medium)] text-[var(--text-muted)] hover:border-[var(--border-light)] hover:text-white'}">
+                                            <span class="text-xs font-bold uppercase tracking-wider">Set ${i+1}</span>
+                                            <i data-lucide="${ckd ? 'check' : 'circle'}" class="w-4 h-4"></i>
+                                        </button>
+                                        <div class="flex items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-medium)] rounded-lg px-2 py-1">
+                                            <input type="number" class="rep-input" value="${loggedReps}" onchange="window.saveReps('${new Date().getDay()}', '${ex.id}', ${i}, this.value)" ${ckd?'disabled':''}>
+                                            <span class="text-[10px] text-[var(--text-muted)] font-bold uppercase">Reps</span>
+                                        </div>
+                                    </div>`;
+                            }
+
+                            html += `
+                                <div class="relative mb-6 ml-4">
+                                    <div class="master-node ${isExDone ? 'completed' : (checkedSets.length>0?'current pulse-border-active':'upcoming')} !w-3 !h-3 !-left-[38px] !top-5"></div>
+                                    <div class="item-card ${isExDone?'completed':(checkedSets.length>0?'current':'')} !p-4 !mb-0 border-l-4 border-l-[var(--workout)]">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h4 class="font-bold text-white text-lg leading-tight mb-1">${ex.name}</h4>
+                                                <div class="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Target: ${ex.dynamicSets} × ${ex.dynamicReps}</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2 pt-2 border-t border-[var(--border-light)]">${setsHtml}</div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+                });
+
+                c.innerHTML = html;
+                const prog = this.getTasksProgress();
+                document.getElementById('master-top-fraction').textContent = `${prog.done}/${prog.total}`;
+                document.getElementById('master-top-bar').style.width = `${prog.pct}%`;
+            }
+        };
+
+        const DietEngine = {
+            getMealProgress(mealId) {
+                const meal = SCHEDULE.find(m => m.id === mealId);
+                if (!meal) return { checked: 0, total: 0, pct: 0 };
+                let checked = 0;
+                
+                meal.items.forEach((it, idx) => {
+                    if(it === '5 Soaked Almonds') { checked += state.specialTrackers.almonds.length === 5 ? 1 : 0; }
+                    else if(it === '10 min sunlight') { checked += state.specialTrackers.sunlightTime ? 1 : 0; }
+                    else { checked += (state.dietProgress[mealId] || []).includes(idx) ? 1 : 0; }
+                });
+                return { checked, total: meal.items.length, pct: meal.items.length === 0 ? 0 : checked / meal.items.length };
+            },
+            getOverallProgress() {
+                let total = 0, checked = 0;
+                SCHEDULE.forEach(meal => { 
+                    const mp = this.getMealProgress(meal.id); total += mp.total; checked += mp.checked;
+                });
+                return { total, checked, pct: total === 0 ? 0 : Math.round((checked / total) * 100) };
+            },
+            calculateMacros() {
+                let cal = 0, pro = 0;
+                SCHEDULE.forEach(meal => {
+                    const mp = this.getMealProgress(meal.id);
+                    if(mp.total > 0) { cal += meal.calories * mp.pct; pro += meal.protein * mp.pct; }
+                });
+                return { calories: Math.round(cal), protein: Math.round(pro), water: state.manualMetrics.water || 0 };
+            }
+        };
+
+        const WorkoutEngine = {
+            getProgress(dayId, progressObj = state.workoutProgress) {
+                const wk = OverloadEngine.getDailyWorkout(dayId);
+                if(!wk) return { total: 0, checked: 0, pct: 0 };
+                const dayProgress = progressObj[dayId] || {};
+                let total = 0, checked = 0;
+                [...wk.warmup, ...wk.routine].forEach(ex => {
+                    total += ex.dynamicSets; checked += (dayProgress[ex.id] || []).length;
+                });
+                return { total, checked, pct: total === 0 ? 0 : Math.round((checked / total) * 100) };
+            }
+        };
+
         const UIEngine = {
             safeCreateIcons() { if(window.lucide) lucide.createIcons(); },
             animateCounter(id, start, end, duration) {
@@ -656,437 +955,495 @@
                     requestAnimationFrame(step);
                 });
             },
-            setRing(id, pct) {
-                const ring = document.getElementById(id);
-                if(ring) ring.style.strokeDasharray = `${pct}, 100`;
-            },
-            showToast(msg) {
+            showToast(msg, title="Notification", icon="award", colorClass="#10b981") {
                 const t = document.getElementById('toast');
-                if(t) { document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+                if(t) { 
+                    document.getElementById('toast-title').innerText = title; document.getElementById('toast-msg').innerText = msg;
+                    const wrapper = document.getElementById('toast-icon-wrapper');
+                    wrapper.style.color = colorClass; wrapper.style.borderColor = `${colorClass}40`; wrapper.style.backgroundColor = `${colorClass}10`;
+                    document.getElementById('toast-icon').setAttribute('data-lucide', icon);
+                    UIEngine.safeCreateIcons();
+                    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); 
+                }
+            },
+            updateGreeting() {
+                const currentHour = new Date().getHours();
+                if(currentHour !== window.lastGreetingHour) {
+                    window.lastGreetingHour = currentHour;
+                    let greeting = "🌅 Good Morning";
+                    if(currentHour >= 12 && currentHour < 17) greeting = "☀️ Good Afternoon";
+                    else if(currentHour >= 17 && currentHour < 21) greeting = "🌇 Good Evening";
+                    else if(currentHour >= 21 || currentHour < 5) greeting = "🌙 Good Night";
+                    
+                    const txt = document.getElementById("greeting-text");
+                    if(txt) txt.innerHTML = `${greeting}, Uday`;
+                }
+            },
+            startClock() {
+                if(clockInterval) clearInterval(clockInterval);
+                UIEngine.updateGreeting();
+                
+                const tick = () => {
+                    const now = new Date();
+                    const masterClockEl = document.getElementById('master-clock');
+                    if(masterClockEl) masterClockEl.textContent = formatTime(now);
+                    
+                    const digitalClockEl = document.getElementById('digitalClock');
+                    if(digitalClockEl) digitalClockEl.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    
+                    const clockDateEl = document.getElementById('clockDate');
+                    if(clockDateEl) clockDateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+
+                    this.renderLiveCountdowns(now);
+                };
+                tick(); clockInterval = setInterval(tick, 1000);
+            },
+            renderLiveCountdowns(now) {
+                const { nextTask } = MasterEngine.getSchedulingInfo();
+                if (nextTask && state.startDate) {
+                    let mTime = parseToTodayDate(nextTask.time);
+                    if(mTime < now) mTime.setDate(mTime.getDate() + 1);
+                    const diffMs = mTime - now;
+                    const h = Math.floor(diffMs/3600000); const m = Math.floor((diffMs%3600000)/60000); const s = Math.floor((diffMs%60000)/1000);
+                    document.getElementById('next-meal-title').textContent = nextTask.title;
+                    document.getElementById('next-meal-time').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                } else {
+                    document.getElementById('next-meal-title').textContent = state.startDate ? "Timeline Completed" : "Setup Standby";
+                    document.getElementById('next-meal-time').textContent = "--:--:--";
+                }
+
+                const wTime = parseToTodayDate('4:30 PM'); const wDiffMs = wTime - now;
+                const wkDone = state.startDate ? WorkoutEngine.getProgress(new Date().getDay()).pct === 100 : false;
+                
+                if (wkDone) {
+                    document.getElementById('next-work-title').textContent = "Workout Complete";
+                    document.getElementById('next-work-time').textContent = "--:--:--";
+                } else if (wDiffMs > 0 && state.startDate) {
+                    const h = Math.floor(wDiffMs/3600000); const m = Math.floor((wDiffMs%3600000)/60000); const s = Math.floor((wDiffMs%60000)/1000);
+                    document.getElementById('next-work-title').textContent = OverloadEngine.getDailyWorkout(new Date().getDay()).type;
+                    document.getElementById('next-work-time').textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                } else if (state.startDate) {
+                    document.getElementById('next-work-title').textContent = OverloadEngine.getDailyWorkout(new Date().getDay()).type;
+                    document.getElementById('next-work-time').textContent = "ACTIVE NOW";
+                } else {
+                    document.getElementById('next-work-title').textContent = "Setup Standby";
+                    document.getElementById('next-work-time').textContent = "--:--:--";
+                }
+
+                let sleepTime = parseToTodayDate('10:30 PM');
+                if(sleepTime < now) sleepTime.setDate(sleepTime.getDate() + 1);
+                const slpDiffMs = sleepTime - now;
+                const sh = Math.floor(slpDiffMs/3600000); const sm = Math.floor((slpDiffMs%3600000)/60000); const ss = Math.floor((slpDiffMs%60000)/1000);
+                const sleepEl = document.getElementById('sleep-countdown');
+                if(sleepEl) sleepEl.textContent = state.startDate ? `${sh}h ${sm.toString().padStart(2,'0')}m ${ss.toString().padStart(2,'0')}s` : "--:--:--";
+            },
+            renderPhotos() {
+                const gallery = document.getElementById("photoGallery");
+                if(!gallery) return;
+                if(state.progressPhotos.length === 0) {
+                    gallery.innerHTML = `<p class="text-[10px] text-[var(--text-muted)] col-span-4 py-2">No photos.</p>`; return;
+                }
+                gallery.innerHTML = state.progressPhotos.map(p => `
+                    <div class="relative group overflow-hidden rounded-lg border border-[var(--border-light)] bg-zinc-900 h-14">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        <button onclick="window.deleteProgressPhoto('${p.date}')" class="absolute top-0.5 right-0.5 bg-black/70 p-0.5 rounded text-red-400 opacity-0 group-hover:opacity-100 transition"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    </div>`).join("");
+                UIEngine.safeCreateIcons();
+            },
+            renderWeightLogs() {
+                const container = document.getElementById("weightLogsContainer");
+                if(!container) return;
+                if(!state.weightHistory || state.weightHistory.length === 0) {
+                    container.innerHTML = `<p class="text-[11px] text-[var(--text-muted)]">No logs registered.</p>`; return;
+                }
+                container.innerHTML = [...state.weightHistory].reverse().map(log => `
+                    <div class="flex justify-between items-center bg-zinc-900/40 p-1.5 border border-white/5 rounded-lg font-mono text-[11px]">
+                        <span class="text-zinc-400">${log.date}</span>
+                        <span class="text-white font-bold">${log.weight.toFixed(1)} kg</span>
+                    </div>`).join("");
+            },
+            renderCheckInHistory() {
+                const logContainer = document.getElementById('checkInHistoryLog');
+                if(!logContainer) return;
+                if(state.weeklyCheckIn.length === 0) {
+                    logContainer.innerHTML = `<p class="text-xs text-[var(--text-muted)] text-center py-2">No historical metrics logged on Sundays yet.</p>`; return;
+                }
+                
+                let html = '<h4 class="text-xs font-black uppercase tracking-widest text-zinc-300 mb-3">Check-In Node Timeline</h4><div class="space-y-2">';
+                state.weeklyCheckIn.forEach((node, index) => {
+                    let weightDeltaStr = '';
+                    if(index > 0) {
+                        const prevWeight = state.weeklyCheckIn[index - 1].weight; const diff = node.weight - prevWeight;
+                        weightDeltaStr = diff >= 0 ? `(+${diff.toFixed(1)} kg)` : `(${diff.toFixed(1)} kg)`;
+                    } else { weightDeltaStr = '(Baseline)'; }
+
+                    html += `
+                        <div class="bg-zinc-900/60 border border-[var(--border-light)] p-3 rounded-xl flex flex-col sm:flex-row justify-between gap-3 text-xs">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-black text-amber-400">Week ${node.week}</span>
+                                    <span class="text-zinc-500 font-mono text-[10px]">${new Date(node.date).toLocaleDateString()}</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-x-4 gap-y-0.5 font-medium text-zinc-300">
+                                    <div>Weight: <span class="text-white font-bold">${node.weight} kg</span> <span class="text-[10px] opacity-75">${weightDeltaStr}</span></div>
+                                    <div>Waist: <span class="text-white font-bold">${node.waist} cm</span></div>
+                                    <div>Arm: <span class="text-white font-bold">${node.arm} cm</span></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-1 items-center">
+                                ${node.fPhoto ? `<img src="${node.fPhoto}" class="w-8 h-8 rounded object-cover border border-white/10" title="Front">` : ''}
+                                ${node.sPhoto ? `<img src="${node.sPhoto}" class="w-8 h-8 rounded object-cover border border-white/10" title="Side">` : ''}
+                                ${node.bPhoto ? `<img src="${node.bPhoto}" class="w-8 h-8 rounded object-cover border border-white/10" title="Back">` : ''}
+                                <button onclick="window.deleteCheckInNode(${index})" class="text-zinc-500 hover:text-red-400 p-1 ml-2 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            </div>
+                        </div>`;
+                });
+                html += '</div>'; logContainer.innerHTML = html; UIEngine.safeCreateIcons();
             },
             renderAll() {
-                const sbStreak = document.getElementById('sidebar-streak');
-                const mbStreak = document.getElementById('mobile-streak');
-                if(sbStreak) sbStreak.textContent = `${state.streaks.global} Day Streak`;
-                if(mbStreak) mbStreak.textContent = `${state.streaks.global}`;
-                
-                if(state.activeTab === 'dashboard') UIEngine.renderDashboard();
-                if(state.activeTab === 'diet') DietEngine.render();
-                if(state.activeTab === 'workout') WorkoutEngine.render();
+                const hasStarted = !!state.startDate;
+                document.getElementById('sidebar-start-date').textContent = hasStarted ? `Started: ${state.startDate}` : `Started: Standby`;
+                document.getElementById('set-start-date').textContent = hasStarted ? state.startDate : 'Standby';
+
+                document.getElementById('sidebar-level-avatar').textContent = hasStarted ? `W${OverloadEngine.getTrainingWeek()}` : 'W0';
+                document.getElementById('sidebar-wk-lvl').textContent = hasStarted ? `Week ${OverloadEngine.getTrainingWeek()}` : 'Level 0';
+                if(document.getElementById('sidebar-streak')) document.getElementById('sidebar-streak').textContent = `${state.streaks.global} Global`;
+                if(document.getElementById('mobile-streak')) document.getElementById('mobile-streak').textContent = state.streaks.global;
+
+                if(state.missedWorkoutFlag) {
+                    document.getElementById('recovery-banner-title').textContent = "⚠ Streak Lost";
+                    document.getElementById('recovery-banner-desc').textContent = "You missed 1 or more optimization parameters yesterday. Transformation streak restarted back to 0.";
+                    document.getElementById('recovery-banner')?.classList.remove('hidden');
+                } else {
+                    document.getElementById('recovery-banner')?.classList.add('hidden');
+                }
+
+                const isSunday = new Date().getDay() === 0;
+                const checkInBadge = document.getElementById('sunday-checkin-status');
+                if(checkInBadge) {
+                    if(isSunday && hasStarted) { checkInBadge.className = "text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"; checkInBadge.innerText = "Required Today"; } 
+                    else { checkInBadge.className = "text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-wider bg-zinc-800 text-zinc-500"; checkInBadge.innerText = "Standby"; }
+                }
+
+                if(state.activeTab === 'dashboard') UIEngine.renderUltimateCommandCenter();
+                if(state.activeTab === 'master') MasterEngine.renderMasterTimeline();
                 if(state.activeTab === 'analytics') AnalyticsEngine.render();
-                
-                UIEngine.safeCreateIcons();
-            },
-            renderDashboard() {
-                const macros = DietEngine.calculateMacros(state.completedDiet, state.manualMetrics);
-                const dietPct = Math.round((state.completedDiet.length / SCHEDULE.length) * 100);
-                const doneWk = (state.completedWorkout[new Date().getDay()] || []).length;
-                const totalWk = WORKOUTS[new Date().getDay()].warmup.length + WORKOUTS[new Date().getDay()].routine.length;
-                const wkPct = totalWk > 0 ? Math.round((doneWk / totalWk) * 100) : 0;
-                const waterPct = Math.min(100, (macros.water / TARGETS.water) * 100);
-
-                let score = Math.round((dietPct * 0.4) + (wkPct * 0.3) + (waterPct * 0.2) + (Math.min(state.manualMetrics.sleep/7, 1) * 10));
-                UIEngine.animateCounter('dash-fitness-score', 0, score, 1500);
-                UIEngine.setRing('fitness-score-ring', score);
-
-                UIEngine.animateCounter('dash-cal-val', 0, macros.calories, 1000);
-                const cb = document.getElementById('dash-cal-bar'); if(cb) cb.style.width = `${Math.min(100, (macros.calories/TARGETS.calories)*100)}%`;
-                
-                UIEngine.animateCounter('dash-pro-val', 0, macros.protein, 1000);
-                const pb = document.getElementById('dash-pro-bar'); if(pb) pb.style.width = `${Math.min(100, (macros.protein/TARGETS.protein)*100)}%`;
-                
-                UIEngine.animateCounter('dash-wat-val', 0, macros.water, 1000);
-                const wb = document.getElementById('dash-wat-bar'); if(wb) wb.style.width = `${waterPct}%`;
-                
-                const st = document.getElementById('dash-steps-val'); if(st) st.textContent = state.manualMetrics.steps;
-
-                DietEngine.renderMiniTimeline();
-
-                UIEngine.animateCounter('dash-diet-pct', 0, dietPct, 1000);
-                UIEngine.animateCounter('dash-wk-pct', 0, wkPct, 1000);
-                const wt = document.getElementById('dash-workout-title'); if(wt) wt.textContent = WORKOUTS[new Date().getDay()].type + " Day";
-
-                UIEngine.animateCounter('dash-weight-val', 0, state.manualMetrics.weight || 55, 1200);
-
-                let eScore = 0;
-                if(state.manualMetrics.sleep >= 7.5) eScore += 35; else if(state.manualMetrics.sleep >= 6) eScore += 20;
-                if(macros.water >= 3000) eScore += 30; else if (macros.water >= 1500) eScore += 15;
-                if(macros.calories >= 1800) eScore += 35;
-                UIEngine.animateCounter('energyScore', 0, eScore, 1000);
-
-                let rScore = 100;
-                if(state.manualMetrics.sleep < 7) rScore -= 30;
-                if(macros.water < 2500) rScore -= 20;
-                if(dietPct < 50) rScore -= 10;
-                UIEngine.animateCounter('recoveryScore', 0, rScore, 1000);
-
-                let advice = "";
-                if (macros.protein < 105) advice = `Increase protein by ${105 - macros.protein}g. Eat eggs or soya chunks tonight.`;
-                else if (macros.water < 3500) advice = `You are ${3500 - macros.water}ml short of your water goal. Hydrate now!`;
-                else if (wkPct < 100) advice = "Nutrition is perfect. Complete today's workout to secure an elite day.";
-                else advice = "Excellent consistency today, Uday. You are perfectly on track for 60kg.";
-                const ai = document.getElementById('ai-coach-text'); if(ai) ai.textContent = advice;
-            }
-        };
-
-        const DietEngine = {
-            calculateMacros(dietArr, manual) {
-                let cal = 0, pro = 0, wat = manual.water || 0;
-                SCHEDULE.forEach(item => { if (dietArr.includes(item.id)) { cal += item.calories; pro += item.protein; wat += item.water; } });
-                return { calories: cal, protein: pro, water: wat };
-            },
-            render() {
-                const macros = DietEngine.calculateMacros(state.completedDiet, state.manualMetrics);
-                const remC = Math.max(0, TARGETS.calories - macros.calories);
-                const remP = Math.max(0, TARGETS.protein - macros.protein);
-                const dietPct = Math.round((state.completedDiet.length / SCHEDULE.length) * 100);
-
-                UIEngine.animateCounter('diet-page-pct', 0, dietPct, 1000);
-                UIEngine.setRing('diet-page-ring', dietPct);
-                
-                UIEngine.animateCounter('diet-cal-curr', 0, macros.calories, 1000);
-                const dcr = document.getElementById('diet-cal-rem'); if(dcr) dcr.textContent = remC + ' kcal';
-                const dcb = document.getElementById('diet-cal-bar'); if(dcb) dcb.style.width = `${Math.min(100, (macros.calories/TARGETS.calories)*100)}%`;
-
-                UIEngine.animateCounter('diet-pro-curr', 0, macros.protein, 1000);
-                const dpr = document.getElementById('diet-pro-rem'); if(dpr) dpr.textContent = remP + 'g';
-                const dpb = document.getElementById('diet-pro-bar'); if(dpb) dpb.style.width = `${Math.min(100, (macros.protein/TARGETS.protein)*100)}%`;
-
-                const timeline = document.getElementById('diet-timeline-full');
-                if(timeline) {
-                    timeline.innerHTML = SCHEDULE.map((meal) => {
-                        const isDone = state.completedDiet.includes(meal.id);
-                        const pctComplete = isDone ? 100 : 0;
-                        return `
-                            <div class="relative pl-8 mb-8">
-                                <div class="absolute -left-[9px] top-6 w-4 h-4 rounded-full border-2 transition z-10 ${isDone?'bg-[var(--primary)] border-[var(--primary)]':'bg-[var(--bg-main)] border-[var(--border-medium)]'}"></div>
-                                
-                                <div class="meal-card ${isDone?'completed':''}">
-                                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2">
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-sm font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-1 rounded-lg">${meal.time}</span>
-                                            <h3 class="font-black text-xl text-white">${meal.title}</h3>
-                                        </div>
-                                        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                                            ${meal.calories ? `<span><i data-lucide="flame" class="w-3 h-3 inline text-[var(--calories)]"></i> ${meal.calories} kcal</span>` : ''}
-                                            ${meal.protein ? `<span><i data-lucide="activity" class="w-3 h-3 inline text-[var(--protein)]"></i> ${meal.protein}g</span>` : ''}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                        <ul class="text-sm text-[var(--text-secondary)] space-y-2">
-                                            ${meal.items.map(i => `
-                                                <li class="flex items-center gap-2">
-                                                    <i data-lucide="${isDone ? 'check-circle-2' : 'circle'}" class="w-4 h-4 ${isDone ? 'text-[var(--primary)]' : 'text-[var(--text-disabled)]'}"></i>
-                                                    <span class="${isDone?'line-through opacity-50':''}">${i}</span>
-                                                </li>
-                                            `).join('')}
-                                        </ul>
-                                    </div>
-
-                                    <div class="flex flex-col sm:flex-row items-center gap-4 border-t border-[var(--border-light)] pt-4 mt-2">
-                                        <div class="flex-1 w-full">
-                                            <div class="h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden"><div class="h-full bg-[var(--primary)] transition-all duration-700" style="width: ${pctComplete}%"></div></div>
-                                        </div>
-                                        <button onclick="window.toggleItem('diet', '${meal.id}')" class="w-full sm:w-auto px-6 py-2 rounded-xl font-bold text-sm transition-all ${isDone ? 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-white border border-[var(--border-light)]' : 'btn-primary'}">
-                                            ${isDone ? 'Undo' : 'Complete Meal'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>`;
-                    }).join('');
+                if(state.activeTab === 'settings') {
+                    document.getElementById('settingsWeight').value = state.manualMetrics.weight || '';
+                    UIEngine.renderPhotos();
+                    UIEngine.renderWeightLogs();
+                    UIEngine.renderCheckInHistory();
                 }
                 UIEngine.safeCreateIcons();
             },
-            renderMiniTimeline() {
-                const el = document.getElementById('daily-mini-timeline');
-                if(!el) return;
-                const keyMeals = SCHEDULE.filter(m => ['wake','breakfast','lunch','pre-work','dinner'].includes(m.id));
-                el.innerHTML = keyMeals.map(m => {
-                    const isDone = state.completedDiet.includes(m.id);
-                    return `<div class="timeline-step ${isDone ? 'completed' : ''}"><span class="text-xs font-bold text-[var(--text-muted)] mr-2">${m.time.split(' ')[0]}</span><span class="text-sm font-bold ${isDone ? 'text-white' : 'text-[var(--text-disabled)]'}">${m.title}</span></div>`;
-                }).join('');
-            }
-        };
+            renderUltimateCommandCenter() {
+                const macros = DietEngine.calculateMacros();
+                const dProg = DietEngine.getOverallProgress();
+                const wProg = WorkoutEngine.getProgress(new Date().getDay());
+                
+                UIEngine.animateCounter('ucc-diet', 0, dProg.pct, 1000);
+                UIEngine.animateCounter('ucc-work', 0, wProg.pct, 1000);
+                UIEngine.animateCounter('ucc-wat', 0, macros.water, 1000);
+                UIEngine.animateCounter('ucc-slp', 0, state.manualMetrics.sleep, 1000);
+                UIEngine.animateCounter('dash-trans-score', 0, ScoreEngine.getTransformationScore(), 1500);
 
-        const WorkoutEngine = {
-            render() {
-                const wk = WORKOUTS[state.activeWorkoutDay];
-                const done = state.completedWorkout[state.activeWorkoutDay] || [];
-                const totalE = wk.warmup.length + wk.routine.length;
-                const pct = totalE > 0 ? Math.round((done.length / totalE) * 100) : 0;
+                const lvlInfo = OverloadEngine.getWorkoutLevel(); const diffInfo = OverloadEngine.getDifficulty();
+                document.getElementById('hero-level').textContent = lvlInfo.name;
+                const dEl = document.getElementById('hero-diff'); dEl.textContent = diffInfo.label; dEl.style.color = diffInfo.color;
 
-                const wd = document.getElementById('weekly-workout-dash');
-                if(wd) {
-                    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-                    const dayMap = [1,2,3,4,5,6,0];
-                    wd.innerHTML = dayMap.map((d, i) => {
-                        let status = "pending";
-                        const wData = state.completedWorkout[d] || [];
-                        const dTotal = WORKOUTS[d].warmup.length + WORKOUTS[d].routine.length;
-                        if(d === new Date().getDay() && wData.length === 0) status = "pending";
-                        else if(wData.length > 0 && wData.length === dTotal) status = "completed";
-                        else if(d !== new Date().getDay() && state.history[getOffsetDate(d)]?.workoutPct === 100) status = "completed";
-                        else if(d !== new Date().getDay() && state.history[getOffsetDate(d)] && state.history[getOffsetDate(d)]?.workoutPct < 100) status = "missed";
+                const rObj = ScoreEngine.getRecoveryScore();
+                document.getElementById('recovery-score').textContent = `${rObj.pct}%`;
+                document.getElementById('recovery-status').textContent = rObj.status;
+                if(rObj.pct < 50) document.getElementById('recovery-status').className = "text-sm font-bold text-[var(--danger)] mb-1";
+                else if (rObj.pct < 80) document.getElementById('recovery-status').className = "text-sm font-bold text-[var(--calories)] mb-1";
+                else document.getElementById('recovery-status').className = "text-sm font-bold text-[var(--primary)] mb-1";
+                
+                document.getElementById('rec-sw').textContent = `${state.manualMetrics.sleep}h / ${macros.water}ml`;
+                document.getElementById('rec-nut').textContent = `${dProg.pct}% Cmp`;
 
-                        return `
-                        <div class="flex flex-col items-center gap-2">
-                            <span class="text-[10px] font-bold text-[var(--text-muted)] uppercase">${days[i]}</span>
-                            <div class="weekly-dash-day ${status}">
-                                ${status==='completed' ? '<i data-lucide="check" class="w-4 h-4"></i>' : (status==='missed' ? '<i data-lucide="x" class="w-4 h-4"></i>' : '-')}
-                            </div>
-                        </div>`;
-                    }).join('');
+                const currW = state.manualMetrics.weight || 0.0;
+                document.getElementById('pred-current').innerHTML = `${currW}<span class="text-sm text-[var(--text-muted)]">kg</span>`;
+                
+                let predW = currW;
+                if (state.weightHistory && state.weightHistory.length >= 2) {
+                    const first = state.weightHistory[0]; const latest = state.weightHistory[state.weightHistory.length - 1];
+                    const daysBetween = Math.max(1, (new Date(latest.date) - new Date(first.date)) / (1000 * 60 * 60 * 24));
+                    predW = currW + (((latest.weight - first.weight) / daysBetween) * 90);
                 }
-
-                UIEngine.animateCounter('workout-page-score', 0, pct, 1000);
-                const pf = document.getElementById('workout-page-fraction'); if(pf) pf.textContent = `${done.length} / ${totalE} Exercises`;
-
-                const ds = document.getElementById('workout-day-selector');
-                if(ds) {
-                    ds.innerHTML = [1,2,3,4,5,6,0].map(d => {
-                        const act = state.activeWorkoutDay === d;
-                        return `<button onclick="state.activeWorkoutDay=${d}; window.UIEngine.renderAll();" class="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all ${act?'bg-[var(--primary)] text-black':'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-light)] hover:bg-[var(--bg-card)]'}">${WORKOUTS[d].day.slice(0,3)}</button>`;
-                    }).join('');
-                }
-
-                const map = {
-                    'Push': [{n:'Chest', p:90},{n:'Shoulders', p:80},{n:'Triceps', p:85}],
-                    'Pull': [{n:'Back', p:95},{n:'Biceps', p:85}],
-                    'Legs': [{n:'Quads', p:90},{n:'Hamstrings', p:80},{n:'Calves', p:90}],
-                    'Recovery': [{n:'Core', p:40},{n:'Mobility', p:80}],
-                    'Push Hard': [{n:'Chest', p:100},{n:'Triceps', p:90},{n:'Shoulders', p:85}],
-                    'Pull + Legs': [{n:'Back', p:80},{n:'Legs', p:80},{n:'Biceps', p:70}],
-                    'Full Body': [{n:'Chest', p:60},{n:'Back', p:60},{n:'Legs', p:60}]
-                };
-                const mData = map[wk.type] || [];
-                const muscleHtml = mData.map(m => `
-                    <div class="mb-2">
-                        <div class="flex justify-between text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1"><span>${m.n}</span></div>
-                        <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden"><div class="bg-[var(--primary)] h-full" style="width:${m.p}%"></div></div>
-                    </div>
-                `).join('');
-
-                const header = document.getElementById('workout-header-card');
-                if(header) {
-                    header.innerHTML = `
-                        <div class="flex-1">
-                            <h2 class="text-3xl font-black text-white tracking-tight mb-2">${wk.day}</h2>
-                            <p class="text-[var(--primary)] text-sm font-bold uppercase tracking-widest mb-4">${wk.type} <span class="text-white/40 mx-2">|</span> Basic</p>
-                            <p class="text-[var(--text-secondary)] text-sm font-medium">${wk.desc}</p>
-                        </div>
-                        <div class="flex-1 w-full md:w-auto min-w-[200px] border-t md:border-t-0 md:border-l border-[var(--border-light)] pt-4 md:pt-0 md:pl-6">
-                            <h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Muscle Activation</h3>
-                            ${muscleHtml}
-                        </div>
-                    `;
-                }
-
-                const rItem = (ex) => {
-                    const isD = done.includes(ex.id);
-                    let targetRepsStr = ex.reps.match(/\d+/g);
-                    let tr = targetRepsStr ? Math.max(...targetRepsStr.map(Number)) : 10;
-                    let tsStr = ex.sets.match(/\d+/g);
-                    let ts = tsStr ? Math.max(...tsStr.map(Number)) : 1;
-                    let totalTarget = tr * ts;
-
-                    return `
-                        <div class="exercise-card ${isD?'completed':''}">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h4 class="font-bold text-lg ${isD?'text-[var(--primary)]':'text-white'} flex items-center gap-2">
-                                        <i data-lucide="${isD?'check-circle-2':'circle'}" class="w-5 h-5 ${isD?'text-[var(--primary)]':'text-[var(--text-muted)]'}"></i>
-                                        ${ex.name}
-                                    </h4>
-                                    <div class="text-[12px] font-bold uppercase tracking-wider text-[var(--text-muted)] mt-1 ml-7">${ex.sets} × ${ex.reps}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-3 gap-4 bg-[var(--bg-secondary)] rounded-xl p-4 mb-4">
-                                <div><span class="block text-[10px] text-[var(--text-muted)] uppercase font-bold mb-1">Target</span><span class="font-black text-white">${totalTarget} <span class="text-xs text-[var(--text-muted)]">reps</span></span></div>
-                                <div><span class="block text-[10px] text-[var(--text-muted)] uppercase font-bold mb-1">Completed</span><span class="font-black ${isD?'text-[var(--primary)]':'text-white'}">${isD?totalTarget:0} <span class="text-xs text-[var(--text-muted)]">reps</span></span></div>
-                                <div><span class="block text-[10px] text-[var(--text-muted)] uppercase font-bold mb-1">Progress</span><div class="w-full bg-[var(--bg-card)] h-1.5 rounded-full mt-2 overflow-hidden"><div class="bg-[var(--primary)] h-full transition-all" style="width:${isD?'100':'0'}%"></div></div></div>
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row items-center gap-3">
-                                <button onclick="window.toggleItem('workout', '${ex.id}')" class="w-full sm:w-auto flex-1 py-3 rounded-xl font-bold text-sm transition-all ${isD ? 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-white border border-[var(--border-light)]' : 'btn-primary'}">
-                                    ${isD ? 'Undo' : 'Complete Exercise'}
-                                </button>
-                                ${isD ? `<button onclick="window.startRestTimer('${ex.id}')" id="rest-btn-${ex.id}" class="w-full sm:w-auto flex-1 py-3 rounded-xl font-bold text-sm bg-[var(--bg-card-hover)] border border-[var(--border-medium)] text-[var(--secondary-light)] flex items-center justify-center gap-2 hover:bg-[var(--bg-secondary)] transition"><i data-lucide="timer" class="w-4 h-4"></i> Start 60s Rest</button>` : ''}
-                            </div>
-                        </div>`;
-                };
-
-                const wc = document.getElementById('workout-exercises-container');
-                if(wc) {
-                    wc.innerHTML = 
-                        `<h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mt-4 mb-2">Warm-Up</h3>` + wk.warmup.map(rItem).join('') +
-                        `<h3 class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mt-6 mb-2">Routine</h3>` + wk.routine.map(rItem).join('');
-                }
-                UIEngine.safeCreateIcons();
+                document.getElementById('pred-future').innerHTML = `${predW.toFixed(1)}<span class="text-sm text-[var(--weight)]/50">kg</span>`;
+                document.getElementById('dash-train-week').textContent = OverloadEngine.getTrainingWeek();
             }
         };
 
         const AnalyticsEngine = {
             render() {
-                const dates = Object.keys(state.history).sort().slice(-7); dates.push(state.todayStr);
+                const prc = document.getElementById('pr-trends-container');
+                if(prc && Object.keys(state.prs).length > 0) {
+                    let prHtml = ''; const sortedPRs = Object.entries(state.prs).sort((a,b) => b[1] - a[1]);
+                    for (const [exId, reps] of sortedPRs) {
+                        prHtml += `
+                        <div class="bg-[var(--bg-main)] rounded-xl p-4 border border-[var(--border-light)] text-center">
+                            <span class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-2 truncate">${exId}</span>
+                            <div class="inline-flex items-center gap-1 bg-[var(--workout)]/10 text-[var(--workout)] px-3 py-1 rounded-lg border border-[var(--workout)]/30 font-black text-xl"><i data-lucide="crown" class="w-4 h-4"></i> ${reps}</div>
+                        </div>`;
+                    }
+                    prc.innerHTML = prHtml;
+                } else if(prc) { prc.innerHTML = `<p class="text-sm text-[var(--text-muted)] font-medium col-span-4">No structural PR records logged yet.</p>`; }
+
+                const tWk = OverloadEngine.getTrainingWeek();
+                const atContainer = document.getElementById('an-active-targets');
+                document.getElementById('an-train-week').textContent = tWk;
+                
+                if(atContainer && state.startDate) {
+                    let atHtml = '';
+                    OverloadEngine.getDailyWorkout(new Date().getDay()).routine.forEach(ex => {
+                        atHtml += `<div class="flex justify-between items-center bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-light)]"><span class="text-sm text-white font-bold">${ex.name}</span><span class="text-sm font-black text-[var(--current)]">${ex.dynamicSets} × ${ex.dynamicReps}</span></div>`;
+                    });
+                    atContainer.innerHTML = atHtml;
+                } else if(atContainer) {
+                    atContainer.innerHTML = `<p class="text-xs text-[var(--text-muted)]">Awaiting initialization calibration targets.</p>`;
+                }
+
+                const dates = Object.keys(state.history).sort().slice(-7); 
+                if(!dates.includes(state.todayStr)) dates.push(state.todayStr);
                 let labels = [], wData = [], cData = [];
                 dates.forEach(d => {
                     labels.push(d.slice(5));
-                    const h = (d === state.todayStr) ? {w: state.manualMetrics.weight, c: DietEngine.calculateMacros(state.completedDiet, state.manualMetrics).calories} : {w: state.history[d]?.weight || 0, c: state.history[d]?.cal || 0};
+                    const isToday = (d === state.todayStr);
+                    const h = isToday ? {w: state.manualMetrics.weight, c: DietEngine.calculateMacros().calories} : {w: state.history[d]?.weight || 0, c: state.history[d]?.cal || 0};
                     wData.push(h.w); cData.push(h.c);
                 });
 
                 const renderC = (id, type, data, col, inst) => {
                     if (!window.Chart) return null;
-                    const el = document.getElementById(id);
-                    if(!el) return null;
-                    const ctx = el.getContext('2d');
+                    const el = document.getElementById(id); if(!el) return null;
                     if(inst) inst.destroy();
-                    return new Chart(ctx, {
+                    return new Chart(el.getContext('2d'), {
                         type: type, data: { labels, datasets: [{ data, borderColor: col, backgroundColor: col+'30', borderWidth: 3, tension: 0.4, fill: true }] },
                         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {color: '#94a3b8'} } } }
                     });
                 };
                 window.wChart = renderC('weightChart', 'line', wData, '#ec4899', window.wChart);
-                window.mChart = renderC('macroChart', 'bar', cData, '#f97316', window.mChart);
+                window.mChart = renderC('macroChart', 'bar', cData, '#f59e0b', window.mChart);
             }
         };
 
         // ==========================================
-        // 5. GLOBAL BINDINGS
+        // 3. REGISTRATION ONBOARDING INTERACTIVE EVENTS
         // ==========================================
-        window.startRestTimer = (id) => {
-            const btn = document.getElementById(`rest-btn-${id}`);
-            if(!btn) return;
-            let time = 60;
-            btn.innerHTML = `<i data-lucide="timer" class="w-4 h-4"></i> Rest: ${time}s`;
-            btn.classList.add("text-[var(--primary)]", "border-[var(--primary)]");
-            btn.disabled = true;
-            UIEngine.safeCreateIcons();
-
-            const interval = setInterval(() => {
-                time--;
-                btn.innerHTML = `<i data-lucide="timer" class="w-4 h-4"></i> Rest: ${time}s`;
-                if(time <= 0) {
-                    clearInterval(interval);
-                    btn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Ready!`;
-                    btn.classList.remove("text-[var(--primary)]", "border-[var(--primary)]");
-                    btn.classList.add("text-white", "bg-[var(--primary)]");
-                    UIEngine.safeCreateIcons();
-                }
-            }, 1000);
+        window.showWelcomeModal = function() {
+            const modal = document.getElementById("welcome-modal");
+            if(modal) {
+                modal.classList.remove("hidden");
+                setTimeout(() => modal.classList.remove("opacity-0"), 50);
+            }
         };
 
-        window.toggleItem = (type, id) => {
-            const arr = type==='diet' ? state.completedDiet : (state.completedWorkout[state.activeWorkoutDay] = state.completedWorkout[state.activeWorkoutDay]||[]);
-            const idx = arr.indexOf(id);
-            if(idx > -1) arr.splice(idx, 1); else arr.push(id);
+        window.finalizeOnboarding = function() {
+            const cW = parseFloat(document.getElementById("initCurrentWeight").value);
+            const gW = parseFloat(document.getElementById("initGoalWeight").value);
+
+            if(isNaN(cW) || isNaN(gW) || cW <= 0 || gW <= 0) {
+                alert("Please supply real baseline tracking weight bounds."); return;
+            }
+
+            TARGETS.weight = gW;
+            state.startDate = new Date().toISOString().split('T')[0];
+            state.manualMetrics.weight = cW;
+            state.weightHistory.push({ date: state.startDate, weight: cW });
+
+            AppStorage.save();
+            
+            const modal = document.getElementById("welcome-modal");
+            if(modal) {
+                modal.classList.add("opacity-0");
+                setTimeout(() => modal.classList.add("hidden"), 500);
+            }
+            UIEngine.renderAll();
+            UIEngine.showToast("Transformation Engine Active", "Protocol Synced", "shield", "var(--primary)");
+        };
+
+        window.toggleDietItem = (mealId, itemIdx) => {
+            if(!state.startDate) return;
+            if(!state.dietProgress[mealId]) state.dietProgress[mealId] = [];
+            const arr = state.dietProgress[mealId]; const i = arr.indexOf(itemIdx);
+            if(i > -1) arr.splice(i, 1); else arr.push(itemIdx);
             AppStorage.save(); UIEngine.renderAll();
         };
 
-        window.updateMetric = (key, val) => { state.manualMetrics[key] = Math.max(0, state.manualMetrics[key] + val); AppStorage.save(); UIEngine.renderAll(); };
-
-        window.promptWeight = function() {
-            const modal = document.getElementById("weight-modal");
-            if(modal) {
-                modal.classList.remove("hidden");
-                setTimeout(()=>{
-                    modal.classList.remove("opacity-0");
-                }, 10);
-                const input = document.getElementById("quick-weight-input");
-                if(input) input.value = state.manualMetrics.weight || '';
-            }
+        window.toggleWorkoutSet = (dayId, exId, setIdx) => {
+            if(!state.startDate) return;
+            if(!state.workoutProgress[dayId]) state.workoutProgress[dayId] = {};
+            if(!state.workoutProgress[dayId][exId]) state.workoutProgress[dayId][exId] = [];
+            const arr = state.workoutProgress[dayId][exId]; const i = arr.indexOf(setIdx);
+            if(i > -1) arr.splice(i, 1); else arr.push(setIdx);
+            AppStorage.save(); UIEngine.renderAll();
         };
 
-        window.closeWeightModal = function() {
-            const modal = document.getElementById("weight-modal");
-            if(modal) {
-                modal.classList.add("opacity-0");
-                setTimeout(()=>{
-                    modal.classList.add("hidden");
-                }, 300);
-            }
+        window.toggleSunlight = () => {
+            if(!state.startDate) return;
+            state.specialTrackers.sunlightTime = state.specialTrackers.sunlightTime ? null : new Date().toISOString();
+            AppStorage.save(); UIEngine.renderAll();
         };
 
-        window.saveQuickWeight = function() {
-            const input = document.getElementById("quick-weight-input");
-            if(input) {
-                const v = parseFloat(input.value);
-                if(!isNaN(v)){
-                    state.manualMetrics.weight = v;
-                    AppStorage.save();
-                    UIEngine.renderAll();
-                }
-            }
-            window.closeWeightModal();
-        };
-
-        window.updateDifficulty = function(e){
-            state.difficulty = e.target.value;
+        window.saveReps = (dayId, exId, setIdx, val) => {
+            if(!state.startDate) return;
+            if(!state.workoutReps[dayId]) state.workoutReps[dayId] = {};
+            if(!state.workoutReps[dayId][exId]) state.workoutReps[dayId][exId] = {};
+            const numVal = parseInt(val) || 0; state.workoutReps[dayId][exId][setIdx] = numVal;
+            
+            const exData = [...OverloadEngine.getDailyWorkout(dayId).warmup, ...OverloadEngine.getDailyWorkout(dayId).routine].find(e => e.id === exId);
+            const exName = exData ? exData.name : exId;
+            if(numVal > (state.prs[exName] || 0)) { state.prs[exName] = numVal; UIEngine.showToast(`New PR: ${numVal}!`, "Personal Record", "crown", "#f59e0b"); }
             AppStorage.save();
+        };
+
+        window.updateMetric = (key, val) => { 
+            if(!state.startDate) return;
+            state.manualMetrics[key] = Math.max(0, state.manualMetrics[key] + val); AppStorage.save(); UIEngine.renderAll(); 
+        };
+
+        window.saveWeightFromSettings = () => {
+            if(!state.startDate) return;
+            const val = parseFloat(document.getElementById('settingsWeight').value);
+            if(!isNaN(val) && val > 0) {
+                state.manualMetrics.weight = val;
+                state.weightHistory.push({ date: new Date().toISOString().split('T')[0], weight: val });
+                AppStorage.save(); UIEngine.renderAll();
+                UIEngine.showToast(`Mass locked at ${val} kg`, "Weight Logged", "scale", "#ec4899");
+            }
+        };
+
+        window.handleCheckInFile = (input, targetKey) => {
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function() {
+                localCheckInFiles[targetKey] = reader.result;
+                const indicator = document.getElementById(`lbl-${targetKey}`);
+                if(indicator) { indicator.className = "py-2 text-xs text-center rounded-lg border border-amber-500 bg-amber-500/10 text-amber-400 font-bold flex flex-col items-center justify-center gap-1"; indicator.innerText = "Loaded"; }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.submitWeeklyCheckIn = () => {
+            if(!state.startDate) return;
+            const waist = parseFloat(document.getElementById('checkinWaist').value);
+            const arm = parseFloat(document.getElementById('checkinArm').value);
+            const currentWeight = state.manualMetrics.weight || 0;
+
+            if(isNaN(waist) || isNaN(arm) || currentWeight === 0) { alert("Please complete basic calibration logs & structural weights."); return; }
+
+            state.weeklyCheckIn.push({
+                date: new Date().toISOString(), week: OverloadEngine.getTrainingWeek(),
+                weight: currentWeight, waist: waist, arm: arm,
+                fPhoto: localCheckInFiles.fPhoto, sPhoto: localCheckInFiles.sPhoto, bPhoto: localCheckInFiles.bPhoto
+            });
+
+            document.getElementById('checkinWaist').value = ''; document.getElementById('checkinArm').value = '';
+            ['fPhoto', 'sPhoto', 'bPhoto'].forEach(k => {
+                localCheckInFiles[k] = null; const label = document.getElementById(`lbl-${k}`);
+                if(label) { label.className = "btn-secondary py-2 text-xs text-center cursor-pointer relative flex flex-col items-center justify-center gap-1"; label.innerHTML = `<i data-lucide="image" class="w-3 h-3 text-zinc-400"></i> ${k==='fPhoto'?'Front View':k==='sPhoto'?'Side View':'Back View'}`; }
+            });
+
+            AppStorage.save(); UIEngine.renderAll();
+            UIEngine.showToast("Sunday check-in finalized", "Metrics Mapped", "shield-check", "#fbbf24");
+        };
+
+        window.deleteCheckInNode = (index) => {
+            if(confirm("Purge check-in block?")) { state.weeklyCheckIn.splice(index, 1); AppStorage.save(); UIEngine.renderAll(); }
+        };
+
+        document.getElementById("photoUpload")?.addEventListener("change", function(e){
+            if(!state.startDate) return;
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(){
+                state.progressPhotos.push({ date: new Date().toISOString(), image: reader.result });
+                AppStorage.save(); UIEngine.renderAll();
+                UIEngine.showToast("Visual record saved inside gallery node", "Snapshot Cached", "camera", "#10b981");
+            };
+            reader.readAsDataURL(file);
+        });
+
+        window.deleteProgressPhoto = (dateId) => {
+            state.progressPhotos = state.progressPhotos.filter(p => p.date !== dateId);
+            AppStorage.save(); UIEngine.renderAll();
+        };
+
+        window.runEveningAudit = function() {
+            if(!state.startDate) return;
+            const modal = document.getElementById("audit-modal"); const content = document.getElementById("audit-modal-content");
+            if(!modal) return;
+            document.getElementById('audit-grade').textContent = `${ScoreEngine.getTransformationScore()}%`;
+            document.getElementById('audit-diet-score').textContent = `${DietEngine.getOverallProgress().pct}%`;
+            document.getElementById('audit-workout-score').textContent = `${WorkoutEngine.getProgress(new Date().getDay()).pct}%`;
+            modal.classList.remove("hidden"); if(content) content.classList.remove("scale-95");
+            setTimeout(() => modal.classList.remove("opacity-0"), 10);
+        };
+
+        window.closeAuditModal = function() { 
+            const modal = document.getElementById("audit-modal"); const content = document.getElementById("audit-modal-content");
+            if(modal) { modal.classList.add("opacity-0"); if(content) content.classList.add("scale-95"); setTimeout(() => modal.classList.add("hidden"), 300); } 
+        };
+
+        window.saveAndCloseAudit = function() {
+            // Immediate evaluation of binary requirements targets on closing manual audit bounds
+            const dProg = DietEngine.getOverallProgress().pct === 100;
+            const wProg = WorkoutEngine.getProgress(new Date().getDay()).pct === 100;
+            const macros = DietEngine.calculateMacros();
+            const wtrProg = macros.water >= 3500;
+            const slpProg = state.manualMetrics.sleep >= 7.5;
+            const proProg = macros.protein >= 115;
+
+            if(dProg && wProg && wtrProg && slpProg && proProg) {
+                state.streaks.global += 1;
+                state.streaks.workout += 1; state.streaks.diet += 1;
+                state.streaks.water += 1; state.streaks.sleep += 1; state.streaks.protein += 1;
+            } else {
+                state.streaks = { global: 0, workout: 0, diet: 0, water: 0, sleep: 0, protein: 0 };
+                state.missedWorkoutFlag = true; 
+            }
+
+            AppStorage.save(); window.closeAuditModal(); UIEngine.renderAll();
         };
 
         window.exportData = function(){
             const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'bodypro-backup.json';
-            a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bodypro-v16-backup.json'; a.click();
         };
 
-        window.importData = function(event){
-            const file = event.target.files[0];
-            if(!file) return;
+        window.importData = function(event) {
+            const file = event.target.files[0]; if(!file) return;
             const reader = new FileReader();
-            reader.onload = function(){
-                try{
-                    const data = JSON.parse(reader.result);
-                    state = { ...state, ...data };
-                    AppStorage.save();
-                    UIEngine.renderAll();
-                }catch(err){
-                    alert("Invalid backup file");
-                }
+            reader.onload = function() {
+                try {
+                    state = { ...state, ...JSON.parse(reader.result) }; AppStorage.save(); UIEngine.renderAll();
+                    UIEngine.showToast("Data imported successfully.", "Backup Restored", "database", "#10b981");
+                } catch(err) { alert("Invalid architectural schema data JSON"); }
             };
             reader.readAsText(file);
         };
 
-        window.execCmd = function(cmd) {
-            const cp = document.getElementById("commandPalette");
-            if(cp) cp.classList.remove("show");
-            switch(cmd) {
-                case "nav-diet": 
-                    document.querySelector('.nav-item[data-tab="diet"]')?.click(); 
-                    break;
-                case "nav-workout": 
-                    document.querySelector('.nav-item[data-tab="workout"]')?.click(); 
-                    break;
-                case "log-water": 
-                    window.updateMetric("water", 250); 
-                    break;
-            }
+        window.freshStart = function() {
+            if(confirm("Factory Reset entire application data storage?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         };
 
         document.querySelectorAll("[data-tab]").forEach(btn => {
             btn.addEventListener("click", () => {
-                const tab = btn.dataset.tab;
-                if (!tab) return;
+                const tab = btn.dataset.tab; if (!tab) return;
                 state.activeTab = tab;
                 document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
-                const page = document.getElementById(`view-${tab}`);
-                if (page) page.classList.add("active");
-                
-                document.querySelectorAll("[data-tab]").forEach(b => {
-                    if (b.dataset.tab === tab) b.classList.add("active-nav");
-                    else b.classList.remove("active-nav");
-                });
-                UIEngine.renderAll();
+                document.getElementById(`view-${tab}`)?.classList.add("active");
+                document.querySelectorAll("[data-tab]").forEach(b => { if (b.dataset.tab === tab) b.classList.add("active-nav"); else b.classList.remove("active-nav"); });
+                UIEngine.renderAll(); window.scrollTo(0,0); 
             });
         });
 
-        // Initialize
+        setInterval(() => { if(state.startDate) UIEngine.renderAll(); }, 60000);
+        document.getElementById('master-date-display').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        
         AppStorage.init();
+        UIEngine.startClock();
         UIEngine.renderAll();
     </script>
 </body>
