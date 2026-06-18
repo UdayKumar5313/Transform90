@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Uday Protocol v5.9 | Zero to Hero</title>
+    <title>The Uday Protocol | Zero to Hero</title>
     
     <!-- PWA SETTINGS -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050505">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Protocol 50">
+    <meta name="apple-mobile-web-app-title" content="Uday Protocol">
     <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/security-shield-green.png">
 
     <!-- Tailwind CSS -->
@@ -278,6 +278,17 @@
     <!-- Lightning Background -->
     <div id="lightning-container"></div>
 
+    <!-- Custom Dialog/Prompt Modal System -->
+    <div id="dialog-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-900 border border-cyber-accent w-full max-w-sm rounded-xl p-6 shadow-neon transform scale-95 transition-transform duration-200 relative">
+            <h3 id="dialog-title" class="text-cyber-accent font-mono text-lg font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i> SYSTEM ALERT
+            </h3>
+            <div id="dialog-message" class="text-gray-300 font-mono text-sm mb-6 leading-relaxed"></div>
+            <div id="dialog-buttons" class="flex gap-3 justify-end"></div>
+        </div>
+    </div>
+
     <!-- Edit Modal (Generic) -->
     <div id="edit-modal" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="bg-cyber-900 border border-cyber-accent w-full max-w-md rounded-xl p-6 shadow-neon relative animate-pop-in">
@@ -329,7 +340,7 @@
                         <div id="ex-modal-sets" class="text-xl font-bold text-white font-mono">3</div>
                     </div>
                     <div class="bg-black/40 p-3 rounded border border-white/10 text-center hover:border-cyber-accent transition-colors">
-                        <div class="text-[10px] text-gray-500 uppercase font-mono">REPS</div>
+                        <div class="text-[10px] text-gray-500 uppercase font-mono">REPS / TIME</div>
                         <div id="ex-modal-reps" class="text-xl font-bold text-white font-mono">MAX</div>
                     </div>
                 </div>
@@ -415,16 +426,15 @@
                     </div>
                     <div>
                         <h1 class="font-mono text-white font-bold text-base tracking-wider leading-tight animate-color-cycle cursor-default">PROTOCOL_v5.9</h1>
-                        <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest cursor-pointer hover:text-cyber-accent animate-pulse-slow" onclick="openStartDateEditor()" id="header-day-count">Day 1/50</div>
+                        <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest cursor-pointer hover:text-cyber-accent transition-colors" onclick="openStartDateEditor()" id="header-day-count">Day 1 | Wk 1</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <!-- NEW FEATURES BUTTONS -->
                     <button onclick="toggleBgAnimation()" id="bg-toggle-btn" class="text-cyber-accent hover:text-white transition-colors btn-interact hidden md:block" title="Toggle Lightning"><i class="fa-solid fa-bolt text-lg"></i></button>
                     <button onclick="toggleScratchpad()" class="text-gray-500 hover:text-cyber-blue transition-colors btn-interact" title="Terminal/Notes"><i class="fa-solid fa-terminal text-lg"></i></button>
                     <button onclick="togglePomodoro()" class="text-gray-500 hover:text-purple-500 transition-colors btn-interact" title="Focus Mode"><i class="fa-solid fa-brain text-lg"></i></button>
 
-                    <div class="w-px h-6 bg-cyber-800 mx-1"></div> <!-- Divider -->
+                    <div class="w-px h-6 bg-cyber-800 mx-1"></div> 
 
                     <button onclick="cycleTheme()" class="text-gray-500 hover:text-cyber-accent transition-colors btn-interact" title="Theme"><i class="fa-solid fa-palette text-lg"></i></button>
                     <button onclick="toggleSound()" id="sound-btn" class="text-gray-500 hover:text-cyber-accent transition-colors btn-interact" title="Sound"><i class="fa-solid fa-volume-high text-lg"></i></button>
@@ -454,16 +464,16 @@
                     <div id="real-time-date" class="text-xs font-mono text-gray-500 uppercase tracking-[0.2em] mt-1">Initializing...</div>
                 </div>
                 <div class="w-full md:w-1/2">
-                    <div class="flex justify-between text-[10px] font-mono text-gray-400 mb-1"><span>CAMPAIGN PROGRESS</span><span id="target-date-display" class="text-cyber-accent animate-pulse">TARGET: ...</span></div>
+                    <div class="flex justify-between text-[10px] font-mono text-gray-400 mb-1"><span>CYCLE PROGRESS</span><span id="target-date-display" class="text-cyber-accent animate-pulse">CYCLE END: ...</span></div>
                     <div class="h-2 bg-cyber-900 rounded-full overflow-hidden border border-white/5">
                         <div id="campaign-progress" class="h-full bg-gradient-to-r from-cyber-accent-dim to-cyber-accent w-0 shadow-neon transition-all duration-1000 animate-gradient-x" style="background-size: 200% 200%;"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] font-mono text-gray-500 mt-1"><span>DAY 1</span><span>DAY 50</span></div>
+                    <div class="flex justify-between text-[10px] font-mono text-gray-500 mt-1"><span>CYCLE START</span><span>WEEK 13</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab: ROUTINE -->
+        <!-- Tab: DAILY PLAN (COMBINED ROUTINE & NUTRITION) -->
         <div id="view-routine" class="tab-content active">
             <div class="flex gap-2 mb-4 overflow-x-auto pb-1 no-scrollbar animate-slide-in-right">
                 <button onclick="resetDay()" class="bg-cyber-800 border border-cyber-600 px-3 py-1.5 rounded text-[10px] font-mono text-gray-400 hover:text-white hover:border-cyber-accent transition-all whitespace-nowrap btn-interact"><i class="fa-solid fa-rotate-left mr-1"></i> RESET DAY</button>
@@ -472,36 +482,31 @@
                 <button onclick="toggleZenMode()" id="zen-toggle-btn" class="bg-cyber-800 border border-cyber-600 px-3 py-1.5 rounded text-[10px] font-mono text-gray-400 hover:text-white hover:border-cyber-accent transition-all whitespace-nowrap btn-interact"><i class="fa-solid fa-eye-slash mr-1"></i> ZEN FOCUS</button>
             </div>
             
-            <div class="relative bg-cyber-800 rounded-xl p-6 border border-white/5 mb-6 overflow-hidden group hover:border-cyber-accent/50 transition-all duration-500 shadow-lg animate-floating-card">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i class="fa-solid fa-crosshairs text-6xl text-cyber-accent animate-spin-3d"></i></div>
-                <h2 class="text-sm font-mono text-gray-400 uppercase tracking-widest mb-1">Daily Status</h2>
-                <div id="day-status-text" class="text-3xl font-mono font-bold text-gray-600 tracking-tight transition-all duration-300">PENDING</div>
-                <div class="mt-4 flex items-center gap-2">
-                    <div class="h-1.5 flex-1 bg-cyber-900 rounded-full overflow-hidden"><div id="card-progress-bar" class="h-full bg-cyber-600 w-0 transition-all duration-1000 ease-out"></div></div>
-                    <span class="text-xs font-mono text-gray-500">50% MARK</span>
+            <!-- Combined Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Routine Status -->
+                <div class="relative bg-cyber-800 rounded-xl p-6 border border-white/5 overflow-hidden group hover:border-cyber-accent/50 transition-all duration-500 shadow-lg animate-floating-card flex flex-col justify-center">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i class="fa-solid fa-crosshairs text-6xl text-cyber-accent animate-spin-3d"></i></div>
+                    <h2 class="text-sm font-mono text-gray-400 uppercase tracking-widest mb-1">Daily Status</h2>
+                    <div id="day-status-text" class="text-3xl font-mono font-bold text-gray-600 tracking-tight transition-all duration-300">PENDING</div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="h-1.5 flex-1 bg-cyber-900 rounded-full overflow-hidden"><div id="card-progress-bar" class="h-full bg-cyber-600 w-0 transition-all duration-1000 ease-out"></div></div>
+                        <span class="text-xs font-mono text-gray-500">50% MARK</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div id="war-room-log-display" class="hidden mb-6 bg-cyber-900/50 p-4 rounded border-l-2 border-cyber-accent font-mono text-xs text-gray-400 italic animate-slide-up-fade"></div>
-            
-            <!-- UPGRADED TIMELINE CONTAINER -->
-            <div class="relative pl-6 sm:pl-8 before:content-[''] before:absolute before:left-[11px] sm:before:left-[15px] before:top-4 before:bottom-4 before:w-0.5 before:bg-cyber-800" id="checklist-container">
-                <!-- Timeline items injected here -->
-            </div>
-            
-            <button id="add-routine-btn" onclick="addNewTask('routine')" class="hidden w-full py-4 border border-dashed border-gray-600 rounded-lg text-gray-500 font-mono text-xs hover:border-cyber-accent hover:text-cyber-accent transition-all mt-4 animate-pulse">+ INJECT NEW OPERATION</button>
-        </div>
 
-        <!-- Tab: NUTRITION -->
-        <div id="view-nutrition" class="tab-content">
-            <div class="bg-gradient-to-r from-cyber-800 to-cyber-900 rounded-xl p-5 border border-white/5 flex justify-between items-center mb-6 shadow-neon relative overflow-hidden animate-tilt-in">
-                <div class="z-10 relative">
-                    <h2 class="text-xl font-bold text-white tracking-tight">Fuel Logistics</h2>
-                    <p id="nutrition-goal-text" onclick="editGoalText()" class="text-xs text-gray-400 font-mono mt-1 hover:text-cyber-accent cursor-pointer border-b border-transparent hover:border-cyber-accent transition-colors">Goal: 2100-2200 kcal | 110-115g Protein <i class="fa-solid fa-pencil text-[8px] opacity-50 ml-1"></i></p>
-                </div>
-                <div class="text-right z-10">
-                     <div class="text-[10px] text-cyber-blue font-mono mb-1 cursor-pointer hover:underline" onclick="editWaterGoal()" id="water-goal-display">3.5L Target</div>
-                     <button onclick="quickAddWater()" class="text-[10px] font-mono bg-cyber-blue/10 text-cyber-blue border border-cyber-blue/30 px-3 py-1 rounded hover:bg-cyber-blue hover:text-black transition-all btn-interact"><i class="fa-solid fa-plus mr-1"></i> +1L</button>
+                <!-- Fuel Logistics -->
+                <div class="bg-gradient-to-r from-cyber-800 to-cyber-900 rounded-xl p-5 border border-white/5 flex flex-col justify-center shadow-neon relative overflow-hidden animate-tilt-in">
+                    <div class="flex justify-between items-start w-full">
+                        <div class="z-10 relative">
+                            <h2 class="text-xl font-bold text-white tracking-tight">Fuel Logistics</h2>
+                            <p id="nutrition-goal-text" onclick="editGoalText()" class="text-xs text-gray-400 font-mono mt-1 hover:text-cyber-accent cursor-pointer border-b border-transparent hover:border-cyber-accent transition-colors">Goal: 2100-2200 kcal | 110-115g Protein <i class="fa-solid fa-pencil text-[8px] opacity-50 ml-1"></i></p>
+                        </div>
+                        <div class="text-right z-10">
+                            <div class="text-[10px] text-cyber-blue font-mono mb-1 cursor-pointer hover:underline" onclick="editWaterGoal()" id="water-goal-display">3.5L Target</div>
+                            <button onclick="quickAddWater()" class="text-[10px] font-mono bg-cyber-blue/10 text-cyber-blue border border-cyber-blue/30 px-3 py-1 rounded hover:bg-cyber-blue hover:text-black transition-all btn-interact"><i class="fa-solid fa-plus mr-1"></i> +1L</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -524,9 +529,22 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="war-room-log-display" class="hidden mb-6 bg-cyber-900/50 p-4 rounded border-l-2 border-cyber-accent font-mono text-xs text-gray-400 italic animate-slide-up-fade"></div>
+            
+            <!-- UPGRADED TIMELINE CONTAINER -->
+            <div class="text-xs font-mono text-gray-500 mb-4 ml-1 border-b border-white/10 pb-2 flex items-center gap-2"><i class="fa-solid fa-clock"></i> OPERATIONAL TIMELINE</div>
+            <div class="relative pl-6 sm:pl-8 before:content-[''] before:absolute before:left-[11px] sm:before:left-[15px] before:top-4 before:bottom-4 before:w-0.5 before:bg-cyber-800" id="checklist-container">
+                <!-- Timeline items injected here -->
+            </div>
+            <button id="add-routine-btn" onclick="addNewTask('routine')" class="hidden w-full py-4 border border-dashed border-gray-600 rounded-lg text-gray-500 font-mono text-xs hover:border-cyber-accent hover:text-cyber-accent transition-all mt-4 animate-pulse">+ INJECT NEW OPERATION</button>
+            
+            <div class="mt-8 mb-6 border-t border-white/10"></div>
 
+            <!-- NUTRITION CHECKLIST CONTAINER -->
+            <div class="text-xs font-mono text-yellow-500 mb-4 ml-1 border-b border-yellow-500/20 pb-2 flex items-center gap-2"><i class="fa-solid fa-utensils"></i> FUEL CHECKLIST</div>
             <div id="nutrition-checklist-container" class="space-y-6 pb-4"></div>
-             <button id="add-nutrition-btn" onclick="addNewTask('nutrition')" class="hidden w-full py-4 border border-dashed border-cyber-blue/50 rounded-lg text-cyber-blue/70 font-mono text-xs hover:border-cyber-blue hover:text-cyber-blue transition-all mt-4 animate-pulse">+ ADD FUEL SOURCE</button>
+            <button id="add-nutrition-btn" onclick="addNewTask('nutrition')" class="hidden w-full py-4 border border-dashed border-cyber-blue/50 rounded-lg text-cyber-blue/70 font-mono text-xs hover:border-cyber-blue hover:text-cyber-blue transition-all mt-4 animate-pulse">+ ADD FUEL SOURCE</button>
         </div>
 
         <!-- Tab: WORKOUT -->
@@ -548,41 +566,62 @@
                     <div class="text-[10px] text-cyber-accent/50 font-mono mt-1">MM:SS</div>
                 </div>
                 <div class="grid grid-cols-3 gap-3 mt-8 relative z-10">
-                    <button onclick="startTimer('preset1')" id="btn-preset-1" class="bg-cyber-800 hover:bg-cyber-700 text-white py-3 rounded-lg text-xs font-mono border border-cyber-700 transition-all hover:border-cyber-accent group btn-interact"><span class="block text-cyber-blue font-bold text-lg mb-1 group-hover:text-cyber-accent">45s</span>PLANK</button>
-                    <button onclick="startTimer('preset2')" id="btn-preset-2" class="bg-cyber-800 hover:bg-cyber-700 text-white py-3 rounded-lg text-xs font-mono border border-cyber-700 transition-all hover:border-cyber-accent group btn-interact"><span class="block text-yellow-500 font-bold text-lg mb-1 group-hover:text-cyber-accent">60s</span>REST</button>
+                    <button onclick="startTimer('preset1')" id="btn-preset-1" class="bg-cyber-800 hover:bg-cyber-700 text-white py-3 rounded-lg text-xs font-mono border border-cyber-700 transition-all hover:border-cyber-accent group btn-interact"><span class="block text-cyber-blue font-bold text-lg mb-1 group-hover:text-cyber-accent animate-shimmer-btn">45s</span>PLANK</button>
+                    <button onclick="startTimer('preset2')" id="btn-preset-2" class="bg-cyber-800 hover:bg-cyber-700 text-white py-3 rounded-lg text-xs font-mono border border-cyber-700 transition-all hover:border-cyber-accent group btn-interact"><span class="block text-yellow-500 font-bold text-lg mb-1 group-hover:text-cyber-accent animate-shimmer-btn">60s</span>REST</button>
                     <button onclick="resetTimer()" class="bg-red-900/10 hover:bg-red-900/30 text-red-500 py-3 rounded-lg text-xs font-mono border border-red-900/30 transition-all btn-interact">RESET</button>
                 </div>
                  <div class="text-center mt-2"><button onclick="editTimerPresets()" class="text-[8px] text-gray-600 hover:text-cyber-accent font-mono underline">EDIT PRESETS</button></div>
                 <div class="absolute bottom-0 left-0 w-full h-1 bg-cyber-800 rounded-b-2xl overflow-hidden"><div id="timer-bar" class="h-full bg-cyber-accent w-0 transition-all duration-1000 linear shadow-neon"></div></div>
             </div>
 
-            <!-- MACRO WEEKLY WORKOUT PROGRESSION -->
+            <!-- MACRO WEEKLY WORKOUT PROGRESSION ENGINE (AUTO-UPDATING) -->
             <div class="bg-cyber-950 border border-cyber-accent/30 rounded-xl p-4 mb-6 shadow-inner relative overflow-hidden">
                 <div class="absolute right-0 top-0 opacity-10"><i class="fa-solid fa-arrow-trend-up text-8xl text-cyber-accent"></i></div>
-                <h3 class="text-xs font-mono text-cyber-accent font-bold uppercase tracking-widest mb-3 border-b border-cyber-accent/20 pb-2"><i class="fa-solid fa-ranking-star mr-2"></i>Progression Timeline</h3>
-                <div class="grid grid-cols-2 gap-3 relative z-10">
-                    <div>
-                        <span class="text-[10px] text-cyber-accent block mb-0.5">WEEKS 1-2</span>
-                        <span class="text-xs text-gray-300 block">Learn perfect form. Complete all baseline sets.</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-cyber-accent block mb-0.5">WEEKS 3-4</span>
-                        <span class="text-xs text-gray-300 block">Add exactly 2 reps to every set across the board.</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-cyber-accent block mb-0.5">WEEKS 5-8</span>
-                        <span class="text-xs text-gray-300 block">Increase dumbbell weight on all weighted exercises.</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-cyber-accent block mb-0.5">WEEKS 9-12</span>
-                        <span class="text-xs text-gray-300 block">Reduce rest time. Push to failure on final sets.</span>
-                    </div>
+                <h3 class="text-xs font-mono text-cyber-accent font-bold uppercase tracking-widest mb-3 border-b border-cyber-accent/20 pb-2"><i class="fa-solid fa-ranking-star mr-2"></i>13-Week Progression Engine</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 relative z-10" id="macro-progression-container">
+                    <!-- JS will inject dynamic progression timeline here -->
                 </div>
             </div>
             
             <div class="text-xs font-mono text-gray-500 mb-4 ml-1 border-b border-white/10 pb-2">DAY-BY-DAY EXERCISE PROTOCOL</div>
             <div id="workout-list-container" class="space-y-6 pb-4"></div>
             <button id="add-workout-btn" onclick="addNewTask('workout')" class="hidden w-full py-4 border border-dashed border-cyber-accent/50 rounded-lg text-cyber-accent/70 font-mono text-xs hover:border-cyber-accent hover:text-cyber-accent transition-all mt-4 animate-pulse">+ ADD EXERCISE TO SCHEDULE</button>
+        </div>
+
+        <!-- Tab: STATISTICS -->
+        <div id="view-stats" class="tab-content">
+            <div class="bg-gradient-to-r from-cyber-800 to-cyber-900 rounded-xl p-6 border border-white/5 mb-6 flex justify-between items-center shadow-neon animate-tilt-in">
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Performance Data</h2>
+                    <p class="text-xs text-gray-400 font-mono mt-1">Analytics & Consistency Tracker</p>
+                </div>
+                <i class="fa-solid fa-chart-simple text-3xl text-cyber-blue animate-pulse"></i>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-cyber-900 p-4 rounded-xl border border-white/5 text-center shadow-inner animate-stagger-entry">
+                    <i class="fa-solid fa-fire text-orange-500 text-2xl mb-2"></i>
+                    <div id="stat-streak" class="text-4xl font-mono font-bold text-white">0</div>
+                    <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest mt-1">Day Streak</div>
+                </div>
+                <div class="bg-cyber-900 p-4 rounded-xl border border-white/5 text-center shadow-inner animate-stagger-entry" style="animation-delay: 0.1s;">
+                    <i class="fa-solid fa-dumbbell text-cyber-accent text-2xl mb-2"></i>
+                    <div id="stat-workouts" class="text-4xl font-mono font-bold text-white">0</div>
+                    <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest mt-1">Workouts Done</div>
+                </div>
+                <div class="bg-cyber-900 p-4 rounded-xl border border-white/5 text-center shadow-inner col-span-2 animate-stagger-entry" style="animation-delay: 0.2s;">
+                    <i class="fa-solid fa-star text-yellow-500 text-2xl mb-2"></i>
+                    <div id="stat-total-xp" class="text-4xl font-mono font-bold text-white text-shadow-neon">0</div>
+                    <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest mt-1">Total Lifetime XP</div>
+                </div>
+            </div>
+
+            <div class="bg-cyber-950 border border-white/5 rounded-xl p-6 shadow-inner relative overflow-hidden animate-stagger-entry" style="animation-delay: 0.3s;">
+                <h3 class="text-xs font-mono text-gray-400 font-bold uppercase tracking-widest mb-6 text-center border-b border-white/5 pb-2">Last 7 Days Execution</h3>
+                <div id="stats-history" class="flex justify-between items-end h-40 px-2">
+                    <!-- Dynamic Bars Injected Here -->
+                </div>
+            </div>
         </div>
 
         <!-- Tab: STRATEGY -->
@@ -605,7 +644,7 @@
                 <div class="absolute top-6 right-6 opacity-30 border-4 border-red-800 rounded-full w-24 h-24 flex items-center justify-center transform -rotate-12 animate-pulse"><span class="text-red-800 font-bold text-xs text-center uppercase leading-none">Official<br>Protocol<br>Document</span></div>
                 <h2 class="text-3xl font-bold text-center mb-8 uppercase border-b-4 border-gray-900 pb-4 tracking-tight">Commitment Contract</h2>
                 <div class="text-lg leading-relaxed space-y-6 font-medium">
-                    <p>I, <span id="contract-name" class="font-bold bg-yellow-200 px-2 cursor-pointer border-b border-black hover:bg-yellow-300 transition-colors" onclick="editUserName()">Uday Kumar</span>, promise that for the next 50 days, I will not make excuses. I have the time, I have the food, and I have the plan.</p>
+                    <p>I, <span id="contract-name" class="font-bold bg-yellow-200 px-2 cursor-pointer border-b border-black hover:bg-yellow-300 transition-colors" onclick="editUserName()">Uday Kumar</span>, promise that for this continuous journey, I will not make excuses. I have the time, I have the food, and I have the plan.</p>
                     <p id="contract-mantra" onclick="editMantra()" class="cursor-pointer hover:bg-gray-200 border border-transparent hover:border-gray-400 p-1 rounded transition-colors">I will wake up, work, study, and train. My future depends on this. <i class="fa-solid fa-pencil text-[10px] opacity-30"></i></p>
                 </div>
                 <div class="flex justify-between mt-16 pt-8 border-t-2 border-gray-400">
@@ -632,23 +671,23 @@
     <!-- Interactive Dock -->
     <div class="dock-outer">
         <div class="dock-panel">
-            <button onclick="switchTab('view-routine', this)" class="dock-item active nav-btn" data-tooltip="Routine">
+            <button id="nav-routine" onclick="switchTab('view-routine', this)" class="dock-item active nav-btn" data-tooltip="Daily Plan">
                 <div class="dock-icon"><i class="fa-solid fa-list-check"></i></div>
-                <div class="dock-label">Routine</div>
+                <div class="dock-label">Daily Plan</div>
             </button>
-            <button onclick="switchTab('view-nutrition', this)" class="dock-item nav-btn" data-tooltip="Nutrition">
-                <div class="dock-icon"><i class="fa-solid fa-utensils"></i></div>
-                <div class="dock-label">Nutrition</div>
-            </button>
-            <button onclick="switchTab('view-workout', this)" class="dock-item nav-btn" data-tooltip="Workout">
+            <button id="nav-workout" onclick="switchTab('view-workout', this)" class="dock-item nav-btn" data-tooltip="Workout">
                 <div class="dock-icon"><i class="fa-solid fa-dumbbell"></i></div>
                 <div class="dock-label">Workout</div>
             </button>
-            <button onclick="switchTab('view-strategy', this)" class="dock-item nav-btn" data-tooltip="Strategy">
+            <button id="nav-stats" onclick="switchTab('view-stats', this)" class="dock-item nav-btn" data-tooltip="Stats">
+                <div class="dock-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                <div class="dock-label">Stats</div>
+            </button>
+            <button id="nav-strategy" onclick="switchTab('view-strategy', this)" class="dock-item nav-btn" data-tooltip="Strategy">
                 <div class="dock-icon"><i class="fa-solid fa-chess"></i></div>
                 <div class="dock-label">Strategy</div>
             </button>
-            <button onclick="switchTab('view-contract', this)" class="dock-item nav-btn" data-tooltip="Profile">
+            <button id="nav-contract" onclick="switchTab('view-contract', this)" class="dock-item nav-btn" data-tooltip="Profile">
                 <div class="dock-icon"><i class="fa-solid fa-fingerprint"></i></div>
                 <div class="dock-label">Profile</div>
             </button>
@@ -766,7 +805,7 @@
         ];
         let quoteIndex = 0;
 
-        // --- UPDATED v5.9 DATA (GROUPED BY DAY FOR WORKOUT) ---
+        // Base Data Sets
         const defaultRoutine = [
             { id: 't1', time: '06:30 AM', title: 'Wake Up Protocol', desc: '500ml Water. Freshen up. 5m Walk. 10m Sunlight.', icon: 'fa-sun', type: 'routine' },
             { id: 't2', time: '07:00 AM', title: 'Pre-Breakfast', desc: '1 Banana + 5 Soaked Almonds.', icon: 'fa-apple-whole', type: 'diet' },
@@ -804,13 +843,12 @@
             { id: 'w1', time: 'Daily', title: 'Water Tracking (3.5L Target)', category: 'Hydration', isWater: true, desc: 'Track 3.5 Liters of water throughout the day.' }
         ];
 
-        // WORKOUT NOW EXPLICITLY CATEGORIZED BY DAY FOR 100% DETAIL
         const defaultWorkout = [
             // MONDAY - PUSH
-            { id: 'm1', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Push-Ups', target: 'Chest / Triceps', reps: '10-15 Reps', sets: '5', tips: 'Keep core tight. Chest to floor. Explosive push.', baseReps: 10 },
+            { id: 'm1', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Push-Ups', target: 'Chest / Triceps', reps: '10 Reps', sets: '5', tips: 'Keep core tight. Chest to floor. Explosive push.', baseReps: 10 },
             { id: 'm2', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Incline Push-Ups', target: 'Lower Chest', reps: '12 Reps', sets: '4', tips: 'Hands elevated on a solid surface.', baseReps: 12 },
-            { id: 'm3', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Pike Push-Ups', target: 'Shoulders', reps: '8-10 Reps', sets: '4', tips: 'Hips high, form an inverted V.', baseReps: 8 },
-            { id: 'm4', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Chair Dips', target: 'Triceps', reps: '10-12 Reps', sets: '4', tips: 'Use a stable chair. Lower to 90 degrees.', baseReps: 10 },
+            { id: 'm3', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Pike Push-Ups', target: 'Shoulders', reps: '8 Reps', sets: '4', tips: 'Hips high, form an inverted V.', baseReps: 8 },
+            { id: 'm4', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Chair Dips', target: 'Triceps', reps: '10 Reps', sets: '4', tips: 'Use a stable chair. Lower to 90 degrees.', baseReps: 10 },
             { id: 'm5', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Dumbbell Shoulder Press', target: 'Shoulders', reps: '12 Reps', sets: '4', tips: 'Control the weight. Full range of motion.', baseReps: 12 },
             { id: 'm6', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Dumbbell Lateral Raise', target: 'Side Delts', reps: '15 Reps', sets: '4', tips: 'Slight bend in elbows. Raise to shoulder height.', baseReps: 15 },
             { id: 'm7', day: '1_MONDAY: PUSH (Chest, Shoulders, Triceps)', title: 'Plank', target: 'Core Stability', reps: '60s', sets: '3', tips: 'Straight line head to heels. Squeeze glutes.', baseReps: 60, isTime: true },
@@ -818,28 +856,28 @@
             // TUESDAY - PULL
             { id: 'tu1', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'One-Arm Dumbbell Rows', target: 'Back / Lats', reps: '12 Reps', sets: '5', tips: 'Support on bench/chair. Pull to hip.', baseReps: 12 },
             { id: 'tu2', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Towel Rows', target: 'Lats / Grip', reps: '12 Reps', sets: '4', tips: 'Wrap towel around sturdy post. Pull bodyweight.', baseReps: 12 },
-            { id: 'tu3', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Dumbbell Bicep Curls', target: 'Biceps', reps: '12-15 Reps', sets: '4', tips: 'Strict form. No swinging.', baseReps: 12 },
+            { id: 'tu3', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Dumbbell Bicep Curls', target: 'Biceps', reps: '12 Reps', sets: '4', tips: 'Strict form. No swinging.', baseReps: 12 },
             { id: 'tu4', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Hammer Curls', target: 'Brachialis / Biceps', reps: '12 Reps', sets: '3', tips: 'Neutral grip. Control the eccentric.', baseReps: 12 },
             { id: 'tu5', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Superman Hold', target: 'Lower Back', reps: '30s', sets: '4', tips: 'Lift arms and legs off floor. Squeeze.', baseReps: 30, isTime: true },
             { id: 'tu6', day: '2_TUESDAY: PULL (Back, Biceps, Core)', title: 'Reverse Snow Angels', target: 'Upper Back / Post Delts', reps: '15 Reps', sets: '3', tips: 'Face down. Sweep arms from hips to overhead.', baseReps: 15 },
 
             // WEDNESDAY - LEGS
             { id: 'w1', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Squats', target: 'Quads / Glutes', reps: '20 Reps', sets: '5', tips: 'Back straight. Go below parallel.', baseReps: 20 },
-            { id: 'w2', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Lunges', target: 'Legs / Balance', reps: '15 / Leg', sets: '4', tips: '90 degree angle. Don\'t rest knee on ground.', baseReps: 15 },
+            { id: 'w2', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Lunges', target: 'Legs / Balance', reps: '15 Reps', sets: '4', tips: '90 degree angle. Don\'t rest knee on ground.', baseReps: 15 },
             { id: 'w3', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Glute Bridges', target: 'Lower Back / Glutes', reps: '20 Reps', sets: '4', tips: 'Squeeze glutes at top. Hold for 1s.', baseReps: 20 },
             { id: 'w4', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Calf Raises', target: 'Calves', reps: '25 Reps', sets: '5', tips: 'Full stretch at bottom, squeeze at top.', baseReps: 25 },
             { id: 'w5', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Wall Sit', target: 'Quads / Endurance', reps: '60s', sets: '3', tips: 'Thighs parallel to floor. Back flat against wall.', baseReps: 60, isTime: true },
             { id: 'w6', day: '3_WEDNESDAY: LEGS (Quads, Glutes, Calves)', title: 'Leg Raises', target: 'Lower Abs', reps: '15 Reps', sets: '3', tips: 'Keep legs straight. Control the descent.', baseReps: 15 },
 
             // THURSDAY - ACTIVE RECOVERY
-            { id: 'th1', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Brisk Walk', target: 'Cardio', reps: '45 Mins', sets: '1', tips: 'Keep a steady, elevated pace.', baseReps: 45, isTime: true },
+            { id: 'th1', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Brisk Walk', target: 'Cardio', reps: '45 Mins', sets: '1', tips: 'Keep a steady, elevated pace.', baseReps: 45 * 60, isTime: true, isMinutes: true },
             { id: 'th2', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Slow Squats', target: 'Recovery / Form', reps: '20 Reps', sets: '3', tips: 'Very slow tempo. Focus on muscle stretch.', baseReps: 20 },
             { id: 'th3', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Knee Push-Ups', target: 'Recovery / Chest', reps: '15 Reps', sets: '3', tips: 'Keep core tight even on knees.', baseReps: 15 },
             { id: 'th4', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Mountain Climbers', target: 'Cardio / Core', reps: '20 Reps', sets: '3', tips: 'Drive knees to chest quickly.', baseReps: 20 },
-            { id: 'th5', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Side Plank', target: 'Obliques', reps: '30s / Side', sets: '3', tips: 'Hips high. Don\'t let them sag.', baseReps: 30, isTime: true },
+            { id: 'th5', day: '4_THURSDAY: ACTIVE RECOVERY', title: 'Side Plank', target: 'Obliques', reps: '30s', sets: '3', tips: 'Hips high. Don\'t let them sag.', baseReps: 30, isTime: true },
 
             // FRIDAY - PUSH HARD
-            { id: 'f1', day: '5_FRIDAY: PUSH HARD (Push limits)', title: 'Push-Ups', target: 'Chest / Triceps', reps: 'MAX Reps', sets: '5', tips: 'Go until failure on every set.', baseReps: 10 },
+            { id: 'f1', day: '5_FRIDAY: PUSH HARD (Push limits)', title: 'Push-Ups', target: 'Chest / Triceps', reps: '10 Reps', sets: '5', tips: 'Go until failure on every set.', baseReps: 10 },
             { id: 'f2', day: '5_FRIDAY: PUSH HARD (Push limits)', title: 'Diamond Push-Ups', target: 'Triceps / Inner Chest', reps: '8 Reps', sets: '4', tips: 'Hands close together forming a diamond.', baseReps: 8 },
             { id: 'f3', day: '5_FRIDAY: PUSH HARD (Push limits)', title: 'Pike Push-Ups', target: 'Shoulders', reps: '10 Reps', sets: '4', tips: 'Hips high, form an inverted V.', baseReps: 10 },
             { id: 'f4', day: '5_FRIDAY: PUSH HARD (Push limits)', title: 'Chair Dips', target: 'Triceps', reps: '12 Reps', sets: '4', tips: 'Use a stable chair. Lower to 90 degrees.', baseReps: 12 },
@@ -851,7 +889,7 @@
             { id: 'sa1', day: '6_SATURDAY: PULL + LEGS', title: 'One-Arm Dumbbell Rows', target: 'Back / Lats', reps: '12 Reps', sets: '4', tips: 'Support on bench/chair. Pull to hip.', baseReps: 12 },
             { id: 'sa2', day: '6_SATURDAY: PULL + LEGS', title: 'Dumbbell Bicep Curls', target: 'Biceps', reps: '15 Reps', sets: '4', tips: 'Strict form. No swinging.', baseReps: 15 },
             { id: 'sa3', day: '6_SATURDAY: PULL + LEGS', title: 'Squats', target: 'Quads / Glutes', reps: '25 Reps', sets: '4', tips: 'Back straight. Go below parallel.', baseReps: 25 },
-            { id: 'sa4', day: '6_SATURDAY: PULL + LEGS', title: 'Lunges', target: 'Legs / Balance', reps: '15 / Leg', sets: '3', tips: '90 degree angle. Don\'t rest knee on ground.', baseReps: 15 },
+            { id: 'sa4', day: '6_SATURDAY: PULL + LEGS', title: 'Lunges', target: 'Legs / Balance', reps: '15 Reps', sets: '3', tips: '90 degree angle. Don\'t rest knee on ground.', baseReps: 15 },
             { id: 'sa5', day: '6_SATURDAY: PULL + LEGS', title: 'Calf Raises', target: 'Calves', reps: '25 Reps', sets: '4', tips: 'Full stretch at bottom, squeeze at top.', baseReps: 25 },
             { id: 'sa6', day: '6_SATURDAY: PULL + LEGS', title: 'Leg Raises', target: 'Lower Abs', reps: '15 Reps', sets: '3', tips: 'Keep legs straight. Control the descent.', baseReps: 15 },
 
@@ -916,11 +954,91 @@
         let pomoState = 'idle'; // idle, running
         let pomoWidgetOpen = false;
         
-        let listRendered = { routine: false, nutrition: false, strategy: false, workout: false };
+        let listRendered = { routine: false, nutrition: false, strategy: false, workout: false, stats: false };
         
         let modalTimerInterval;
         let modalTimerValue = 0;
         let modalTimerState = null;
+
+        // Custom Dialog & Prompts
+        function showDialog(title, message, type = 'alert', onConfirm = null) {
+            SoundFX.ui();
+            const modal = document.getElementById('dialog-modal');
+            document.getElementById('dialog-title').innerHTML = title;
+            document.getElementById('dialog-message').innerText = message;
+            const btnContainer = document.getElementById('dialog-buttons');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.firstElementChild.classList.replace('scale-95', 'scale-100'), 10);
+
+            const closeDialog = () => {
+                SoundFX.click();
+                modal.firstElementChild.classList.replace('scale-100', 'scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            };
+
+            if (type === 'confirm') {
+                btnContainer.innerHTML = `
+                    <button id="dialog-cancel" class="px-4 py-2 bg-cyber-800 text-gray-400 hover:text-white rounded text-xs font-bold font-mono transition-colors">CANCEL</button>
+                    <button id="dialog-ok" class="px-4 py-2 bg-cyber-accent text-black hover:opacity-90 rounded text-xs font-bold font-mono shadow-neon transition-colors">CONFIRM</button>
+                `;
+                document.getElementById('dialog-cancel').onclick = closeDialog;
+                document.getElementById('dialog-ok').onclick = () => {
+                    closeDialog();
+                    if (onConfirm) onConfirm();
+                };
+            } else {
+                btnContainer.innerHTML = `
+                    <button id="dialog-ok" class="px-4 py-2 bg-cyber-accent text-black hover:opacity-90 rounded text-xs font-bold font-mono shadow-neon transition-colors">ACKNOWLEDGE</button>
+                `;
+                document.getElementById('dialog-ok').onclick = () => {
+                    closeDialog();
+                    if (onConfirm) onConfirm();
+                };
+            }
+        }
+
+        function showCustomPrompt(title, htmlContent, onConfirm) {
+            SoundFX.ui();
+            const modal = document.getElementById('dialog-modal');
+            document.getElementById('dialog-title').innerHTML = title;
+            document.getElementById('dialog-message').innerHTML = htmlContent;
+            const btnContainer = document.getElementById('dialog-buttons');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.replace('scale-95', 'scale-100');
+                const inp = document.getElementById('dialog-input');
+                if (inp) inp.focus();
+            }, 10);
+
+            const closeDialog = () => {
+                SoundFX.click();
+                modal.firstElementChild.classList.replace('scale-100', 'scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            };
+
+            btnContainer.innerHTML = `
+                <button id="dialog-cancel" class="px-4 py-2 bg-cyber-800 text-gray-400 hover:text-white rounded text-xs font-bold font-mono transition-colors">CANCEL</button>
+                <button id="dialog-ok" class="px-4 py-2 bg-cyber-accent text-black hover:opacity-90 rounded text-xs font-bold font-mono shadow-neon transition-colors">SAVE</button>
+            `;
+            document.getElementById('dialog-cancel').onclick = closeDialog;
+            document.getElementById('dialog-ok').onclick = () => {
+                closeDialog();
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        function showPrompt(title, defaultValue, onConfirm) {
+            showCustomPrompt(title, `<input type="text" id="dialog-input" class="w-full bg-cyber-950 border border-cyber-600 rounded p-3 text-white font-mono text-sm focus:border-cyber-accent outline-none">`, () => {
+                const val = document.getElementById('dialog-input').value;
+                if (onConfirm) onConfirm(val);
+            });
+            setTimeout(() => {
+                const inp = document.getElementById('dialog-input');
+                if(inp) { inp.value = defaultValue; inp.focus(); }
+            }, 20);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
@@ -957,21 +1075,46 @@
             timelineInterval = setInterval(renderRoutine, 60000); 
         });
 
+        function getTodayKey() { 
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        
+        // --- NEW INFINITE CYCLE ENGINE ---
+        function getCycleInfo() {
+            const start = appState.startDate ? new Date(appState.startDate) : new Date();
+            const now = new Date();
+            let diffTime = now.getTime() - start.getTime();
+            let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            if(diffDays < 0) diffDays = 0;
+            
+            let totalDaysInCycle = 13 * 7; // 91 days
+            let cycleDay = diffDays % totalDaysInCycle; 
+            let currentWeekTotal = Math.floor(diffDays / 7) + 1; // absolute week counter
+            let cycleWeek = Math.floor(cycleDay / 7) + 1; // 1 to 13 phase counter
+            
+            return { diffDays, cycleDay, currentWeekTotal, cycleWeek, start, totalDaysInCycle };
+        }
+
+        // --- DYNAMIC WORKOUT MATCHER ---
+        function getTodayWorkoutPrefix() {
+            const dayIndex = new Date().getDay();
+            const dayMapping = {1: '1_MONDAY', 2: '2_TUESDAY', 3: '3_WEDNESDAY', 4: '4_THURSDAY', 5: '5_FRIDAY', 6: '6_SATURDAY', 0: '7_SUNDAY'};
+            return dayMapping[dayIndex];
+        }
+
         function checkStreak() {
-            const today = new Date().toISOString().split('T')[0];
+            const today = getTodayKey();
             if(appState.config.lastLoginDate !== today) {
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                const yesterdayStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + String(yesterday.getDate()).padStart(2, '0');
                 
                 if(appState.config.lastLoginDate === yesterdayStr) {
-                    // Logged in yesterday, keep streak running
                     appState.config.streak += 1;
                 } else if (appState.config.lastLoginDate !== '') {
-                    // Missed a day
                     appState.config.streak = 0;
                 } else {
-                    // First login
                     appState.config.streak = 1;
                 }
                 appState.config.lastLoginDate = today;
@@ -1102,7 +1245,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", `uday_protocol_backup_${new Date().toISOString().split('T')[0]}.json`);
+            downloadAnchorNode.setAttribute("download", `uday_protocol_backup_${getTodayKey()}.json`);
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
@@ -1119,13 +1262,12 @@
                         appState = importedState;
                         saveState();
                         SoundFX.success();
-                        alert("Backup Restored Successfully. Rebooting system.");
-                        location.reload();
+                        showDialog("SUCCESS", "Backup Restored Successfully. Rebooting system.", "alert", () => location.reload());
                     } else {
-                        alert("Invalid backup file.");
+                        showDialog("ERROR", "Invalid backup file format.", "alert");
                     }
                 } catch(err) {
-                    alert("Error parsing backup file.");
+                    showDialog("ERROR", "Failed to parse backup file.", "alert");
                 }
             };
             reader.readAsText(file);
@@ -1293,22 +1435,19 @@
                 gl.uniform1f(uSizeLocation, options.size || 1);
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
                 
-                // Pause render loop if bg animation is off
                 if(appState.config.bgAnimationEnabled) {
                     requestAnimationFrame(render);
                 } else {
-                    setTimeout(() => requestAnimationFrame(render), 1000); // Check again later
+                    setTimeout(() => requestAnimationFrame(render), 1000); 
                 }
             };
             requestAnimationFrame(render);
         }
 
         function loadState() {
-            // Using a new storage key to force refresh for the V5.9 data structures
             const saved = localStorage.getItem('udayProtocolState_v5_9');
             if (saved) {
                 appState = JSON.parse(saved);
-                // Migrations
                 if(!appState.config.presets) appState.config.presets = { p1: 45, p2: 60 };
                 if(!appState.config.mantra) appState.config.mantra = 'I will wake up, work, study, and train. My future depends on this.';
                 if(appState.config.bgAnimationEnabled === undefined) appState.config.bgAnimationEnabled = true;
@@ -1337,25 +1476,23 @@
         }
 
         function resetApp() {
-            if(confirm("⚠ FACTORY RESET: Delete all progress?")) {
+            showDialog('FACTORY RESET', '⚠ Delete all progress and restore defaults? This cannot be undone.', 'confirm', () => {
                 SoundFX.click(); 
                 localStorage.removeItem('udayProtocolState_v5_9');
                 location.reload();
-            }
+            });
         }
 
         function resetDay() {
-            if(confirm("Start a fresh day?")) {
+            showDialog('RESET DAY', 'Start a fresh day? This will clear today\'s checkboxes.', 'confirm', () => {
                 SoundFX.ui();
                 const key = getTodayKey();
                 appState.completedTasks[key] = [];
                 saveState();
                 renderAll();
                 updateUI();
-            }
+            });
         }
-
-        function getTodayKey() { return new Date().toISOString().split('T')[0]; }
 
         function startRealTimeClock() {
             setInterval(() => {
@@ -1367,35 +1504,33 @@
                 document.getElementById('real-time-clock').innerText = `${h}:${m}:${s}:${ms}`;
                 const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
                 document.getElementById('real-time-date').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+                
                 if(appState.startDate) {
-                    const start = new Date(appState.startDate);
-                    const diffTime = now - start;
-                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if(diffDays < 1) diffDays = 1;
-                    const totalDays = 50;
-                    const pct = Math.min((diffDays / totalDays) * 100, 100);
+                    const cycle = getCycleInfo();
+                    const pct = Math.min(((cycle.cycleDay || 91) / cycle.totalDaysInCycle) * 100, 100);
                     document.getElementById('campaign-progress').style.width = `${pct}%`;
-                    document.getElementById('header-day-count').innerText = `Day ${diffDays}/${totalDays}`;
-                    const target = new Date(start);
-                    target.setDate(target.getDate() + 50);
+                    document.getElementById('header-day-count').innerText = `Day ${cycle.diffDays + 1} | Wk ${cycle.currentWeekTotal}`;
+                    
+                    const target = new Date(cycle.start);
+                    target.setDate(target.getDate() + (Math.floor(cycle.diffDays / cycle.totalDaysInCycle) + 1) * cycle.totalDaysInCycle);
                     const targetStr = target.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-                    document.getElementById('target-date-display').innerText = `TARGET: ${targetStr}`;
+                    document.getElementById('target-date-display').innerText = `CYCLE END: ${targetStr}`;
                 }
             }, 50);
         }
 
         function openStartDateEditor() {
-            SoundFX.ui();
-            const d = prompt("Enter Start Date (YYYY-MM-DD):", appState.startDate.split('T')[0]);
-            if(d) { appState.startDate = new Date(d).toISOString(); saveState(); renderWorkout(); }
+            showPrompt("ENTER START DATE (YYYY-MM-DD)", appState.startDate ? appState.startDate.split('T')[0] : getTodayKey(), (d) => {
+                if(d) { appState.startDate = new Date(d).toISOString(); saveState(); renderWorkout(); }
+            });
         }
 
         function openAvatarEditor() {
-            SoundFX.ui();
-            const url = prompt("Enter Profile Image URL (Leave empty to use icon):", appState.config.avatarUrl);
-            appState.config.avatarUrl = url || '';
-            saveState();
-            renderAll();
+            showPrompt("PROFILE IMAGE URL", appState.config.avatarUrl, (url) => {
+                appState.config.avatarUrl = url || '';
+                saveState();
+                renderAll();
+            });
         }
 
         function toggleCompactMode() {
@@ -1423,9 +1558,9 @@
 
         function openLinkEditor(key) {
             if(editMode) {
-                SoundFX.ui();
-                const url = prompt(`Edit URL for ${key}:`, appState.config.links[key] || '#');
-                if(url) { appState.config.links[key] = url; saveState(); }
+                showPrompt(`EDIT URL FOR ${key.toUpperCase()}`, appState.config.links[key] || '#', (url) => {
+                    if(url) { appState.config.links[key] = url; saveState(); }
+                });
             } else {
                 SoundFX.click();
                 const url = appState.config.links[key];
@@ -1434,21 +1569,29 @@
         }
 
         function editTimerPresets() {
-            SoundFX.ui();
-            const p1 = prompt("Preset 1 (Seconds):", appState.config.presets.p1);
-            const p2 = prompt("Preset 2 (Seconds):", appState.config.presets.p2);
-            if(p1 && p2) {
-                appState.config.presets.p1 = parseInt(p1);
-                appState.config.presets.p2 = parseInt(p2);
-                saveState();
-                renderAll();
-            }
+            showCustomPrompt(
+                "EDIT TIMER PRESETS",
+                `<div class="space-y-3">
+                    <input type="number" id="inp-p1" class="w-full bg-cyber-950 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Preset 1 (Seconds)" value="${appState.config.presets.p1}">
+                    <input type="number" id="inp-p2" class="w-full bg-cyber-950 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Preset 2 (Seconds)" value="${appState.config.presets.p2}">
+                </div>`,
+                () => {
+                    const p1 = document.getElementById('inp-p1').value;
+                    const p2 = document.getElementById('inp-p2').value;
+                    if(p1 && p2) {
+                        appState.config.presets.p1 = parseInt(p1);
+                        appState.config.presets.p2 = parseInt(p2);
+                        saveState();
+                        renderAll();
+                    }
+                }
+            );
         }
 
         function editMantra() {
-            SoundFX.ui();
-            const m = prompt("Edit Contract Mantra:", appState.config.mantra);
-            if(m) { appState.config.mantra = m; saveState(); renderAll(); }
+            showPrompt("EDIT CONTRACT MANTRA", appState.config.mantra, (m) => {
+                if(m) { appState.config.mantra = m; saveState(); renderAll(); }
+            });
         }
 
         function cycleSignature() {
@@ -1459,9 +1602,61 @@
         }
 
         function editWaterGoal() {
-            SoundFX.ui();
-            const g = prompt("Hydration Text:", appState.config.waterGoal);
-            if(g) { appState.config.waterGoal = g; saveState(); renderAll(); }
+            showPrompt("HYDRATION TEXT", appState.config.waterGoal, (g) => {
+                if(g) { appState.config.waterGoal = g; saveState(); renderAll(); }
+            });
+        }
+
+        function getExerciseModifications(ex, isFirstEx, cycleWeek) {
+            let displaySets = parseInt(ex.sets) || 3;
+            let baseReps = ex.baseReps || parseInt(ex.reps) || 10;
+            let isTime = ex.isTime || false;
+            let isMinutes = ex.isMinutes || false;
+            
+            let extraReps = 0;
+            let restNote = false;
+            let weightNote = false;
+            let failureNote = false;
+            let isDeload = false;
+
+            if (cycleWeek >= 3 && cycleWeek <= 12) extraReps = 2;
+            if (cycleWeek >= 5 && cycleWeek <= 12 && isFirstEx) displaySets += 1;
+            if (cycleWeek >= 7 && cycleWeek <= 12) restNote = true;
+            if (cycleWeek >= 9 && cycleWeek <= 12) weightNote = true;
+            if (cycleWeek >= 11 && cycleWeek <= 12) failureNote = true;
+            if (cycleWeek === 13) isDeload = true;
+
+            let displayRepsStr = ex.reps;
+            let tipsAppend = "";
+
+            if (isDeload) {
+                displaySets = Math.ceil(displaySets * 0.5);
+                if(isTime) {
+                    let t = Math.ceil(baseReps * 0.5);
+                    displayRepsStr = isMinutes ? `${Math.ceil(t/60)} Mins` : `${t}s`;
+                } else {
+                    displayRepsStr = `${Math.ceil(baseReps * 0.5)} Reps`;
+                }
+                tipsAppend = " DELOAD WEEK: Go light, focus on recovery.";
+            } else {
+                if(isTime) {
+                    displayRepsStr = isMinutes ? `${Math.ceil(baseReps/60)} Mins` : `${baseReps}s`;
+                } else {
+                    displayRepsStr = `${baseReps + extraReps} Reps`;
+                }
+                if (weightNote && !isTime) tipsAppend += " Increase Weight/Load.";
+                if (failureNote) tipsAppend += " Push last set to near failure.";
+                if (restNote) tipsAppend += " Reduce rest by 10s.";
+            }
+            
+            return {
+                displaySets,
+                displayReps: displayRepsStr,
+                tips: ex.tips + tipsAppend,
+                isDeload, restNote, weightNote, failureNote,
+                rawSets: displaySets,
+                rawRepsValue: isDeload ? Math.ceil(baseReps * 0.5) : (isTime ? baseReps : baseReps + extraReps) 
+            };
         }
 
         function openExerciseDetail(id) {
@@ -1472,31 +1667,27 @@
             document.getElementById('ex-modal-title').innerText = ex.title;
             document.getElementById('ex-modal-target').innerText = `TARGET: ${ex.target}`;
             
-            // Progressive overload calc for modal
-            const start = new Date(appState.startDate);
-            const now = new Date();
-            const diffTime = now - start;
-            let dayDiff = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            if(dayDiff < 0) dayDiff = 0;
+            const grouped = appState.workout.reduce((acc, item) => {
+                const day = item.day || 'GENERAL EXERCISES';
+                if(!acc[day]) acc[day] = [];
+                acc[day].push(item);
+                return acc;
+            }, {});
+            const dayLabel = ex.day || 'GENERAL EXERCISES';
+            const isFirstEx = grouped[dayLabel].findIndex(e => e.id === id) === 0;
+            
+            const cycle = getCycleInfo();
+            const mods = getExerciseModifications(ex, isFirstEx, cycle.cycleWeek);
 
-            let displayReps = ex.reps;
-            if(ex.baseReps) {
-                if(ex.isTime) {
-                     displayReps = `${ex.baseReps + dayDiff}s`;
-                } else {
-                     displayReps = `${ex.baseReps + dayDiff} Reps`;
-                }
-            }
-
-            document.getElementById('ex-modal-sets').innerText = ex.sets;
-            document.getElementById('ex-modal-reps').innerText = displayReps;
-            document.getElementById('ex-modal-tips').innerText = ex.tips;
+            document.getElementById('ex-modal-sets').innerText = mods.displaySets;
+            document.getElementById('ex-modal-reps').innerText = mods.displayReps;
+            document.getElementById('ex-modal-tips').innerText = mods.tips;
             
             stopModalTimer();
-            modalTimerValue = 0;
+            modalTimerValue = mods.rawRepsValue;
             updateModalTimerDisplay();
             
-            document.getElementById('exercise-modal').classList.remove('hidden');
+            document.getElementById('exercise-modal').classList.remove('hidden');   
         }
 
         function closeExerciseModal() {
@@ -1524,9 +1715,10 @@
                 const isPlank = title.includes('Plank') || title.includes('Hold') || title.includes('Sit') || title.includes('Walk');
                 
                 if (isPlank) {
-                     const repsText = document.getElementById('ex-modal-reps').innerText;
-                     modalTimerValue = parseInt(repsText) || 45; 
-                     if (title.includes('Walk')) modalTimerValue = 45 * 60; // 45 mins
+                     modalTimerValue = parseInt(document.getElementById('ex-modal-reps').innerText) || 45; 
+                     if (document.getElementById('ex-modal-reps').innerText.includes('Mins')) {
+                         modalTimerValue *= 60; 
+                     }
                      timerLabel.innerText = "HOLD POSITION";
                 } else {
                      modalTimerValue = 0; 
@@ -1577,6 +1769,84 @@
             document.getElementById('modal-timer-display').innerText = `${mins}:${secs}`;
         }
 
+        function renderProgressionTimeline(currentCycleWeek) {
+            const container = document.getElementById('macro-progression-container');
+            if(!container) return;
+            
+            const phases = [
+                { wks: [1,2], label: 'WEEKS 1-2', desc: 'Learn perfect form' },
+                { wks: [3,4], label: 'WEEKS 3-4', desc: 'Add 2 reps per set' },
+                { wks: [5,6], label: 'WEEKS 5-6', desc: 'Add 1 extra set to first exercise' },
+                { wks: [7,8], label: 'WEEKS 7-8', desc: 'Reduce rest by 10 sec' },
+                { wks: [9,10], label: 'WEEKS 9-10', desc: 'Increase dumbbell/backpack load' },
+                { wks: [11,12], label: 'WEEKS 11-12', desc: 'Last set to near failure' },
+                { wks: [13], label: 'WEEK 13', desc: 'DELOAD: 50% Volume' }
+            ];
+
+            let html = '';
+            phases.forEach(phase => {
+                const isActive = phase.wks.includes(currentCycleWeek);
+                const colorClass = isActive ? 'text-cyber-accent font-bold' : 'text-gray-500';
+                const bgClass = isActive ? 'bg-cyber-accent/10 border-cyber-accent shadow-neon' : 'bg-transparent border-transparent opacity-70';
+                const dot = isActive ? '<i class="fa-solid fa-bolt text-cyber-accent mr-1 animate-pulse"></i>' : '<span class="w-1.5 h-1.5 bg-gray-700 rounded-full mr-2 inline-block"></span>';
+                
+                html += `
+                    <div class="flex items-start p-1.5 rounded border ${bgClass} transition-colors">
+                        <div class="mt-0.5 w-5 flex-shrink-0 flex items-center justify-center">${dot}</div>
+                        <div>
+                            <span class="text-[10px] ${colorClass} block mb-0.5 uppercase tracking-widest">${phase.label}</span>
+                            <span class="text-xs ${isActive ? 'text-white' : 'text-gray-400'} block font-medium">${phase.desc}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderStats() {
+            const historyContainer = document.getElementById('stats-history');
+            if(!historyContainer) return;
+            
+            let html = '';
+            for(let i=6; i>=0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                
+                const completed = appState.completedTasks[dateKey] || [];
+                // Base the bar out of ~30 general tasks a day
+                const score = Math.min((completed.length / 30) * 100, 100); 
+                const color = score >= 80 ? 'bg-cyber-accent' : (score >= 40 ? 'bg-cyber-blue' : 'bg-gray-600');
+                
+                const dayName = d.toLocaleDateString('en-US', {weekday: 'short'});
+                
+                html += `
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                    <div class="h-32 w-full max-w-[20px] bg-cyber-900 rounded-full overflow-hidden flex flex-col justify-end border border-white/5 relative group-hover:border-white/20 transition-all">
+                        <div class="w-full ${color} transition-all duration-1000 group-hover:shadow-neon" style="height: ${score}%"></div>
+                    </div>
+                    <span class="text-[10px] ${i === 0 ? 'text-cyber-accent font-bold' : 'text-gray-500'} font-mono">${dayName}</span>
+                </div>
+                `;
+            }
+            historyContainer.innerHTML = html;
+
+            document.getElementById('stat-total-xp').innerText = (appState.config.level - 1) * 100 + appState.config.xp;
+            document.getElementById('stat-streak').innerText = appState.config.streak;
+            
+            // Count total workouts done ever
+            let workoutCount = 0;
+            Object.values(appState.completedTasks).forEach(dayTasks => {
+                dayTasks.forEach(taskId => {
+                    if(appState.workout.find(w => w.id === taskId)) workoutCount++;
+                });
+            });
+            document.getElementById('stat-workouts').innerText = workoutCount;
+            
+            listRendered.stats = true;
+        }
+
         function renderAll() {
             const pCont = document.getElementById('profile-container');
             if(appState.config.avatarUrl) {
@@ -1610,6 +1880,7 @@
             renderNutrition();
             renderWorkout();
             renderStrategy();
+            renderStats();
             renderLog();
             if(appState.config.compactMode) document.body.classList.add('compact-mode');
             document.getElementById('sound-btn').className = appState.config.soundEnabled ? 'text-cyber-accent' : 'text-gray-600';
@@ -1675,6 +1946,9 @@
                 else cardClass += " bg-cyber-900 hover:bg-cyber-800";
 
                 const badge = getTaskBadge(task.type);
+                
+                // Workout redirect button specifically for task t11
+                const redirectHtml = task.id === 't11' ? `<button onclick="event.preventDefault(); switchTab('view-workout', document.getElementById('nav-workout'));" class="mt-2 text-[10px] font-mono font-bold tracking-widest bg-cyber-blue/10 text-cyber-blue border border-cyber-blue/30 px-3 py-1.5 rounded hover:bg-cyber-blue hover:text-black transition-all btn-interact">OPEN WORKOUT PROTOCOL <i class="fa-solid fa-arrow-right ml-1"></i></button>` : '';
 
                 return `
                 <div class="${wrapperClass} ${animClass}" style="animation-delay: ${index * 0.05}s">
@@ -1695,6 +1969,7 @@
                             </div>
                             <h3 class="font-bold text-gray-200 text-sm truncate group-hover:text-white transition-colors ${isChecked ? 'line-through text-gray-600' : ''} ${isActive ? 'text-white' : ''}">${task.title}</h3>
                             <p class="text-[10px] text-gray-500 truncate task-desc ${isChecked ? 'line-through opacity-40' : ''}">${task.desc}</p>
+                            ${redirectHtml}
                         </div>
                         <div class="${isActive ? 'text-cyber-accent' : 'text-gray-700'} group-hover:text-gray-400 transition-colors ${editMode ? 'opacity-10' : ''}">
                             <i class="fa-solid ${task.icon} text-lg"></i>
@@ -1732,14 +2007,12 @@
 
         function renderWorkout() {
             const container = document.getElementById('workout-list-container');
+            const todayKey = getTodayKey();
+            const completed = appState.completedTasks[todayKey] || [];
             const animClass = listRendered.workout ? '' : 'animate-stagger-entry';
             
-            // Progressive overload calc
-            const start = new Date(appState.startDate);
-            const now = new Date();
-            const diffTime = now - start;
-            let dayDiff = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            if(dayDiff < 0) dayDiff = 0;
+            const cycle = getCycleInfo();
+            renderProgressionTimeline(cycle.cycleWeek);
 
             // GROUP BY DAY
             const grouped = appState.workout.reduce((acc, item) => {
@@ -1749,47 +2022,54 @@
                 return acc;
             }, {});
 
-            // SORT KEYS alphabetically so '1_Monday', '2_Tuesday' order correctly
             const sortedDays = Object.keys(grouped).sort();
 
             let html = '';
             sortedDays.forEach((dayLabel, dayIndex) => {
-                // Remove the "1_" prefix from the visual label if it exists
                 const displayLabel = dayLabel.replace(/^\d+_/, '');
                 
                 html += `
                 <div class="mb-8 ${animClass}" style="animation-delay: ${dayIndex * 0.1}s">
                     <h3 class="text-sm font-mono text-cyber-accent font-bold uppercase tracking-widest mb-3 border-b border-white/10 pb-1 flex items-center"><i class="fa-solid fa-calendar-day mr-2"></i> ${displayLabel}</h3>
-                    <div class="space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 `;
                 
-                grouped[dayLabel].forEach(ex => {
+                grouped[dayLabel].forEach((ex, exIndex) => {
+                    let isFirstEx = (exIndex === 0);
                     let controls = editMode ? `<div class="absolute right-2 top-2 flex gap-1 z-20 bg-black/50 rounded p-1 backdrop-blur-sm"><button onclick="moveTask('workout', '${ex.id}', 'up')" class="text-gray-400 hover:text-white px-1"><i class="fa-solid fa-arrow-up text-[10px]"></i></button><button onclick="moveTask('workout', '${ex.id}', 'down')" class="text-gray-400 hover:text-white px-1"><i class="fa-solid fa-arrow-down text-[10px]"></i></button><button onclick="deleteItem('workout', '${ex.id}')" class="text-red-500 px-1"><i class="fa-solid fa-trash text-[10px]"></i></button></div>` : '';
                     
-                    // Dynamic Reps
-                    let displayReps = ex.reps;
-                    if(ex.baseReps) {
-                        if(ex.isTime) {
-                             displayReps = `${ex.baseReps + dayDiff}s`;
-                        } else {
-                             displayReps = `${ex.baseReps + dayDiff} Reps`;
-                        }
+                    let mods = getExerciseModifications(ex, isFirstEx, cycle.cycleWeek);
+                    let isChecked = completed.includes(ex.id);
+                    
+                    let tagsHtml = `<span class="text-[9px] bg-cyber-800 text-gray-400 border border-white/10 px-1 rounded">WK ${cycle.currentWeekTotal}</span>`;
+                    
+                    if (mods.isDeload) {
+                         tagsHtml += `<span class="text-[9px] bg-blue-900/30 text-blue-400 border border-blue-900 px-1 rounded ml-1">DELOAD</span>`;
+                    } else {
+                         if(mods.weightNote) tagsHtml += `<span class="text-[9px] bg-red-900/30 text-red-400 border border-red-900 px-1 rounded ml-1">+WT</span>`;
+                         if(mods.failureNote) tagsHtml += `<span class="text-[9px] bg-yellow-900/30 text-yellow-400 border border-yellow-900 px-1 rounded ml-1">FAIL</span>`;
+                         if(mods.restNote) tagsHtml += `<span class="text-[9px] bg-cyber-blue/30 text-cyber-blue border border-cyber-blue/50 px-1 rounded ml-1">-10s</span>`;
                     }
+
+                    const checkBtn = `<button onclick="event.stopPropagation(); toggleTask('${ex.id}')" class="mt-3 w-full py-2 rounded text-[10px] uppercase tracking-widest font-bold font-mono transition-all duration-300 btn-interact ${isChecked ? 'bg-cyber-accent/20 text-cyber-accent border border-cyber-accent shadow-neon' : 'bg-cyber-950 text-gray-400 border border-white/10 hover:border-cyber-accent hover:text-white'}">${isChecked ? '<i class="fa-solid fa-check mr-1"></i> Completed' : 'Mark Complete'}</button>`;
                     
                     html += `
-                    <div class="bg-cyber-900 p-4 rounded-xl border border-white/5 flex justify-between items-center hover:border-cyber-accent transition-all cursor-pointer relative group" onclick="openExerciseDetail('${ex.id}')">
+                    <div class="bg-cyber-900 p-4 rounded-xl border ${isChecked ? 'border-cyber-accent opacity-80' : 'border-white/5'} flex flex-col justify-between hover:border-cyber-accent transition-all cursor-pointer relative group" onclick="openExerciseDetail('${ex.id}')">
                         ${controls}
-                        <div>
-                            <div class="flex items-center gap-2">
-                                 <h3 class="font-bold text-gray-200 text-sm group-hover:text-white">${ex.title}</h3>
-                                 <span class="text-[9px] bg-cyber-800 text-gray-400 border border-white/10 px-1 rounded">LVL ${dayDiff + 1}</span>
+                        <div class="flex justify-between items-start w-full">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                     <h3 class="font-bold text-gray-200 text-sm group-hover:text-white ${isChecked ? 'line-through text-cyber-accent' : ''}">${ex.title}</h3>
+                                </div>
+                                <p class="text-[10px] text-gray-500 font-mono">${ex.target}</p>
+                                <div class="mt-1">${tagsHtml}</div>
                             </div>
-                            <p class="text-[10px] text-gray-500 font-mono">${ex.target}</p>
+                            <div class="text-right">
+                                <div class="text-white font-mono font-bold text-lg leading-tight ${isChecked ? 'text-gray-500' : ''}">${mods.displayReps}</div>
+                                <div class="text-[10px] text-cyber-accent font-mono">${mods.displaySets} Sets</div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-white font-mono font-bold text-lg">${displayReps}</div>
-                            <div class="text-[10px] text-cyber-accent font-mono">${ex.sets} Sets</div>
-                        </div>
+                        ${checkBtn}
                     </div>`;
                 });
                 
@@ -1825,21 +2105,49 @@
             const list = appState.completedTasks[todayKey];
             const idx = list.indexOf(taskId);
             
+            let isNowChecked = false;
+
             if (idx > -1) {
                 list.splice(idx, 1);
+                isNowChecked = false;
                 SoundFX.click();
             } else {
                 list.push(taskId);
+                isNowChecked = true;
                 SoundFX.success();
-                // Add XP on completion
                 appState.config.xp += 10;
                 if(appState.config.xp >= 100) {
                     appState.config.level += 1;
                     appState.config.xp = 0;
                     SoundFX.levelup();
-                    alert(`LEVEL UP! You are now Level ${appState.config.level}`);
+                    showDialog('LEVEL UP!', `You are now Level ${appState.config.level}. Stay sharp.`, 'alert');
                 }
             }
+
+            // --- SYNC ENGINE: ROUTINE <-> NUTRITION ---
+            const rTask = appState.routine.find(t => t.id === taskId);
+            const nTask = appState.nutrition.find(t => t.id === taskId);
+
+            if (rTask && rTask.type === 'diet') {
+                // If a timeline meal is checked, sync all related fuel items
+                const relatedNutrition = appState.nutrition.filter(n => n.time === rTask.time);
+                relatedNutrition.forEach(n => {
+                    const nIdx = list.indexOf(n.id);
+                    if (isNowChecked && nIdx === -1) list.push(n.id);
+                    else if (!isNowChecked && nIdx > -1) list.splice(nIdx, 1);
+                });
+            } else if (nTask) {
+                // If fuel items are checked, verify if the parent timeline meal should be synced
+                const relatedNutrition = appState.nutrition.filter(n => n.time === nTask.time);
+                const allChecked = relatedNutrition.every(n => list.includes(n.id));
+                const relatedRoutine = appState.routine.find(r => r.time === nTask.time && r.type === 'diet');
+                if (relatedRoutine) {
+                    const rIdx = list.indexOf(relatedRoutine.id);
+                    if (allChecked && rIdx === -1) list.push(relatedRoutine.id);
+                    else if (!allChecked && rIdx > -1) list.splice(rIdx, 1);
+                }
+            }
+
             saveState();
             renderAll();
         }
@@ -1847,12 +2155,25 @@
         function updateUI() {
             const todayKey = getTodayKey();
             const completed = appState.completedTasks[todayKey] || [];
-            const total = appState.routine.length + appState.nutrition.length;
-            const pct = total === 0 ? 0 : Math.round((completed.length / total) * 100);
+            
+            // Get today's scheduled workouts count
+            const todayWorkoutPrefix = getTodayWorkoutPrefix();
+            const todayWorkouts = appState.workout.filter(w => w.day.startsWith(todayWorkoutPrefix));
+            
+            const total = appState.routine.length + appState.nutrition.length + todayWorkouts.length;
+            
+            let completedCount = 0;
+            appState.routine.forEach(t => { if(completed.includes(t.id)) completedCount++; });
+            appState.nutrition.forEach(t => { if(completed.includes(t.id)) completedCount++; });
+            todayWorkouts.forEach(t => { if(completed.includes(t.id)) completedCount++; });
+
+            const pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            
             document.getElementById('bar-progress').style.width = `${pct}%`;
             const statusText = document.getElementById('day-status-text');
             const cardBar = document.getElementById('card-progress-bar');
             cardBar.style.width = `${Math.min(pct, 100)}%`;
+            
             if (pct >= 100) {
                 statusText.innerHTML = '<span class="text-cyber-accent animate-neon-pulse-fast">MISSION COMPLETE</span>';
                 cardBar.className = "h-full bg-cyber-accent w-0 transition-all duration-500 shadow-neon";
@@ -1944,14 +2265,17 @@
             else if (direction === 'down' && idx < list.length - 1) [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
             saveState(); renderAll();
         }
+
         function deleteItem(type, id) {
-            if(!confirm("Delete this node?")) return;
-            SoundFX.ui();
-            if(type === 'routine') appState.routine = appState.routine.filter(t => t.id !== id);
-            else if(type === 'nutrition') appState.nutrition = appState.nutrition.filter(t => t.id !== id);
-            else if(type === 'workout') appState.workout = appState.workout.filter(t => t.id !== id);
-            saveState(); renderAll();
+            showDialog('DELETE COMPONENT', 'Are you sure you want to delete this node?', 'confirm', () => {
+                SoundFX.ui();
+                if(type === 'routine') appState.routine = appState.routine.filter(t => t.id !== id);
+                else if(type === 'nutrition') appState.nutrition = appState.nutrition.filter(t => t.id !== id);
+                else if(type === 'workout') appState.workout = appState.workout.filter(t => t.id !== id);
+                saveState(); renderAll();
+            });
         }
+
         function openEditModal(type, id) {
             SoundFX.ui();
             currentEditId = id; currentEditType = type;
@@ -1970,6 +2294,7 @@
             fields.innerHTML = html;
             modal.classList.remove('hidden');
         }
+
         function addNewTask(type) {
             SoundFX.ui();
             currentEditId = null; currentEditType = type;
@@ -1982,6 +2307,7 @@
             }
             modal.classList.remove('hidden');
         }
+
         function saveEdit() {
             SoundFX.success();
             if(currentEditType === 'strategy') {
@@ -2020,28 +2346,42 @@
             }
             saveState(); renderAll(); closeModal();
         }
+
         function closeModal() { stopModalTimer(); SoundFX.click(); document.getElementById('edit-modal').classList.add('hidden'); }
+        
         function openNoteModal() {
-            SoundFX.ui();
-            const currentLog = appState.config.warRoomLog || "";
-            const newLog = prompt("WAR ROOM LOG ENTRY:", currentLog);
-            if (newLog !== null) { appState.config.warRoomLog = newLog; saveState(); renderLog(); }
+            showCustomPrompt(
+                "WAR ROOM LOG ENTRY",
+                `<textarea id="inp-warlog" class="w-full bg-cyber-950 border border-cyber-600 rounded p-3 text-white font-mono text-sm h-32 placeholder-gray-600" placeholder="Enter tactical notes..."></textarea>`,
+                () => {
+                    const newLog = document.getElementById('inp-warlog').value;
+                    if (newLog !== null) { appState.config.warRoomLog = newLog; saveState(); renderLog(); }
+                }
+            );
+            setTimeout(() => {
+                const el = document.getElementById('inp-warlog');
+                if(el) { el.value = appState.config.warRoomLog || ""; el.focus(); }
+            }, 20);
         }
+
         function editUserName() {
-            SoundFX.ui();
-            const name = prompt("Name:", appState.config.userName);
-            if (name) { appState.config.userName = name; saveState(); renderAll(); }
+            showPrompt("ENTER NAME", appState.config.userName, (name) => {
+                if(name) { appState.config.userName = name; saveState(); renderAll(); }
+            });
         }
+
         function editGoalText() {
-            SoundFX.ui();
-            const goal = prompt("Nutrition Goal:", appState.config.nutritionGoal);
-            if (goal) { appState.config.nutritionGoal = goal; saveState(); renderAll(); }
+            showPrompt("NUTRITION GOAL", appState.config.nutritionGoal, (goal) => {
+                if(goal) { appState.config.nutritionGoal = goal; saveState(); renderAll(); }
+            });
         }
+
         function quickAddWater() {
             SoundFX.success();
             appState.nutrition.push({ id: 'w'+Date.now(), time: 'Daily', title: 'Water 1L', category: 'Hydration', isWater: true });
             saveState(); renderNutrition();
         }
+
         function switchTab(tabId, btn) {
             SoundFX.tab();
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
