@@ -430,8 +430,8 @@
                         <div class="text-[10px] text-gray-500 font-mono uppercase tracking-widest cursor-pointer hover:text-cyber-accent transition-colors" onclick="openStartDateEditor()" id="header-day-count">Day 1 | Wk 1</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleBgAnimation()" id="bg-toggle-btn" class="text-cyber-accent hover:text-white transition-colors btn-interact hidden md:block" title="Toggle Lightning"><i class="fa-solid fa-bolt text-lg"></i></button>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="toggleBgAnimation()" id="bg-toggle-btn" class="text-cyber-accent hover:text-white transition-colors btn-interact" title="Toggle Lightning"><i class="fa-solid fa-bolt text-lg"></i></button>
                     <button onclick="toggleScratchpad()" class="text-gray-500 hover:text-cyber-blue transition-colors btn-interact" title="Terminal/Notes"><i class="fa-solid fa-terminal text-lg"></i></button>
                     <button onclick="togglePomodoro()" class="text-gray-500 hover:text-purple-500 transition-colors btn-interact" title="Focus Mode"><i class="fa-solid fa-brain text-lg"></i></button>
 
@@ -638,6 +638,10 @@
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-chess text-cyber-accent"></i> STUDY & TRACKING STRATEGY</h2>
                 <div class="relative ml-2 space-y-0" id="strategy-container"></div>
             </div>
+            
+            <!-- Strategy Add Button -->
+            <button id="add-strategy-btn" onclick="addNewTask('strategy')" class="hidden w-full py-4 border border-dashed border-purple-500/50 rounded-lg text-purple-500/70 font-mono text-xs hover:border-purple-500 hover:text-purple-500 transition-all mb-6 animate-pulse">+ ADD STRATEGY NODE</button>
+
             <div class="grid grid-cols-2 gap-4">
                 <a href="#" onclick="openLinkEditor('search')" id="link-search" class="bg-cyber-800 p-4 rounded-xl border border-white/5 hover:border-red-500/50 transition-all group block text-center animate-stagger-entry transform hover:scale-105"><i class="fa-brands fa-youtube text-red-500 text-2xl mb-2 animate-bounce-in"></i><p class="text-xs font-bold text-gray-300">Search Topics</p></a>
                 <a href="#" onclick="openLinkEditor('pyq')" id="link-pyq" class="bg-cyber-800 p-4 rounded-xl border border-white/5 hover:border-blue-500/50 transition-all group block text-center animate-stagger-entry transform hover:scale-105"><i class="fa-solid fa-file-pdf text-blue-500 text-2xl mb-2 animate-bounce-in"></i><p class="text-xs font-bold text-gray-300">PYQ Papers</p></a>
@@ -1156,10 +1160,10 @@
             const btn = document.getElementById('bg-toggle-btn');
             if(appState.config.bgAnimationEnabled) {
                 container.style.opacity = '1';
-                if(btn) btn.className = 'text-cyber-accent hover:text-white transition-colors btn-interact hidden md:block';
+                if(btn) btn.className = 'text-cyber-accent hover:text-white transition-colors btn-interact';
             } else {
                 container.style.opacity = '0';
-                if(btn) btn.className = 'text-gray-600 hover:text-white transition-colors btn-interact hidden md:block';
+                if(btn) btn.className = 'text-gray-600 hover:text-white transition-colors btn-interact';
             }
         }
 
@@ -1287,14 +1291,18 @@
         function parseTaskTime(timeStr) {
             if(!timeStr || timeStr === 'Daily' || timeStr === 'TBD') return new Date().setHours(23,59,59);
             const parts = timeStr.split(' ');
-            if(parts.length < 2) return new Date().setHours(23,59,59);
+            if(parts.length < 2 && !timeStr.includes(':')) return new Date().setHours(23,59,59);
             const time = parts[0];
-            const modifier = parts[1];
+            const modifier = parts[1] || '';
             let [hours, minutes] = time.split(':');
             hours = parseInt(hours, 10);
-            minutes = parseInt(minutes, 10);
-            if (hours === 12) hours = 0;
-            if (modifier === 'PM') hours += 12;
+            minutes = parseInt(minutes, 10) || 0;
+            
+            if (isNaN(hours)) return new Date().setHours(23,59,59);
+            
+            if (hours === 12 && modifier.toUpperCase() !== 'PM') hours = 0; 
+            if (modifier.toUpperCase() === 'PM' && hours < 12) hours += 12;
+            
             const d = new Date();
             d.setHours(hours, minutes, 0, 0);
             return d;
@@ -2179,7 +2187,7 @@
             const container = document.getElementById('strategy-container');
             const animClass = listRendered.strategy ? '' : 'animate-stagger-entry';
             container.innerHTML = `<div class="absolute left-[11px] top-2 bottom-4 w-0.5 bg-gradient-to-b from-cyber-danger via-yellow-500 to-cyber-accent opacity-50"></div>` + appState.strategy.map((phase, idx) => {
-                let controls = editMode ? `<button onclick="openEditModal('strategy', '${phase.id}')" class="absolute top-0 right-0 text-gray-500 hover:text-white p-2"><i class="fa-solid fa-pencil text-xs"></i></button>` : '';
+                let controls = editMode ? `<div class="absolute right-0 top-0 flex gap-1 bg-black/50 p-1 rounded backdrop-blur-sm z-20"><button onclick="openEditModal('strategy', '${phase.id}')" class="text-cyber-blue px-2 py-1 hover:text-white"><i class="fa-solid fa-pencil text-[10px]"></i></button><button onclick="deleteItem('strategy', '${phase.id}')" class="text-red-500 px-2 py-1 hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button></div>` : '';
                 return `<div class="relative pl-10 pb-8 ${animClass}" style="animation-delay: ${idx * 0.1}s">${controls}<div class="absolute left-0 top-0 w-6 h-6 bg-cyber-900 border-2 border-${phase.color.replace('text-', '')} rounded-full z-10 flex items-center justify-center shadow-neon"><div class="w-1.5 h-1.5 bg-${phase.color.replace('text-', '')} rounded-full animate-pulse"></div></div><h3 class="text-${phase.color.replace('text-', '')} font-bold text-sm uppercase tracking-widest mb-1">${phase.title}</h3><div class="bg-cyber-900 p-3 rounded border border-white/10 group hover:border-${phase.color.replace('text-', '')} transition-colors"><p class="text-xs text-gray-400 font-mono mb-1">${phase.date}</p><p class="text-sm text-gray-300">${phase.desc}</p></div></div>`;
             }).join('');
             listRendered.strategy = true;
@@ -2303,10 +2311,17 @@
             SoundFX.toggle();
             editMode = !editMode;
             const btn = document.getElementById('edit-toggle-btn');
+            
+            // Toggle all add buttons across the app
             document.getElementById('add-task-btns').classList.toggle('hidden');
             document.getElementById('add-workout-btn').classList.toggle('hidden');
+            
+            const stratBtn = document.getElementById('add-strategy-btn');
+            if(stratBtn) stratBtn.classList.toggle('hidden');
+
             if (editMode) btn.classList.add('text-cyber-danger', 'animate-spin');
             else btn.classList.remove('text-cyber-danger', 'animate-spin');
+            
             renderAll();
         }
 
@@ -2370,6 +2385,7 @@
                 if(type === 'routine') appState.routine = appState.routine.filter(t => t.id !== id);
                 else if(type === 'nutrition') appState.nutrition = appState.nutrition.filter(t => t.id !== id);
                 else if(type === 'workout') appState.workout = appState.workout.filter(t => t.id !== id);
+                else if(type === 'strategy') appState.strategy = appState.strategy.filter(t => t.id !== id);
                 saveState(); renderAll();
             });
         }
@@ -2387,7 +2403,7 @@
 
             if (type === 'strategy') html = `<input type="text" id="inp-title" value="${item.title}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Title"><input type="text" id="inp-time" value="${item.date}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Date Range"><textarea id="inp-desc" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Description">${item.desc}</textarea>`;
             else if (type === 'workout') html = `<input type="text" id="inp-day" value="${item.day || 'General'}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Day (e.g. 1_MONDAY)"><input type="text" id="inp-title" value="${item.title}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Exercise Name"><input type="text" id="inp-target" value="${item.target}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Target Muscle"><input type="text" id="inp-reps" value="${item.reps}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Reps"><input type="text" id="inp-sets" value="${item.sets}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Sets"><textarea id="inp-tips" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Tips">${item.tips}</textarea>`;
-            else html = `<input type="text" id="inp-time" value="${item ? item.time : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Time"><input type="text" id="inp-title" value="${item ? item.title : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Title"><input type="text" id="inp-desc" value="${item ? (type === 'routine' ? item.desc : item.category) : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="${type === 'routine' ? 'Description' : 'Category'}">`;
+            else html = `<input type="text" id="inp-time" value="${item ? item.time : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Time (e.g. 08:00 AM)"><input type="text" id="inp-title" value="${item ? item.title : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Title"><input type="text" id="inp-desc" value="${item ? (type === 'routine' ? item.desc : item.category) : ''}" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="${type === 'routine' ? 'Description' : 'Category'}">`;
             
             fields.innerHTML = html;
             modal.classList.remove('hidden');
@@ -2398,10 +2414,13 @@
             currentEditId = null; currentEditType = type;
             const modal = document.getElementById('edit-modal');
             const fields = document.getElementById('modal-fields');
+            
             if (type === 'workout') {
                  fields.innerHTML = `<input type="text" id="inp-day" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Day Header (e.g. 1_MONDAY)"><input type="text" id="inp-title" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Exercise Name"><input type="text" id="inp-target" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Target Muscle"><input type="text" id="inp-reps" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Reps"><input type="text" id="inp-sets" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Sets"><textarea id="inp-tips" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Tips"></textarea>`;
+            } else if (type === 'strategy') {
+                 fields.innerHTML = `<input type="text" id="inp-title" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Strategy Title"><input type="text" id="inp-time" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Date / Frequency"><textarea id="inp-desc" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm h-32" placeholder="Detailed Instructions"></textarea>`;
             } else {
-                 fields.innerHTML = `<input type="text" id="inp-time" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Time"><input type="text" id="inp-title" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Title"><input type="text" id="inp-desc" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="Desc/Category">`;
+                 fields.innerHTML = `<input type="text" id="inp-time" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Time (e.g. 08:00 AM)"><input type="text" id="inp-title" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm mb-2" placeholder="Title"><input type="text" id="inp-desc" class="w-full bg-cyber-800 border border-cyber-600 rounded p-3 text-white font-mono text-sm" placeholder="${type === 'routine' ? 'Description' : 'Category'}">`;
             }
             modal.classList.remove('hidden');
         }
@@ -2412,8 +2431,12 @@
                  const title = document.getElementById('inp-title').value;
                  const time = document.getElementById('inp-time').value;
                  const desc = document.getElementById('inp-desc').value;
-                 const idx = appState.strategy.findIndex(s => s.id === currentEditId);
-                 if (idx > -1) { appState.strategy[idx].title = title; appState.strategy[idx].date = time; appState.strategy[idx].desc = desc; }
+                 if (currentEditId) {
+                     const idx = appState.strategy.findIndex(s => s.id === currentEditId);
+                     if (idx > -1) { appState.strategy[idx].title = title; appState.strategy[idx].date = time; appState.strategy[idx].desc = desc; }
+                 } else {
+                     appState.strategy.push({ id: 's'+Date.now(), title: title || 'New Strategy', date: time || 'Ongoing', desc: desc || '', color: 'cyber-blue' });
+                 }
             } else if (currentEditType === 'workout') {
                  const day = document.getElementById('inp-day').value || 'General';
                  const title = document.getElementById('inp-title').value;
